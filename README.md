@@ -20,7 +20,7 @@ Zign.codes provides a simple, accessible way for anyone to prove ownership of di
 2. A user's established social identity
 3. A specific point in time
 
-This attestation is encoded in a QR code that can be attached to or embedded in the document, providing a visual indicator of verification and an easy way to check authenticity.
+This attestation is encoded in a QR code that becomes an integral part of the document itself through a specialized embedding process. The embedding method varies by document type to ensure both the integrity of the original content and the verifiability of the attestation.
 
 ## How It's Different from Traditional Digital Signatures
 
@@ -60,13 +60,87 @@ Zign.codes is ideal for:
 
 1. **Upload**: User uploads a document to the Zign.codes web application
 2. **Authenticate**: User logs in with their preferred social identity provider
-3. **Generate**: The system creates a QR code containing:
+3. **Process**: The system prepares the document for attestation using format-specific methods
+4. **Generate**: The system creates a QR code containing:
    - A cryptographic hash of the document
    - The user's verified social identity information
    - A timestamp
    - A cryptographic signature from Zign.codes
-4. **Apply**: User adds the QR code to their document
-5. **Verify**: Anyone can scan the QR code to verify the document's integrity and associated social identity
+5. **Embed**: The QR code is embedded into the document using format-specific techniques
+6. **Verify**: Anyone can scan the QR code to verify the document's integrity and associated social identity
+
+## Document Integration Techniques
+
+The integration of the attestation QR code with the document is a critical aspect of Zign.codes. We use different techniques based on document type to ensure the attestation is inseparable from the content it verifies:
+
+### PDF Documents
+
+For PDF documents, we use a layered approach:
+
+1. **Two-Phase Process**:
+   - First, we calculate the hash of the original PDF
+   - Then, we add a new layer containing the QR code attestation
+
+2. **Layer Separation**:
+   - The QR code exists on a separate layer from the document content
+   - This allows verification software to temporarily hide the QR layer during hash verification
+
+3. **Verification Process**:
+   - The verification tool extracts the attestation data from the QR code
+   - It temporarily hides the QR code layer
+   - It calculates the hash of the remaining document content
+   - It compares this hash with the one stored in the attestation
+
+### Images and Photos
+
+For images, we use an "exclusion zone" approach:
+
+1. **Deterministic Modification**:
+   - The user selects where to place the QR code (typically a corner)
+   - The system records the exact coordinates and dimensions of this area
+   - The system fills this area with a solid color
+   - The hash is calculated on this modified image (with the solid-color area)
+   - The QR code is then placed in this area
+
+2. **Metadata Storage**:
+   - The coordinates, dimensions, and fill color are stored in the image metadata
+   - The attestation data is also stored in the metadata as a backup
+
+3. **Verification Process**:
+   - The verification tool reads the QR code
+   - It replaces the QR code area with the same solid color used during signing
+   - It calculates the hash of this modified image
+   - It compares with the hash in the attestation
+
+For images that support layers (PSD, TIFF, etc.), we also offer a layer-based approach similar to PDFs.
+
+### Other Document Types
+
+For other document formats:
+
+1. **Conversion Option**:
+   - Convert to PDF for attestation
+   - This provides a stable format for verification
+
+2. **Format-Specific Techniques**:
+   - For text documents: Append the QR code with clear demarcation
+   - For presentations: Add the QR code on a dedicated slide
+   - For spreadsheets: Place the QR code in a designated cell area
+
+### Technical Considerations
+
+1. **Hash Calculation Consistency**:
+   - The system uses deterministic methods to ensure hash calculation is consistent between signing and verification
+   - Format-specific normalization is applied before hashing
+
+2. **QR Code Placement**:
+   - Users can choose where to place the QR code
+   - Default placements are optimized for each document type
+
+3. **Verification Tools**:
+   - Web-based verification tool works across all formats
+   - Mobile app allows for quick verification via camera
+   - Offline verification is possible with downloaded verification tools
 
 ## Future Extensions
 
