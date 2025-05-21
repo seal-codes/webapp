@@ -58,22 +58,23 @@ sequenceDiagram
 sequenceDiagram
     actor Verifier
     participant QRScanner as QR Scanner App
-    participant VerLib as Verification Library
-    participant VerService as Verification Service (Optional)
+    participant VerLib as Verification Library (Client)
+    participant PubKeyService as Public Key Service (Optional)
     
     Verifier->>QRScanner: Scan QR code
     QRScanner->>VerLib: Extract attestation data
     VerLib->>VerLib: Parse attestation package
-    VerLib->>VerLib: Verify signature with public key
     
-    alt Basic Verification
-        VerLib->>Verifier: Display attestation details
-    else Enhanced Verification (Online)
-        VerLib->>VerService: Request verification
-        VerService->>VerService: Validate attestation
-        VerService->>VerLib: Return verification result
-        VerLib->>Verifier: Display verification result
+    alt Using Embedded Public Key
+        VerLib->>VerLib: Verify signature with embedded public key
+    else Using Latest Public Key
+        VerLib->>PubKeyService: Request public key by ID
+        PubKeyService->>VerLib: Return public key
+        VerLib->>VerLib: Verify signature
     end
+    
+    VerLib->>VerLib: Check document hash (if document available)
+    VerLib->>Verifier: Display verification results
 ```
 
 ## Attestation Package Structure
@@ -124,38 +125,48 @@ Zign.codes is designed with privacy as a core principle:
 
 ### Hybrid Verification Approach
 
-Zign.codes uses a hybrid approach to verification:
+Zign.codes uses a self-contained verification approach:
 
 1. **Self-contained verification**: The QR code contains all data needed for basic verification
 2. **Cryptographic verification**: The attestation is signed by the service's private key
-3. **Optional online verification**: Enhanced verification can be performed online
+3. **Public key verification**: Verification can use either the embedded public key or fetch the latest key
 
 This approach provides flexibility while maintaining security:
 
 ```mermaid
 flowchart TD
     A[Scan QR Code] --> B[Extract Attestation Data]
-    B --> C{Verification Level}
-    C -->|Basic| D[Display Raw Data]
-    C -->|Cryptographic| E[Verify Signature]
-    C -->|Enhanced| F[Online Verification]
+    B --> C{Verification Method}
+    C -->|Offline| D[Use Embedded Public Key]
+    C -->|Online| E[Fetch Latest Public Key]
     
-    E -->|Valid| G[Signature Valid]
-    E -->|Invalid| H[Signature Invalid]
+    D --> F[Verify Signature]
+    E --> F
     
-    F -->|Valid| I[Full Verification Passed]
-    F -->|Invalid| J[Verification Failed]
+    F -->|Valid| G[Signature Valid]
+    F -->|Invalid| H[Signature Invalid]
+    
+    G --> I[Check Document Hash]
+    I -->|Match| J[Document Verified]
+    I -->|No Match| K[Document Modified]
 ```
 
 ### Key Management
 
 The service uses asymmetric cryptography to sign attestations:
 
-1. A private key is securely stored on the server
-2. The corresponding public key is either:
-   - Embedded in the attestation package
-   - Referenced by ID and retrievable from a public key server
-3. Keys are rotated periodically for security
+1. **Server-side Storage Requirements**:
+   - Private keys are securely stored on the server
+   - Key metadata (creation date, expiration date, key ID)
+   - No document content or attestation records are stored
+
+2. **Public Key Distribution**:
+   - The corresponding public key is embedded in the attestation package
+   - Public keys are also available via a simple public endpoint
+
+3. **Key Rotation**:
+   - Keys are rotated periodically for security
+   - Historical public keys remain available for verification of older attestations
 
 ## Technical Implementation Details
 
@@ -245,7 +256,6 @@ flowchart TD
     
     F --> I[(Identity Provider)]
     G --> J[(Key Management)]
-    H --> K[(Verification Records)]
 ```
 
 This architecture ensures:
@@ -253,6 +263,26 @@ This architecture ensures:
 2. Server only handles authentication and signing
 3. Minimal server-side processing and storage
 4. Reduced privacy and security concerns
+
+## Server-Side Data Storage
+
+Zign.codes maintains minimal server-side data:
+
+1. **Private Keys and Key Management**:
+   - Private keys used for signing attestations
+   - Key rotation history and validity periods
+   - This is the only critical persistent data
+
+2. **Authentication Integration**:
+   - Configuration for social identity providers
+   - No user credentials are stored
+
+3. **No Document Storage**:
+   - No document content is ever stored
+   - No document hashes are persisted after signing
+   - No attestation records are maintained
+
+This minimal approach to data storage enhances privacy and security while reducing compliance requirements.
 
 ## Development Roadmap
 
