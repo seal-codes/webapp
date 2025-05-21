@@ -64,12 +64,13 @@ sequenceDiagram
     Verifier->>QRScanner: Scan QR code
     QRScanner->>VerLib: Extract attestation data
     VerLib->>VerLib: Parse attestation package
+    VerLib->>VerLib: Extract key ID from attestation
     
     alt Using Embedded Public Key
-        VerLib->>VerLib: Verify signature with embedded public key
-    else Using Latest Public Key
+        VerLib->>VerLib: Use embedded public key for verification
+    else Fetching Historical Public Key
         VerLib->>PubKeyService: Request public key by ID
-        PubKeyService->>VerLib: Return public key
+        PubKeyService->>VerLib: Return historical public key
         VerLib->>VerLib: Verify signature
     end
     
@@ -95,9 +96,12 @@ The attestation package is the core data structure that gets encoded into the QR
     "name": "Zign.codes",
     "publicKeyId": "key-2023-05"
   },
+  "publicKey": "base64-encoded-public-key-data",
   "signature": "base64-encoded-signature-data"
 }
 ```
+
+The inclusion of the `publicKeyId` allows for fetching the correct historical public key when online verification is available, while the embedded `publicKey` enables completely offline verification.
 
 ## Privacy and Security Principles
 
@@ -129,7 +133,7 @@ Zign.codes uses a self-contained verification approach:
 
 1. **Self-contained verification**: The QR code contains all data needed for basic verification
 2. **Cryptographic verification**: The attestation is signed by the service's private key
-3. **Public key verification**: Verification can use either the embedded public key or fetch the latest key
+3. **Public key verification**: Verification can use either the embedded public key or fetch the historical key that was valid at signing time
 
 This approach provides flexibility while maintaining security:
 
@@ -138,7 +142,7 @@ flowchart TD
     A[Scan QR Code] --> B[Extract Attestation Data]
     B --> C{Verification Method}
     C -->|Offline| D[Use Embedded Public Key]
-    C -->|Online| E[Fetch Latest Public Key]
+    C -->|Online| E[Fetch Historical Public Key]
     
     D --> F[Verify Signature]
     E --> F
