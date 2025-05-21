@@ -38,14 +38,55 @@ This attestation is encoded in a QR code that becomes an integral part of the do
 
 ## Target Use Cases
 
-Zign.codes is ideal for:
+Zign.codes is designed to fill the gap between no verification at all and complex legal-grade digital signatures. Here are detailed use cases where this solution provides real value:
 
-1. **Creative Works**: Artists, photographers, and content creators who want to establish ownership of their digital creations
-2. **Informal Documents**: Agreements, proposals, and communications where full legal-grade signatures are not required
-3. **Educational Materials**: Teachers and students sharing original content
-4. **Social Media Content**: Establishing ownership of content before sharing on social platforms
-5. **Community Contributions**: Open source contributions, community documents, and collaborative works
-6. **Personal Records**: Personal documents where simple proof of origin is sufficient
+### Creative Content Protection
+
+- **Digital Artists**: Add attestation to artwork before posting online, establishing a timestamp of ownership and deterring unauthorized use
+- **Photographers**: Embed attestation in photos before sharing with clients or on social media platforms
+- **Writers and Bloggers**: Establish ownership of written content before publication or submission
+- **Graphic Designers**: Protect design concepts and mockups when sharing with potential clients
+- **Musicians**: Attest original compositions and recordings before distribution
+
+### Educational Applications
+
+- **Student Assignments**: Students can attest their work before submission, reducing plagiarism disputes
+- **Teaching Materials**: Educators can verify authorship of original content shared with students
+- **Research Drafts**: Researchers can establish priority on ideas before formal publication
+- **Academic Collaborations**: Document contributions from multiple authors with clear attribution
+- **Portfolio Work**: Students can build verifiable portfolios of their academic achievements
+
+### Business Communications
+
+- **Proposals and Quotes**: Small businesses can send proposals with simple verification of origin
+- **Freelance Deliverables**: Freelancers can attest work before sending to clients
+- **Design Mockups**: Designers can protect concept work shared during pitches
+- **Informal Agreements**: Add a layer of verification to agreements that don't require legal signatures
+- **Digital Receipts**: Businesses can provide verifiable proof of transactions
+
+### Community and Social Contexts
+
+- **Open Source Contributions**: Establish authorship of code and documentation contributions
+- **Community Documents**: Verify who created shared resources and when
+- **Social Media Content**: Add verification to content before it potentially goes viral
+- **Collaborative Projects**: Track contributions in multi-author projects
+- **Digital Collectibles**: Add provenance information to digital collectibles
+
+### Online Transactions
+
+- **Marketplace Listings**: Sellers can attest to ownership of items being sold online
+- **Product Documentation**: Verify authenticity of product information and manuals
+- **Condition Reports**: Document the condition of items at a specific point in time
+- **Transfer of Ownership**: Create simple records when transferring digital assets
+- **Proof of Sending**: Document that specific information was shared at a certain time
+
+### Personal Documentation
+
+- **Important Records**: Add attestation to copies of important personal documents
+- **Travel Documents**: Add a layer of verification to copies of travel documents
+- **Portfolio Materials**: Create verifiable portfolios of work and achievements
+- **Digital Legacy**: Establish ownership of digital assets for estate planning
+- **Event Documentation**: Verify the authenticity of event records and memorabilia
 
 ## Key Benefits
 
