@@ -8,13 +8,14 @@ Zign.codes is designed as a web application that allows users to create verifiab
 
 ## Core Components
 
-1. **Web Application**: Frontend interface for document upload and attestation generation
+1. **Web Application**: Frontend interface with client-side document processing
 2. **Authentication Module**: Handles social login integration
-3. **Document Processing Engine**: Creates document hashes and manages file handling
-4. **Attestation Generator**: Creates the signed attestation package
-5. **QR Code Generator**: Encodes the attestation into a scannable format
-6. **Verification Library**: Client-side code for verifying attestations
-7. **Optional Verification Service**: Server endpoint for enhanced verification
+3. **Attestation Service**: Server component that signs attestation data
+4. **Client-side Libraries**:
+   - Document Processing: Creates document hashes locally
+   - QR Code Generator: Encodes and embeds attestations
+   - Verification Library: Client-side code for verifying attestations
+5. **Optional Verification Service**: Server endpoint for enhanced verification
 
 ## Data Flow
 
@@ -23,15 +24,16 @@ Zign.codes is designed as a web application that allows users to create verifiab
 ```mermaid
 sequenceDiagram
     actor User
-    participant WebApp as Web Application
+    participant WebApp as Web Application (Client)
+    participant DocProc as Document Processing (Client)
+    participant QRGen as QR Code Generator (Client)
     participant Auth as Authentication Module
-    participant DocEngine as Document Processing
-    participant AttestGen as Attestation Generator
-    participant QRGen as QR Code Generator
+    participant AttestService as Attestation Service (Server)
     
-    User->>WebApp: Upload document
-    WebApp->>DocEngine: Process document
-    DocEngine->>WebApp: Return document hash
+    User->>WebApp: Select document
+    WebApp->>DocProc: Process document locally
+    DocProc->>DocProc: Calculate document hash
+    DocProc->>WebApp: Return document hash
     
     User->>WebApp: Request attestation
     WebApp->>Auth: Redirect to social login
@@ -39,15 +41,15 @@ sequenceDiagram
     User->>Auth: Provide credentials
     Auth->>WebApp: Return authentication token
     
-    WebApp->>AttestGen: Request attestation creation
-    AttestGen->>AttestGen: Generate key pair (if needed)
-    AttestGen->>AttestGen: Create attestation package
-    AttestGen->>AttestGen: Sign with service private key
-    AttestGen->>WebApp: Return signed attestation
+    WebApp->>AttestService: Send hash + auth info
+    AttestService->>AttestService: Create attestation package
+    AttestService->>AttestService: Sign with service private key
+    AttestService->>WebApp: Return signed attestation
     
-    WebApp->>QRGen: Generate QR code
-    QRGen->>WebApp: Return QR code image
-    WebApp->>User: Present QR code for download
+    WebApp->>QRGen: Generate QR code locally
+    QRGen->>DocProc: Embed QR code in document
+    DocProc->>WebApp: Return attested document
+    WebApp->>User: Present attested document for download
 ```
 
 ### Verification Process
@@ -95,6 +97,28 @@ The attestation package is the core data structure that gets encoded into the QR
   "signature": "base64-encoded-signature-data"
 }
 ```
+
+## Privacy and Security Principles
+
+Zign.codes is designed with privacy as a core principle:
+
+1. **Client-side Document Processing**: 
+   - Documents never leave the user's device
+   - All document hashing and preparation is done in the browser
+   - Only the document hash is sent to the server, never the document itself
+
+2. **Minimal Data Collection**:
+   - The server only receives the document hash and authentication information
+   - No document content is stored on the server
+   - User identity information is only used for attestation purposes
+
+3. **Transparent Data Flow**:
+   - Users can see exactly what information is included in the attestation
+   - The attestation process is fully transparent to the user
+
+4. **Local Document Modification**:
+   - QR code embedding happens entirely on the client side
+   - The server never sees or processes the final document
 
 ## Security Considerations
 
@@ -203,23 +227,32 @@ flowchart TD
 
 ## Deployment Architecture
 
-Zign.codes is designed as a cloud-native application:
+Zign.codes is designed as a privacy-focused, client-heavy application:
 
 ```mermaid
 flowchart TD
     A[User] --> B[CDN]
     B --> C[Static Web Assets]
-    A --> D[API Gateway]
-    D --> E[Authentication Service]
-    D --> F[Document Processing Service]
-    D --> G[Attestation Service]
-    D --> H[Verification Service]
+    C --> D[Client-side Processing]
+    D --> D1[Document Hashing]
+    D --> D2[QR Generation]
+    D --> D3[Document Embedding]
     
-    E --> I[(Identity Provider)]
-    F --> J[(Object Storage)]
-    G --> K[(Key Management)]
-    H --> L[(Verification Records)]
+    A --> E[API Gateway]
+    E --> F[Authentication Service]
+    E --> G[Attestation Service]
+    E --> H[Optional Verification Service]
+    
+    F --> I[(Identity Provider)]
+    G --> J[(Key Management)]
+    H --> K[(Verification Records)]
 ```
+
+This architecture ensures:
+1. Document content remains on the client device
+2. Server only handles authentication and signing
+3. Minimal server-side processing and storage
+4. Reduced privacy and security concerns
 
 ## Development Roadmap
 
