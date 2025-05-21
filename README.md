@@ -46,7 +46,7 @@ Zign.codes is designed to fill the gap between no verification at all and comple
 - **Photographers**: Embed attestation in photos before sharing with clients or on social media platforms
 - **Writers and Bloggers**: Establish ownership of written content before publication or submission
 - **Graphic Designers**: Protect design concepts and mockups when sharing with potential clients
-- **Musicians**: Attest original compositions and recordings before distribution
+- **Musicians**: Attest original compositions / scores before distribution
 
 ### Educational Applications
 
@@ -66,10 +66,8 @@ Zign.codes is designed to fill the gap between no verification at all and comple
 
 ### Community and Social Contexts
 
-- **Open Source Contributions**: Establish authorship of code and documentation contributions
 - **Community Documents**: Verify who created shared resources and when
 - **Social Media Content**: Add verification to content before it potentially goes viral
-- **Collaborative Projects**: Track contributions in multi-author projects
 - **Digital Collectibles**: Add provenance information to digital collectibles
 
 ### Online Transactions
@@ -107,7 +105,8 @@ Zign.codes is designed to fill the gap between no verification at all and comple
    - The user's verified social identity information
    - A timestamp
    - A cryptographic signature from Zign.codes
-5. **Embed**: The QR code is embedded into the document using format-specific techniques
+   - optionally a URL provided by the signee (e. g. Instragram profile)
+5. **Embed**: The QR code is embedded into the document using format-specific techniques. It is supposed to be visible
 6. **Verify**: Anyone can scan the QR code to verify the document's integrity and associated social identity
 
 ## Document Integration Techniques
@@ -163,7 +162,7 @@ For other document formats:
    - Convert to PDF for attestation
    - This provides a stable format for verification
 
-2. **Format-Specific Techniques**:
+2. **Format-Specific Techniques** (Ideas):
    - For text documents: Append the QR code with clear demarcation
    - For presentations: Add the QR code on a dedicated slide
    - For spreadsheets: Place the QR code in a designated cell area
@@ -181,7 +180,7 @@ For other document formats:
 3. **Verification Tools**:
    - Web-based verification tool works across all formats
    - Mobile app allows for quick verification via camera
-   - Offline verification is possible with downloaded verification tools
+   - Offline verification is possible with downloaded verification tools, verifying the has but not the signature when offline
 
 ## Future Extensions
 
