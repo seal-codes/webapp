@@ -155,22 +155,100 @@ flowchart TD
     I -->|No Match| K[Document Modified]
 ```
 
-### Key Management
+## Key Management Architecture
 
-The service uses asymmetric cryptography to sign attestations:
+Zign.codes uses a flexible key management architecture that prioritizes security while allowing for different deployment options:
 
-1. **Server-side Storage Requirements**:
-   - Private keys are securely stored on the server
-   - Key metadata (creation date, expiration date, key ID)
-   - No document content or attestation records are stored
+```mermaid
+flowchart TD
+    A[Attestation Service] --> B[Key Management Facade]
+    B -->|Cloud Option| C[Cloud KMS]
+    B -->|Self-hosted Option| D[HashiCorp Vault]
+    D -->|Optional| E[Hardware Security Module]
+    C --> F[AWS KMS]
+    C --> G[Google Cloud KMS]
+    C --> H[Azure Key Vault]
+    C --> I[Cloudflare KMS]
+```
 
-2. **Public Key Distribution**:
-   - The corresponding public key is embedded in the attestation package
-   - Public keys are also available via a simple public endpoint
+### Key Management Facade
 
-3. **Key Rotation**:
-   - Keys are rotated periodically for security
-   - Historical public keys remain available for verification of older attestations
+The system implements a key management facade that abstracts the underlying key storage and signing operations:
+
+1. **Provider-Agnostic Interface**:
+   - Consistent API for key operations regardless of backend
+   - Easy switching between providers
+   - Support for multiple active providers
+
+2. **Operations Supported**:
+   - Key generation
+   - Data signing
+   - Signature verification
+   - Key rotation
+   - Key metadata management
+
+### Cloud KMS Options
+
+For production deployments, cloud KMS services offer the highest security with minimal operational overhead:
+
+1. **AWS KMS**:
+   - FIPS 140-2 Level 3 compliance
+   - Automatic key rotation
+   - Fine-grained IAM controls
+
+2. **Google Cloud KMS**:
+   - HSM protection
+   - Centralized management
+   - Detailed audit logging
+
+3. **Azure Key Vault**:
+   - Managed HSM service
+   - Integrated with Azure identity
+
+4. **Cloudflare KMS**:
+   - Edge-based key management
+   - Global distribution
+   - DDoS protection built-in
+
+### Self-Hosted Option
+
+For complete control or specific compliance requirements, a self-hosted option is available:
+
+1. **HashiCorp Vault**:
+   - Open-source key management
+   - Flexible deployment options
+   - Transit secrets engine for encryption operations
+   - Support for auto-unsealing
+
+2. **Optional HSM Integration**:
+   - YubiHSM for affordable hardware protection
+   - Thales Luna for enterprise-grade security
+   - PKCS#11 interface for standardized integration
+
+### Security Considerations
+
+Regardless of the chosen backend, the key management system implements:
+
+1. **Defense in Depth**:
+   - Multiple layers of access controls
+   - Network isolation for key operations
+   - Principle of least privilege
+
+2. **Operational Security**:
+   - Regular key rotation
+   - Comprehensive audit logging
+   - Alerting on unusual activities
+
+3. **Disaster Recovery**:
+   - Secure backup procedures
+   - Tested recovery processes
+   - Geographic redundancy
+
+### Public Key Distribution
+
+- The corresponding public key is embedded in the attestation package
+- Public keys are also available via a simple public endpoint
+- Historical public keys remain available for verification of older attestations
 
 ## Technical Implementation Details
 
