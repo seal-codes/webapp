@@ -1,16 +1,26 @@
 # Zign.codes
 
-## Problem Statement
+## The Digital Seal for the Modern Age
 
-Digital signatures are still not widely adopted despite their importance in establishing document authenticity. Current solutions face several barriers to adoption:
+Since ancient times, humans have used visible marks of authenticity—like royal seals pressed into wax—to establish trust in documents. These seals instantly communicated who stood behind a document and protected against unauthorized modifications.
 
-1. **Technical Complexity**: Traditional digital signatures require understanding of cryptographic concepts
-2. **Infrastructure Requirements**: Users need to maintain private keys or certificates
+In our digital world, we've developed far more sophisticated authentication technologies, yet ironically, we rarely use them in everyday communications. Most digital content is shared without any verification of its source or integrity, eroding trust in our digital interactions.
+
+Despite the importance of establishing document authenticity, traditional digital signatures remain underutilized due to significant barriers:
+
+1. **Technical Complexity**: They require understanding cryptographic concepts that most people don't have
+2. **Infrastructure Burden**: Users must maintain private keys or certificates
 3. **Cost Barriers**: Many solutions require paid subscriptions or specialized hardware
-4. **Fragmented Ecosystem**: Different document formats have different signing mechanisms
+4. **Fragmented Ecosystem**: Different document formats use different signing mechanisms
 5. **Accessibility Issues**: Not everyone has access to formal digital signature tools
 
-As a result, many people continue to share documents without proper authentication, leading to potential disputes over document origin, ownership, and integrity.
+As a result, most people continue to share documents without proper authentication, leading to potential disputes over document origin, ownership, and integrity.
+
+Zign.codes brings back the concept of the visible seal for the digital age. Like a royal seal that was immediately recognizable and difficult to forge, our QR code attestations provide a visible mark of authenticity that connects digital content to your established online identity.
+
+And just as a royal seal maker never needed to read the contents of a private document to authenticate it, Zign.codes prioritizes privacy—your documents never leave your device. We only process the document's unique fingerprint, ensuring your sensitive information remains private while still providing robust verification.
+
+Unlike traditional digital signatures that remain invisible and technical, Zign.codes creates a prominent visual element that says, "This is mine. I created this." And like ancient seals that could be verified by examining their unique patterns, our QR codes can be easily scanned to verify authenticity.
 
 ## Solution: Social Authentication-Based Document Attestation
 
