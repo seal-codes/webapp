@@ -358,18 +358,75 @@ flowchart LR
    - Remains similar even when the image is compressed or resized
    - Secondary verification method using similarity thresholds
 
-### QR Code Capacity Considerations
+### QR Code Capacity and Optimization
 
-QR codes have limited data capacity:
+QR codes have limited data capacity that must be considered when designing the attestation package:
 
-- Version 1: ~20 bytes
-- Version 25: ~2,000 bytes
-- Version 40: ~3,000 bytes
+```mermaid
+flowchart TD
+    A[Attestation Data] --> B[Size Optimization]
+    B --> C1[Cryptographic Choices]
+    B --> C2[Data Format]
+    B --> C3[Compression]
+    
+    C1 --> D1[ECC vs RSA]
+    C2 --> D2[JSON vs Binary]
+    C3 --> D3[GZIP/Deflate]
+    
+    D1 --> E[Final QR Code]
+    D2 --> E
+    D3 --> E
+```
 
-To handle this limitation, the system:
-1. Uses compact data formats
-2. Implements data compression
-3. For larger attestations, may split across multiple QR codes
+#### Size Analysis
+
+| Component | RSA 2048 Size | ECC (Ed25519) Size |
+|-----------|---------------|-------------------|
+| Public Key (base64) | ~400 bytes | ~64 bytes |
+| Signature (base64) | ~400 bytes | ~128 bytes |
+| Crypto Hash | ~50 bytes | ~50 bytes |
+| Perceptual Hash | ~50 bytes | ~50 bytes |
+| Identity Data | ~150 bytes | ~150 bytes |
+| Timestamp & Metadata | ~100 bytes | ~100 bytes |
+| **Total (uncompressed)** | **~1,150 bytes** | **~542 bytes** |
+| **Total (compressed)** | **~800 bytes** | **~400 bytes** |
+
+#### QR Code Version Requirements
+
+| QR Version | Max Capacity | Scanability | Sufficient For |
+|------------|--------------|-------------|---------------|
+| Version 10 | ~300 bytes | Excellent | Not sufficient |
+| Version 20 | ~1,000 bytes | Good | ECC with compression |
+| Version 25 | ~1,500 bytes | Moderate | RSA with compression |
+| Version 30 | ~2,000 bytes | Fair | Uncompressed data |
+| Version 40 | ~3,000 bytes | Poor | All scenarios but not recommended |
+
+#### Optimization Strategies
+
+1. **Cryptographic Algorithm Selection**:
+   - **Recommended**: Elliptic Curve Cryptography (Ed25519)
+     - 32-byte public keys (64 bytes base64)
+     - 64-byte signatures (128 bytes base64)
+     - Strong security with minimal size
+   - **Alternative**: RSA with 2048-bit keys
+     - Larger keys and signatures
+     - More widely supported in some environments
+
+2. **Data Format Optimization**:
+   - **Compact Field Names**: Use short property names in JSON
+   - **Binary Formats**: Consider CBOR or MessagePack instead of JSON
+   - **Structured Encoding**: Use nested structures efficiently
+
+3. **Compression Techniques**:
+   - Apply GZIP/Deflate compression to the attestation package
+   - Typical compression ratio: 30-50% size reduction
+   - Decompress on the client side before verification
+
+4. **QR Code Error Correction Level**:
+   - Balance between error correction and data capacity
+   - Recommendation: Use Medium (M) level for optimal balance
+
+With these optimizations, the attestation package (including both cryptographic and perceptual hashes) can fit comfortably within a Version 20-25 QR code, which maintains good scannability while containing all necessary verification data.
 
 ### Offline Verification Process
 
