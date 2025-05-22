@@ -1,10 +1,10 @@
-# Zign.codes Architecture
+# seal.codes Architecture
 
-This document outlines the technical architecture of Zign.codes, a system for creating self-contained document attestations using social authentication.
+This document outlines the technical architecture of seal.codes, a system for creating self-contained document attestations using social authentication.
 
 ## System Overview
 
-Zign.codes is designed as a web application that allows users to create verifiable attestations of document ownership using their existing social identities. The system generates QR codes containing all necessary verification data, enabling offline verification without requiring continuous server availability.
+seal.codes is designed as a web application that allows users to create verifiable attestations of document ownership using their existing social identities. The system generates QR codes containing all necessary verification data, enabling offline verification without requiring continuous server availability.
 
 ## Core Components
 
@@ -96,7 +96,7 @@ The attestation package is the core data structure that gets encoded into the QR
     "displayName": "User Name"
   },
   "serviceInfo": {
-    "name": "Zign.codes",
+    "name": "seal.codes",
     "publicKeyId": "key-2023-05"
   },
   "publicKey": "base64-encoded-public-key-data",
@@ -114,7 +114,7 @@ The attestation package includes:
 
 ## Privacy and Security Principles
 
-Zign.codes is designed with privacy as a core principle:
+seal.codes is designed with privacy as a core principle:
 
 1. **Client-side Document Processing**: 
    - Documents never leave the user's device
@@ -138,7 +138,7 @@ Zign.codes is designed with privacy as a core principle:
 
 ### Hybrid Verification Approach
 
-Zign.codes uses a self-contained verification approach:
+seal.codes uses a self-contained verification approach:
 
 1. **Self-contained verification**: The QR code contains all data needed for basic verification
 2. **Cryptographic verification**: The attestation is signed by the service's private key
@@ -166,7 +166,7 @@ flowchart TD
 
 ## Key Management Architecture
 
-Zign.codes uses a flexible key management architecture that prioritizes security while allowing for different deployment options:
+seal.codes uses a flexible key management architecture that prioritizes security while allowing for different deployment options:
 
 ```mermaid
 flowchart TD
@@ -255,7 +255,7 @@ Regardless of the chosen backend, the key management system implements:
 
 ## Resilience to Image Compression and Metadata Loss
 
-A significant challenge for document attestation systems is maintaining verification integrity when images are shared across platforms that modify content through compression or strip metadata. Zign.codes addresses this challenge through a multi-layered hash approach.
+A significant challenge for document attestation systems is maintaining verification integrity when images are shared across platforms that modify content through compression or strip metadata. seal.codes addresses this challenge through a multi-layered hash approach.
 
 ### Multi-Layered Hash Strategy
 
@@ -301,7 +301,7 @@ A secondary verification method uses perceptual hashing algorithms:
 
 ### Strategies for Metadata Preservation
 
-In addition to the multi-layered hash approach, Zign.codes implements several strategies to maximize the chances of metadata preservation:
+In addition to the multi-layered hash approach, seal.codes implements several strategies to maximize the chances of metadata preservation:
 
 1. **Redundant Storage**:
    - Store attestation data in multiple metadata fields (EXIF, XMP, IPTC)
@@ -336,7 +336,7 @@ In addition to the multi-layered hash approach, Zign.codes implements several st
 
 ### Document Hash Generation
 
-Zign.codes uses a multi-layered hash approach to balance security with resilience to modifications:
+seal.codes uses a multi-layered hash approach to balance security with resilience to modifications:
 
 ```mermaid
 flowchart LR
@@ -473,7 +473,7 @@ flowchart TD
 
 ## Deployment Architecture
 
-Zign.codes is designed as a privacy-focused, client-heavy application:
+seal.codes is designed as a privacy-focused, client-heavy application:
 
 ```mermaid
 flowchart TD
@@ -501,7 +501,7 @@ This architecture ensures:
 
 ## Server-Side Data Storage
 
-Zign.codes maintains minimal server-side data:
+seal.codes maintains minimal server-side data:
 
 1. **Private Keys and Key Management**:
    - Private keys used for signing attestations

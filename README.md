@@ -1,4 +1,4 @@
-# Zign.codes
+# seal.codes
 
 ## The Digital Seal for the Modern Age
 
@@ -16,15 +16,15 @@ Despite the importance of establishing document authenticity, traditional digita
 
 As a result, most people continue to share documents without proper authentication, leading to potential disputes over document origin, ownership, and integrity.
 
-Zign.codes brings back the concept of the visible seal for the digital age. Like a royal seal that was immediately recognizable and difficult to forge, our QR code attestations provide a visible mark of authenticity that connects digital content to your established online identity.
+seal.codes brings back the concept of the visible seal for the digital age. Like a royal seal that was immediately recognizable and difficult to forge, our QR code attestations provide a visible mark of authenticity that connects digital content to your established online identity.
 
-And just as a royal seal maker never needed to read the contents of a private document to authenticate it, Zign.codes prioritizes privacy—your documents never leave your device. We only process the document's unique fingerprint, ensuring your sensitive information remains private while still providing robust verification.
+And just as a royal seal maker never needed to read the contents of a private document to authenticate it, seal.codes prioritizes privacy—your documents never leave your device. We only process the document's unique fingerprint, ensuring your sensitive information remains private while still providing robust verification.
 
-Unlike traditional digital signatures that remain invisible and technical, Zign.codes creates a prominent visual element that says, "This is mine. I created this." And like ancient seals that could be verified by examining their unique patterns, our QR codes can be easily scanned to verify authenticity.
+Unlike traditional digital signatures that remain invisible and technical, seal.codes creates a prominent visual element that says, "This is mine. I created this." And like ancient seals that could be verified by examining their unique patterns, our QR codes can be easily scanned to verify authenticity.
 
 ## Solution: Social Authentication-Based Document Attestation
 
-Zign.codes provides a simple, accessible way for anyone to prove ownership of digital content by leveraging existing social identities. Rather than implementing complex cryptographic signatures, we create a verifiable attestation that links:
+seal.codes provides a simple, accessible way for anyone to prove ownership of digital content by leveraging existing social identities. Rather than implementing complex cryptographic signatures, we create a verifiable attestation that links:
 
 1. A specific document (via multiple hash methods)
 2. A user's established social identity
@@ -34,7 +34,7 @@ This attestation is encoded in a QR code that becomes an integral part of the do
 
 ## How It's Different from Traditional Digital Signatures
 
-| Feature | Traditional Digital Signatures | Zign.codes |
+| Feature | Traditional Digital Signatures | seal.codes |
 |---------|--------------------------------|------------|
 | **Trust Model** | Based on certificate authorities and PKI | Based on social identity providers |
 | **User Requirements** | Private key management | Existing social account |
@@ -48,7 +48,7 @@ This attestation is encoded in a QR code that becomes an integral part of the do
 
 ## Target Use Cases
 
-Zign.codes is designed to fill the gap between no verification at all and complex legal-grade digital signatures. Here are detailed use cases where this solution provides real value:
+seal.codes is designed to fill the gap between no verification at all and complex legal-grade digital signatures. Here are detailed use cases where this solution provides real value:
 
 ### Creative Content Protection
 
@@ -98,7 +98,7 @@ Zign.codes is designed to fill the gap between no verification at all and comple
 
 ## Key Benefits
 
-- **Zero Learning Curve**: If you can log in to a social account, you can use Zign.codes
+- **Zero Learning Curve**: If you can log in to a social account, you can use seal.codes
 - **No New Accounts**: Uses existing social identities rather than creating new credentials
 - **Self-Contained Verification**: QR codes contain all necessary verification data
 - **Offline Verification**: Basic verification can be performed without internet access
@@ -108,7 +108,7 @@ Zign.codes is designed to fill the gap between no verification at all and comple
 
 ## How It Works
 
-1. **Upload**: User uploads a document to the Zign.codes web application
+1. **Upload**: User uploads a document to the seal.codes web application
 2. **Authenticate**: User logs in with their preferred social identity provider
 3. **Process**: The system prepares the document for attestation using format-specific methods
 4. **Generate**: The system creates a QR code containing:
@@ -116,14 +116,14 @@ Zign.codes is designed to fill the gap between no verification at all and comple
    - A perceptual hash for compression resilience
    - The user's verified social identity information
    - A timestamp
-   - A cryptographic signature from Zign.codes
+   - A cryptographic signature from seal.codes
    - optionally a URL provided by the signee (e. g. Instragram profile)
 5. **Embed**: The QR code is embedded into the document using format-specific techniques. It is supposed to be visible
 6. **Verify**: Anyone can scan the QR code to verify the document's integrity and associated social identity
 
 ## Document Integration Techniques
 
-The integration of the attestation QR code with the document is a critical aspect of Zign.codes. We use different techniques based on document type to ensure the attestation is inseparable from the content it verifies:
+The integration of the attestation QR code with the document is a critical aspect of seal.codes. We use different techniques based on document type to ensure the attestation is inseparable from the content it verifies:
 
 ### PDF Documents
 
@@ -209,7 +209,7 @@ While the initial implementation focuses on social authentication, the framework
 
 ## Limitations and Considerations
 
-Zign.codes is transparent about what it does and doesn't provide:
+seal.codes is transparent about what it does and doesn't provide:
 
 - It verifies access to a social account at a specific time, not legal identity
 - The level of trust depends on the recipient's assessment of the social identity
