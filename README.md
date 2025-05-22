@@ -16,7 +16,7 @@ As a result, many people continue to share documents without proper authenticati
 
 Zign.codes provides a simple, accessible way for anyone to prove ownership of digital content by leveraging existing social identities. Rather than implementing complex cryptographic signatures, we create a verifiable attestation that links:
 
-1. A specific document (via its cryptographic hash)
+1. A specific document (via multiple hash methods)
 2. A user's established social identity
 3. A specific point in time
 
@@ -94,6 +94,7 @@ Zign.codes is designed to fill the gap between no verification at all and comple
 - **Offline Verification**: Basic verification can be performed without internet access
 - **Transparent**: Clear indication of what is being verified (social identity, not legal identity)
 - **Extensible**: Framework allows for adding stronger identity providers in the future
+- **Resilient to Compression**: Multi-layered hash approach handles image compression
 
 ## How It Works
 
@@ -102,6 +103,7 @@ Zign.codes is designed to fill the gap between no verification at all and comple
 3. **Process**: The system prepares the document for attestation using format-specific methods
 4. **Generate**: The system creates a QR code containing:
    - A cryptographic hash of the document
+   - A perceptual hash for compression resilience
    - The user's verified social identity information
    - A timestamp
    - A cryptographic signature from Zign.codes
@@ -173,14 +175,19 @@ For other document formats:
    - The system uses deterministic methods to ensure hash calculation is consistent between signing and verification
    - Format-specific normalization is applied before hashing
 
-2. **QR Code Placement**:
+2. **Multi-Layered Hash Approach**:
+   - Cryptographic hash (SHA-256) for exact verification
+   - Perceptual hash for resilience against compression and minor modifications
+   - Verification can succeed even if the document has been compressed
+
+3. **QR Code Placement**:
    - Users can choose where to place the QR code
    - Default placements are optimized for each document type
 
-3. **Verification Tools**:
+4. **Verification Tools**:
    - Web-based verification tool works across all formats
    - Mobile app allows for quick verification via camera
-   - Offline verification is possible with downloaded verification tools, verifying the has but not the signature when offline
+   - Offline verification is possible with downloaded verification tools, verifying the hash but not the signature when offline
 
 ## Future Extensions
 

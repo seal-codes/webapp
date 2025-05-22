@@ -85,7 +85,10 @@ The attestation package is the core data structure that gets encoded into the QR
 ```json
 {
   "version": "1.0",
-  "documentHash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "hashes": {
+    "crypto": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "perceptual": "phash:9d2723e6a0d3c8b5"
+  },
   "timestamp": "2023-05-21T13:45:30Z",
   "identity": {
     "provider": "google",
@@ -101,7 +104,13 @@ The attestation package is the core data structure that gets encoded into the QR
 }
 ```
 
-The inclusion of the `publicKeyId` allows for fetching the correct historical public key when online verification is available, while the embedded `publicKey` enables completely offline verification.
+The attestation package includes:
+- Multiple hash types for resilient verification
+- Timestamp of when the attestation was created
+- Identity information from the social authentication
+- Service information and key identifiers
+- The public key for offline verification
+- A cryptographic signature of all the above data
 
 ## Privacy and Security Principles
 
@@ -168,7 +177,6 @@ flowchart TD
     C --> F[AWS KMS]
     C --> G[Google Cloud KMS]
     C --> H[Azure Key Vault]
-    C --> I[Cloudflare KMS]
 ```
 
 ### Key Management Facade
@@ -204,11 +212,6 @@ For production deployments, cloud KMS services offer the highest security with m
 3. **Azure Key Vault**:
    - Managed HSM service
    - Integrated with Azure identity
-
-4. **Cloudflare KMS**:
-   - Edge-based key management
-   - Global distribution
-   - DDoS protection built-in
 
 ### Self-Hosted Option
 
@@ -250,17 +253,110 @@ Regardless of the chosen backend, the key management system implements:
 - Public keys are also available via a simple public endpoint
 - Historical public keys remain available for verification of older attestations
 
+## Resilience to Image Compression and Metadata Loss
+
+A significant challenge for document attestation systems is maintaining verification integrity when images are shared across platforms that modify content through compression or strip metadata. Zign.codes addresses this challenge through a multi-layered hash approach.
+
+### Multi-Layered Hash Strategy
+
+```mermaid
+flowchart TD
+    A[Original Document] --> B[Generate Cryptographic Hash]
+    A --> C[Generate Perceptual Hash]
+    B --> D[Attestation Package]
+    C --> D
+    D --> E[QR Code Generation]
+    
+    F[Verification Process] --> G{Try Cryptographic Hash}
+    G -->|Match| H[Verified - Exact Match]
+    G -->|No Match| I{Try Perceptual Hash}
+    I -->|Similar| J[Verified - Visual Match]
+    I -->|Not Similar| K[Verification Failed]
+```
+
+#### 1. Cryptographic Hash Layer
+
+The primary verification method uses traditional cryptographic hashes (SHA-256):
+
+- **Purpose**: Provides cryptographic certainty for unmodified documents
+- **Characteristics**: Changes completely with any modification to the document
+- **Use Case**: Verification of original, uncompressed documents
+
+#### 2. Perceptual Hash Layer
+
+A secondary verification method uses perceptual hashing algorithms:
+
+- **Purpose**: Provides resilience against compression and minor modifications
+- **Characteristics**: Remains similar even when the image is compressed or resized
+- **Algorithms**: pHash (Perceptual Hash), dHash (Difference Hash), or aHash (Average Hash)
+- **Use Case**: Verification of documents shared through platforms that compress content
+
+### Verification Process with Multi-Layered Hashing
+
+1. **Extract both hashes** from the attestation package
+2. **Primary verification**: Compare the cryptographic hash of the document with the stored hash
+3. **If primary verification fails**: Calculate the perceptual hash of the document and compare with the stored perceptual hash
+4. **Apply similarity threshold**: If the perceptual hash similarity exceeds the defined threshold (e.g., 90%), consider the document verified
+5. **Provide verification details**: Inform the user whether verification was exact (cryptographic) or approximate (perceptual)
+
+### Strategies for Metadata Preservation
+
+In addition to the multi-layered hash approach, Zign.codes implements several strategies to maximize the chances of metadata preservation:
+
+1. **Redundant Storage**:
+   - Store attestation data in multiple metadata fields (EXIF, XMP, IPTC)
+   - Include minimal attestation data in the visible QR code
+
+2. **Platform-Specific Optimizations**:
+   - Detect common platforms and apply optimizations for each
+   - Provide guidance to users on platform-specific sharing methods
+
+3. **User Education**:
+   - Clear communication about which platforms preserve metadata
+   - Instructions for preserving image integrity when sharing
+
+### Implementation Considerations
+
+1. **Perceptual Hash Selection**:
+   - Different perceptual hash algorithms have different strengths
+   - pHash is generally more robust but computationally intensive
+   - dHash is faster but less robust to certain transformations
+
+2. **Threshold Calibration**:
+   - Similarity thresholds need careful calibration
+   - Too strict: Legitimate compressed images fail verification
+   - Too lenient: Risk of false positives
+
+3. **Performance Optimization**:
+   - Perceptual hash calculation can be resource-intensive
+   - Client-side implementation needs optimization for browser performance
+   - Consider using WebAssembly for complex hash calculations
+
 ## Technical Implementation Details
 
 ### Document Hash Generation
 
-Documents are hashed using SHA-256 to create a unique fingerprint:
+Zign.codes uses a multi-layered hash approach to balance security with resilience to modifications:
 
 ```mermaid
 flowchart LR
-    A[Document] --> B[SHA-256 Algorithm]
-    B --> C[Document Hash]
+    A[Document] --> B1[SHA-256 Algorithm]
+    A --> B2[Perceptual Hash Algorithm]
+    B1 --> C1[Cryptographic Hash]
+    B2 --> C2[Perceptual Hash]
+    C1 --> D[Attestation Package]
+    C2 --> D
 ```
+
+1. **Cryptographic Hash (SHA-256)**:
+   - Provides cryptographic certainty for unmodified documents
+   - Changes completely with any modification to the document
+   - Primary verification method for exact matching
+
+2. **Perceptual Hash (pHash/dHash)**:
+   - Provides resilience against compression and minor modifications
+   - Remains similar even when the image is compressed or resized
+   - Secondary verification method using similarity thresholds
 
 ### QR Code Capacity Considerations
 
