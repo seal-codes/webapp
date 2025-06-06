@@ -1,0 +1,103 @@
+<script setup lang="ts">
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+const isMenuOpen = ref(false);
+
+const toggleMenu = () => {
+  isMenuOpen.value = !isMenuOpen.value;
+};
+
+const navigateTo = (path: string) => {
+  router.push(path);
+  isMenuOpen.value = false;
+};
+</script>
+
+<template>
+  <header class="bg-white border-b border-gray-100 shadow-sm">
+    <div class="container mx-auto px-4">
+      <div class="flex justify-between items-center h-16">
+        <!-- Logo -->
+        <div class="flex items-center">
+          <a href="/" class="flex items-center" @click.prevent="navigateTo('/')">
+            <span class="text-xl font-bold text-secondary-500">seal.codes</span>
+          </a>
+        </div>
+        
+        <!-- Desktop Navigation -->
+        <nav class="hidden md:flex space-x-8">
+          <a 
+            href="/" 
+            @click.prevent="navigateTo('/')"
+            class="text-gray-700 hover:text-primary-500 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200"
+          >
+            Home
+          </a>
+          <a 
+            href="/document" 
+            @click.prevent="navigateTo('/document')"
+            class="text-gray-700 hover:text-primary-500 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200"
+          >
+            Seal Document
+          </a>
+        </nav>
+        
+        <!-- Mobile Menu Button -->
+        <div class="md:hidden">
+          <button 
+            @click="toggleMenu" 
+            class="text-gray-700 hover:text-primary-500 focus:outline-none"
+          >
+            <svg 
+              xmlns="http://www.w3.org/2000/svg" 
+              class="h-6 w-6" 
+              fill="none" 
+              viewBox="0 0 24 24" 
+              stroke="currentColor"
+            >
+              <path 
+                v-if="!isMenuOpen" 
+                stroke-linecap="round" 
+                stroke-linejoin="round" 
+                stroke-width="2" 
+                d="M4 6h16M4 12h16M4 18h16"
+              />
+              <path 
+                v-else 
+                stroke-linecap="round" 
+                stroke-linejoin="round" 
+                stroke-width="2" 
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
+        </div>
+      </div>
+      
+      <!-- Mobile Navigation -->
+      <div 
+        v-if="isMenuOpen" 
+        class="md:hidden"
+      >
+        <div class="pt-2 pb-4 space-y-1">
+          <a 
+            href="/" 
+            @click.prevent="navigateTo('/')"
+            class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary-500 hover:bg-gray-50"
+          >
+            Home
+          </a>
+          <a 
+            href="/document" 
+            @click.prevent="navigateTo('/document')"
+            class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary-500 hover:bg-gray-50"
+          >
+            Seal Document
+          </a>
+        </div>
+      </div>
+    </div>
+  </header>
+</template>
