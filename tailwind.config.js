@@ -1,8 +1,8 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   content: [
-    "./index.html",
-    "./src/**/*.{vue,js,ts,jsx,tsx}",
+    './index.html',
+    './src/**/*.{vue,js,ts,jsx,tsx}',
   ],
   theme: {
     extend: {
@@ -45,7 +45,7 @@ export default {
           700: '#67675b',
           800: '#525246',
           900: '#3d3d31',
-        }
+        },
       },
     },
   },

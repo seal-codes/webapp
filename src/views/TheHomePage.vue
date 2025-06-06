@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import { useRouter } from 'vue-router';
-import { ImageUp, MapPin, ShieldCheck } from 'lucide-vue-next';
-import IconifiedStepDescription from '../components/common/IconifiedStepDescription.vue';
-import WaxSealButton from '../components/common/WaxSealButton.vue';
+import { useRouter } from 'vue-router'
+import { ImageUp, MapPin, ShieldCheck } from 'lucide-vue-next'
+import IconifiedStepDescription from '../components/common/IconifiedStepDescription.vue'
+import WaxSealButton from '../components/common/WaxSealButton.vue'
 
-const router = useRouter();
+const router = useRouter()
 
 const startProcess = () => {
-  router.push('/document');
-};
+  router.push('/document')
+}
 </script>
 
 <template>
@@ -16,7 +16,7 @@ const startProcess = () => {
     <!-- Hero Section -->
     <main class="container mx-auto px-4 py-16 text-center">
       <h1 class="text-6xl font-bold mb-6">
-        The Digital <span class="text-secondary-500">Seal</span> for the<br>Modern Age
+        The Digital <span class="text-secondary-500">Seal</span> for the<br />Modern Age
       </h1>
       
       <p class="text-xl text-gray-600 mb-12 max-w-2xl mx-auto">

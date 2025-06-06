@@ -18,7 +18,9 @@
       <strong>Complete privacy:</strong> All document processing happens in your browser. Your files are never uploaded to our servers.
     </p>
     
-    <h4 class="text-lg font-medium mb-2">Use Cases</h4>
+    <h4 class="text-lg font-medium mb-2">
+      Use Cases
+    </h4>
     
     <ul class="list-disc pl-5 mb-4 space-y-2">
       <li>

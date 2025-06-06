@@ -1,78 +1,78 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref } from 'vue'
 
 const emit = defineEmits<{
   (e: 'fileLoaded', file: File): void;
-}>();
+}>()
 
-const isDragging = ref(false);
-const errorMessage = ref('');
+const isDragging = ref(false)
+const errorMessage = ref('')
 
 const allowedTypes = [
   'application/pdf',
   'image/jpeg',
   'image/png',
-  'image/webp'
-];
+  'image/webp',
+]
 
 // Handle file selection
 const handleFileSelect = (event: Event) => {
-  const input = event.target as HTMLInputElement;
+  const input = event.target as HTMLInputElement
   if (input.files && input.files.length > 0) {
-    validateAndEmitFile(input.files[0]);
+    validateAndEmitFile(input.files[0])
   }
-};
+}
 
 // Handle drag events
 const handleDragEnter = (e: DragEvent) => {
-  e.preventDefault();
-  e.stopPropagation();
-  isDragging.value = true;
-};
+  e.preventDefault()
+  e.stopPropagation()
+  isDragging.value = true
+}
 
 const handleDragOver = (e: DragEvent) => {
-  e.preventDefault();
-  e.stopPropagation();
-  isDragging.value = true;
-};
+  e.preventDefault()
+  e.stopPropagation()
+  isDragging.value = true
+}
 
 const handleDragLeave = (e: DragEvent) => {
-  e.preventDefault();
-  e.stopPropagation();
-  isDragging.value = false;
-};
+  e.preventDefault()
+  e.stopPropagation()
+  isDragging.value = false
+}
 
 const handleDrop = (e: DragEvent) => {
-  e.preventDefault();
-  e.stopPropagation();
-  isDragging.value = false;
+  e.preventDefault()
+  e.stopPropagation()
+  isDragging.value = false
   
   if (e.dataTransfer?.files && e.dataTransfer.files.length > 0) {
-    validateAndEmitFile(e.dataTransfer.files[0]);
+    validateAndEmitFile(e.dataTransfer.files[0])
   }
-};
+}
 
 // Validate and emit the file if valid
 const validateAndEmitFile = (file: File) => {
   // Reset error message
-  errorMessage.value = '';
+  errorMessage.value = ''
   
   // Check file type
   if (!allowedTypes.includes(file.type)) {
-    errorMessage.value = 'Unsupported file type. Please use PDF, JPEG, or PNG.';
-    return;
+    errorMessage.value = 'Unsupported file type. Please use PDF, JPEG, or PNG.'
+    return
   }
   
   // Check file size (10MB max)
-  const maxSize = 10 * 1024 * 1024; // 10MB in bytes
+  const maxSize = 10 * 1024 * 1024 // 10MB in bytes
   if (file.size > maxSize) {
-    errorMessage.value = 'File too large. Maximum size is 10MB.';
-    return;
+    errorMessage.value = 'File too large. Maximum size is 10MB.'
+    return
   }
   
   // Emit the file loaded event
-  emit('fileLoaded', file);
-};
+  emit('fileLoaded', file)
+}
 </script>
 
 <template>
@@ -89,8 +89,8 @@ const validateAndEmitFile = (file: File) => {
     @click="($refs.fileInput as HTMLInputElement)?.click()"
   >
     <input 
-      type="file"
       ref="fileInput"
+      type="file"
       class="hidden"
       accept=".pdf,.jpg,.jpeg,.png"
       @change="handleFileSelect"
@@ -98,8 +98,18 @@ const validateAndEmitFile = (file: File) => {
     
     <div class="flex flex-col items-center">
       <div class="text-gray-400 mb-4">
-        <svg class="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+        <svg
+          class="w-16 h-16"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+          />
         </svg>
       </div>
       

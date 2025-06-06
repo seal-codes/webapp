@@ -4,14 +4,14 @@
  * Shows draggable QR code preview with size controls for document sealing
  */
 
-import { ref, computed, onMounted, watch } from 'vue';
-import { qrCodeService } from '@/services/qrcode-service';
-import { qrCodeUICalculator } from '@/services/qrcode-ui-calculator';
+import { ref, computed, onMounted, watch } from 'vue'
+import { qrCodeService } from '@/services/qrcode-service'
+import { qrCodeUICalculator } from '@/services/qrcode-ui-calculator'
 import type { 
   QRCodeUIPosition, 
   DocumentDimensions, 
-  AttestationData 
-} from '@/types/qrcode';
+  AttestationData, 
+} from '@/types/qrcode'
 
 const props = defineProps<{
   /** Position as percentages */
@@ -30,18 +30,18 @@ const props = defineProps<{
   authProvider?: string;
   /** User name for identity display */
   userName?: string;
-}>();
+}>()
 
 const emit = defineEmits<{
   (e: 'positionUpdated', position: QRCodeUIPosition): void;
   (e: 'sizeUpdated', sizePercent: number): void;
-}>();
+}>()
 
 // Component state
-const isDragging = ref(false);
-const qrCodeUrl = ref('');
-const dragOffset = ref({ x: 0, y: 0 });
-const isGenerating = ref(false);
+const isDragging = ref(false)
+const qrCodeUrl = ref('')
+const dragOffset = ref({ x: 0, y: 0 })
+const isGenerating = ref(false)
 
 // Calculate actual QR code size in pixels for preview
 const qrSizeInPixels = computed(() => {
@@ -49,36 +49,36 @@ const qrSizeInPixels = computed(() => {
     props.position,
     props.sizePercent,
     props.containerDimensions,
-    props.documentType
-  );
-  return result.sizeInPixels;
-});
+    props.documentType,
+  )
+  return result.sizeInPixels
+})
 
 // Generate QR code when attestation data changes
 const generateQRCode = async () => {
   if (props.isPlaceholder || !props.attestationData) {
     // Generate placeholder QR code
-    qrCodeUrl.value = await generatePlaceholderQR();
-    return;
+    qrCodeUrl.value = await generatePlaceholderQR()
+    return
   }
 
-  isGenerating.value = true;
+  isGenerating.value = true
   try {
     const result = await qrCodeService.generateQRCode({
       data: props.attestationData,
       sizeInPixels: qrSizeInPixels.value,
       errorCorrectionLevel: 'H',
-      margin: 1
-    });
+      margin: 1,
+    })
     
-    qrCodeUrl.value = result.dataUrl;
+    qrCodeUrl.value = result.dataUrl
   } catch (error) {
-    console.error('Failed to generate QR code:', error);
-    qrCodeUrl.value = await generatePlaceholderQR();
+    console.error('Failed to generate QR code:', error)
+    qrCodeUrl.value = await generatePlaceholderQR()
   } finally {
-    isGenerating.value = false;
+    isGenerating.value = false
   }
-};
+}
 
 // Generate placeholder QR code for preview
 const generatePlaceholderQR = async (): Promise<string> => {
@@ -88,76 +88,80 @@ const generatePlaceholderQR = async (): Promise<string> => {
         h: { c: 'placeholder', p: { p: 'placeholder', d: 'placeholder' } },
         t: new Date().toISOString(),
         i: { p: 'g', id: 'preview@example.com' },
-        s: { n: 'sc', k: 'preview-key' }
+        s: { n: 'sc', k: 'preview-key' },
       },
       sizeInPixels: qrSizeInPixels.value,
-      errorCorrectionLevel: 'H'
-    }).then(result => result.dataUrl);
+      errorCorrectionLevel: 'H',
+    }).then(result => result.dataUrl)
   } catch (error) {
-    console.error('Failed to generate placeholder QR:', error);
-    return '';
+    console.error('Failed to generate placeholder QR:', error)
+    return ''
   }
-};
+}
 
 // Watch for changes that require QR regeneration
-watch([() => props.attestationData, qrSizeInPixels], generateQRCode, { deep: true });
+watch([() => props.attestationData, qrSizeInPixels], generateQRCode, { deep: true })
 
 // Generate initial QR code
-onMounted(generateQRCode);
+onMounted(generateQRCode)
 
 // Drag handling
 const startDragging = (e: MouseEvent) => {
-  const element = e.currentTarget as HTMLElement;
-  const rect = element.getBoundingClientRect();
+  const element = e.currentTarget as HTMLElement
+  const rect = element.getBoundingClientRect()
   
   dragOffset.value = {
     x: e.clientX - (rect.left + rect.width / 2),
-    y: e.clientY - (rect.top + rect.height / 2)
-  };
+    y: e.clientY - (rect.top + rect.height / 2),
+  }
   
-  isDragging.value = true;
-  document.addEventListener('mousemove', handleDrag);
-  document.addEventListener('mouseup', stopDragging);
-  document.body.style.userSelect = 'none';
-};
+  isDragging.value = true
+  document.addEventListener('mousemove', handleDrag)
+  document.addEventListener('mouseup', stopDragging)
+  document.body.style.userSelect = 'none'
+}
 
 const stopDragging = () => {
-  isDragging.value = false;
-  document.removeEventListener('mousemove', handleDrag);
-  document.removeEventListener('mouseup', stopDragging);
-  document.body.style.userSelect = '';
-};
+  isDragging.value = false
+  document.removeEventListener('mousemove', handleDrag)
+  document.removeEventListener('mouseup', stopDragging)
+  document.body.style.userSelect = ''
+}
 
 const handleDrag = (e: MouseEvent) => {
-  if (!isDragging.value) return;
+  if (!isDragging.value) {
+    return
+  }
   
-  const container = document.querySelector('.document-preview');
-  if (!container) return;
+  const container = document.querySelector('.document-preview')
+  if (!container) {
+    return
+  }
   
-  const rect = container.getBoundingClientRect();
+  const rect = container.getBoundingClientRect()
   
   // Calculate position as percentage
-  const x = ((e.clientX - dragOffset.value.x - rect.left) / rect.width) * 100;
-  const y = ((e.clientY - dragOffset.value.y - rect.top) / rect.height) * 100;
+  const x = ((e.clientX - dragOffset.value.x - rect.left) / rect.width) * 100
+  const y = ((e.clientY - dragOffset.value.y - rect.top) / rect.height) * 100
   
   // Calculate safe margins
   const margins = qrCodeUICalculator.calculateSafeMargins(
     props.sizePercent,
-    props.containerDimensions
-  );
+    props.containerDimensions,
+  )
   
   // Keep QR code within safe bounds
-  const boundedX = Math.max(margins.horizontal, Math.min(100 - margins.horizontal, x));
-  const boundedY = Math.max(margins.vertical, Math.min(100 - margins.vertical, y));
+  const boundedX = Math.max(margins.horizontal, Math.min(100 - margins.horizontal, x))
+  const boundedY = Math.max(margins.vertical, Math.min(100 - margins.vertical, y))
   
-  emit('positionUpdated', { x: boundedX, y: boundedY });
-};
+  emit('positionUpdated', { x: boundedX, y: boundedY })
+}
 
 // Size adjustment
 const adjustSize = (delta: number) => {
-  const newSize = Math.max(10, Math.min(30, props.sizePercent + delta));
-  emit('sizeUpdated', newSize);
-};
+  const newSize = Math.max(10, Math.min(30, props.sizePercent + delta))
+  emit('sizeUpdated', newSize)
+}
 </script>
 
 <template>
@@ -189,7 +193,7 @@ const adjustSize = (delta: number) => {
         class="flex items-center justify-center p-4"
         :style="{ width: `${qrSizeInPixels}px`, height: `${qrSizeInPixels}px` }"
       >
-        <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+        <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500" />
       </div>
       
       <!-- QR Code -->
@@ -219,7 +223,7 @@ const adjustSize = (delta: number) => {
       <!-- Identity Section -->
       <div class="px-3 py-2 border-t border-gray-100 bg-gray-50 rounded-b-lg">
         <div class="flex items-center justify-center gap-2 mb-1">
-          <div class="w-3 h-3 bg-blue-500 rounded-full"></div>
+          <div class="w-3 h-3 bg-blue-500 rounded-full" />
           <div class="text-xs font-medium text-gray-700">
             {{ authProvider || 'Provider' }}
           </div>
@@ -238,9 +242,9 @@ const adjustSize = (delta: number) => {
       class="absolute left-1/2 transform -translate-x-1/2 mt-2 flex gap-1 bg-white rounded-lg shadow-md p-1 border border-gray-200"
     >
       <button 
-        @click="adjustSize(-2)" 
-        class="w-7 h-7 flex items-center justify-center text-gray-600 hover:bg-gray-100 rounded text-sm font-medium"
+        class="w-7 h-7 flex items-center justify-center text-gray-600 hover:bg-gray-100 rounded text-sm font-medium" 
         title="Decrease size"
+        @click="adjustSize(-2)"
       >
         −
       </button>
@@ -248,9 +252,9 @@ const adjustSize = (delta: number) => {
         {{ sizePercent }}%
       </div>
       <button 
-        @click="adjustSize(2)"
         class="w-7 h-7 flex items-center justify-center text-gray-600 hover:bg-gray-100 rounded text-sm font-medium"
         title="Increase size"
+        @click="adjustSize(2)"
       >
         +
       </button>

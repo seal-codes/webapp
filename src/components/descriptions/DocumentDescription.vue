@@ -4,17 +4,23 @@
       You're just a few steps away from adding a secure, verifiable seal to your document.
     </p>
     
-    <h4 class="text-lg font-medium mb-2">Step 1: Upload Your Document</h4>
+    <h4 class="text-lg font-medium mb-2">
+      Step 1: Upload Your Document
+    </h4>
     <p class="mb-4">
       Drag and drop your PDF or image file into the upload area. Your document stays in your browser and is never uploaded to any server.
     </p>
     
-    <h4 class="text-lg font-medium mb-2">Step 2: Position Your Seal</h4>
+    <h4 class="text-lg font-medium mb-2">
+      Step 2: Position Your Seal
+    </h4>
     <p class="mb-4">
       Choose where you want your QR code seal to appear on your document. The seal will be visible and contains verification data.
     </p>
     
-    <h4 class="text-lg font-medium mb-2">Step 3: Authenticate</h4>
+    <h4 class="text-lg font-medium mb-2">
+      Step 3: Authenticate
+    </h4>
     <p class="mb-4">
       Connect with a social account to create your unique seal. This helps establish ownership of the sealed document.
     </p>

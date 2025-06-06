@@ -1,6 +1,8 @@
 <template>
   <div>
-    <h3 class="text-xl font-medium mb-4">How to Verify This Document</h3>
+    <h3 class="text-xl font-medium mb-4">
+      How to Verify This Document
+    </h3>
     
     <div class="bg-gray-50 p-4 rounded-lg">
       <ol class="space-y-4">
@@ -9,7 +11,9 @@
             1
           </div>
           <div>
-            <h4 class="font-medium mb-1">Scan the QR Code</h4>
+            <h4 class="font-medium mb-1">
+              Scan the QR Code
+            </h4>
             <p class="text-gray-600 text-sm">
               Use any QR code scanner app on your smartphone to scan the QR code on the document.
             </p>
@@ -21,7 +25,9 @@
             2
           </div>
           <div>
-            <h4 class="font-medium mb-1">Visit the Verification Link</h4>
+            <h4 class="font-medium mb-1">
+              Visit the Verification Link
+            </h4>
             <p class="text-gray-600 text-sm">
               The QR code contains a unique verification link. Tap on it to open the verification page.
             </p>
@@ -33,7 +39,9 @@
             3
           </div>
           <div>
-            <h4 class="font-medium mb-1">View Verification Details</h4>
+            <h4 class="font-medium mb-1">
+              View Verification Details
+            </h4>
             <p class="text-gray-600 text-sm">
               The verification page will show you when the document was sealed and by whom, confirming its authenticity.
             </p>

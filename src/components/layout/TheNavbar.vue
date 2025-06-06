@@ -1,18 +1,18 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 
-const router = useRouter();
-const isMenuOpen = ref(false);
+const router = useRouter()
+const isMenuOpen = ref(false)
 
 const toggleMenu = () => {
-  isMenuOpen.value = !isMenuOpen.value;
-};
+  isMenuOpen.value = !isMenuOpen.value
+}
 
 const navigateTo = (path: string) => {
-  router.push(path);
-  isMenuOpen.value = false;
-};
+  router.push(path)
+  isMenuOpen.value = false
+}
 </script>
 
 <template>
@@ -30,15 +30,15 @@ const navigateTo = (path: string) => {
         <nav class="hidden md:flex space-x-8">
           <a 
             href="/" 
-            @click.prevent="navigateTo('/')"
             class="text-gray-700 hover:text-primary-500 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200"
+            @click.prevent="navigateTo('/')"
           >
             Home
           </a>
           <a 
             href="/document" 
-            @click.prevent="navigateTo('/document')"
             class="text-gray-700 hover:text-primary-500 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200"
+            @click.prevent="navigateTo('/document')"
           >
             Seal Document
           </a>
@@ -47,8 +47,8 @@ const navigateTo = (path: string) => {
         <!-- Mobile Menu Button -->
         <div class="md:hidden">
           <button 
-            @click="toggleMenu" 
-            class="text-gray-700 hover:text-primary-500 focus:outline-none"
+            class="text-gray-700 hover:text-primary-500 focus:outline-none" 
+            @click="toggleMenu"
           >
             <svg 
               xmlns="http://www.w3.org/2000/svg" 
@@ -84,15 +84,15 @@ const navigateTo = (path: string) => {
         <div class="pt-2 pb-4 space-y-1">
           <a 
             href="/" 
-            @click.prevent="navigateTo('/')"
             class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary-500 hover:bg-gray-50"
+            @click.prevent="navigateTo('/')"
           >
             Home
           </a>
           <a 
             href="/document" 
-            @click.prevent="navigateTo('/document')"
             class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary-500 hover:bg-gray-50"
+            @click.prevent="navigateTo('/document')"
           >
             Seal Document
           </a>

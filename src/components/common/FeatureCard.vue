@@ -4,7 +4,7 @@ defineProps<{
   description: string;
   icon: string;
   step?: string;
-}>();
+}>()
 </script>
 
 <template>
@@ -18,8 +18,14 @@ defineProps<{
     </div>
     
     <!-- Card content -->
-    <div class="text-3xl mb-4">{{ icon }}</div>
-    <h3 class="text-xl font-medium mb-2">{{ title }}</h3>
-    <p class="text-gray-600">{{ description }}</p>
+    <div class="text-3xl mb-4">
+      {{ icon }}
+    </div>
+    <h3 class="text-xl font-medium mb-2">
+      {{ title }}
+    </h3>
+    <p class="text-gray-600">
+      {{ description }}
+    </p>
   </div>
 </template>

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 defineProps<{
   text: string;
-}>();
+}>()
 </script>
 
 <template>
@@ -10,7 +10,7 @@ defineProps<{
   >
     <div 
       class="absolute inset-0 bg-secondary-500 rounded-full transition-all duration-300 group-hover:scale-110 group-hover:blur-sm group-active:scale-125 group-active:blur-md"
-    ></div>
+    />
     
     <!-- Wax seal effect -->
     <div 
@@ -19,10 +19,10 @@ defineProps<{
       group-active:opacity-70 group-active:scale-[1.4] group-active:blur-xl"
     >
       <!-- Wax bulges -->
-      <div class="absolute top-0 left-1/4 w-4 h-4 bg-secondary-500 rounded-full transform -translate-y-1/2"></div>
-      <div class="absolute top-0 right-1/4 w-4 h-4 bg-secondary-500 rounded-full transform -translate-y-1/2"></div>
-      <div class="absolute bottom-0 left-1/4 w-4 h-4 bg-secondary-500 rounded-full transform translate-y-1/2"></div>
-      <div class="absolute bottom-0 right-1/4 w-4 h-4 bg-secondary-500 rounded-full transform translate-y-1/2"></div>
+      <div class="absolute top-0 left-1/4 w-4 h-4 bg-secondary-500 rounded-full transform -translate-y-1/2" />
+      <div class="absolute top-0 right-1/4 w-4 h-4 bg-secondary-500 rounded-full transform -translate-y-1/2" />
+      <div class="absolute bottom-0 left-1/4 w-4 h-4 bg-secondary-500 rounded-full transform translate-y-1/2" />
+      <div class="absolute bottom-0 right-1/4 w-4 h-4 bg-secondary-500 rounded-full transform translate-y-1/2" />
     </div>
     
     <!-- Button content -->

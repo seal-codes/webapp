@@ -8,7 +8,7 @@ import routes from './router'
 // Create the router instance
 const router = createRouter({
   history: createWebHistory(),
-  routes
+  routes,
 })
 
 // Create the Pinia store

@@ -18,7 +18,9 @@
         
         <!-- Features Column (Center aligned) -->
         <div class="text-center">
-          <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wider mb-4">Features</h3>
+          <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wider mb-4">
+            Features
+          </h3>
           <ul class="space-y-3">
             <li>
               <a href="#" class="text-sm text-gray-600 hover:text-primary-600 transition-colors duration-200">
@@ -40,7 +42,9 @@
         
         <!-- Resources Column (Right aligned) -->
         <div class="text-right">
-          <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wider mb-4">Resources</h3>
+          <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wider mb-4">
+            Resources
+          </h3>
           <ul class="space-y-3">
             <li>
               <a href="#" class="text-sm text-gray-600 hover:text-primary-600 transition-colors duration-200">

@@ -1,21 +1,21 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { ref, watch } from 'vue'
 
 const props = defineProps<{
   initialPosition: { x: number, y: number };
-}>();
+}>()
 
 const emit = defineEmits<{
   (e: 'positionUpdated', position: { x: number, y: number }): void;
-}>();
+}>()
 
-const xPosition = ref(props.initialPosition.x);
-const yPosition = ref(props.initialPosition.y);
+const xPosition = ref(props.initialPosition.x)
+const yPosition = ref(props.initialPosition.y)
 
 // Emit position changes
 watch([xPosition, yPosition], ([newX, newY]) => {
-  emit('positionUpdated', { x: newX, y: newY });
-});
+  emit('positionUpdated', { x: newX, y: newY })
+})
 </script>
 
 <template>
@@ -64,41 +64,43 @@ watch([xPosition, yPosition], ([newX, newY]) => {
     
     <!-- Position Presets -->
     <div class="mt-4">
-      <p class="text-sm font-medium text-gray-700 mb-2">Quick Positions</p>
+      <p class="text-sm font-medium text-gray-700 mb-2">
+        Quick Positions
+      </p>
       <div class="grid grid-cols-3 gap-2">
         <button 
-          @click="xPosition = 10; yPosition = 10"
           class="p-2 text-xs bg-gray-100 hover:bg-gray-200 rounded transition-colors"
+          @click="xPosition = 10; yPosition = 10"
         >
           Top Left
         </button>
         <button 
-          @click="xPosition = 50; yPosition = 10"
           class="p-2 text-xs bg-gray-100 hover:bg-gray-200 rounded transition-colors"
+          @click="xPosition = 50; yPosition = 10"
         >
           Top Center
         </button>
         <button 
-          @click="xPosition = 90; yPosition = 10"
           class="p-2 text-xs bg-gray-100 hover:bg-gray-200 rounded transition-colors"
+          @click="xPosition = 90; yPosition = 10"
         >
           Top Right
         </button>
         <button 
-          @click="xPosition = 10; yPosition = 90"
           class="p-2 text-xs bg-gray-100 hover:bg-gray-200 rounded transition-colors"
+          @click="xPosition = 10; yPosition = 90"
         >
           Bottom Left
         </button>
         <button 
-          @click="xPosition = 50; yPosition = 90"
           class="p-2 text-xs bg-gray-100 hover:bg-gray-200 rounded transition-colors"
+          @click="xPosition = 50; yPosition = 90"
         >
           Bottom Center
         </button>
         <button 
-          @click="xPosition = 90; yPosition = 90"
           class="p-2 text-xs bg-gray-100 hover:bg-gray-200 rounded transition-colors"
+          @click="xPosition = 90; yPosition = 90"
         >
           Bottom Right
         </button>

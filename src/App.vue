@@ -1,14 +1,11 @@
 <script setup lang="ts">
-import { onMounted } from 'vue';
-import { useRouter } from 'vue-router';
-import TheNavbar from './components/layout/TheNavbar.vue';
-import TheFooter from './components/layout/TheFooter.vue';
-
-const router = useRouter();
+import { onMounted } from 'vue'
+import TheNavbar from './components/layout/TheNavbar.vue'
+import TheFooter from './components/layout/TheFooter.vue'
 
 onMounted(() => {
   // Initialize any global app logic here
-});
+})
 </script>
 
 <template>

@@ -3,8 +3,8 @@
  * Creates compact attestation data from user authentication and document information
  */
 
-import { providers } from '@/types/auth';
-import type { AttestationData } from '@/types/qrcode';
+import { providers } from '@/types/auth'
+import type { AttestationData } from '@/types/qrcode'
 
 /**
  * Input data for building attestation
@@ -40,10 +40,10 @@ export class AttestationBuilder {
    * @returns Compact attestation data ready for QR encoding
    */
   buildCompactAttestation(input: AttestationInput): AttestationData {
-    const provider = providers.find((p: any) => p.id === input.identity.provider);
+    const provider = providers.find((p: any) => p.id === input.identity.provider)
     
     if (!provider) {
-      throw new Error(`Unknown provider: ${input.identity.provider}`);
+      throw new Error(`Unknown provider: ${input.identity.provider}`)
     }
 
     return {
@@ -51,20 +51,20 @@ export class AttestationBuilder {
         c: input.documentHashes.cryptographic,
         p: {
           p: input.documentHashes.pHash,
-          d: input.documentHashes.dHash
-        }
+          d: input.documentHashes.dHash,
+        },
       },
       t: new Date().toISOString(),
       i: {
         p: provider.compactId,
-        id: input.identity.identifier
+        id: input.identity.identifier,
       },
       s: {
         n: 'sc', // seal.codes shortened
-        k: input.serviceInfo.publicKeyId
+        k: input.serviceInfo.publicKeyId,
       },
-      ...(input.userUrl && { u: input.userUrl })
-    };
+      ...(input.userUrl && { u: input.userUrl }),
+    }
   }
 
   /**
@@ -75,33 +75,33 @@ export class AttestationBuilder {
    */
   validateInput(input: AttestationInput): boolean {
     // Validate provider exists
-    const provider = providers.find((p: any) => p.id === input.identity.provider);
+    const provider = providers.find((p: any) => p.id === input.identity.provider)
     if (!provider) {
-      throw new Error(`Unknown provider: ${input.identity.provider}`);
+      throw new Error(`Unknown provider: ${input.identity.provider}`)
     }
 
     // Validate required fields
     if (!input.documentHashes.cryptographic) {
-      throw new Error('Cryptographic hash is required');
+      throw new Error('Cryptographic hash is required')
     }
     
     if (!input.documentHashes.pHash) {
-      throw new Error('pHash is required');
+      throw new Error('pHash is required')
     }
     
     if (!input.documentHashes.dHash) {
-      throw new Error('dHash is required');
+      throw new Error('dHash is required')
     }
     
     if (!input.identity.identifier) {
-      throw new Error('User identifier is required');
+      throw new Error('User identifier is required')
     }
     
     if (!input.serviceInfo.publicKeyId) {
-      throw new Error('Public key ID is required');
+      throw new Error('Public key ID is required')
     }
 
-    return true;
+    return true
   }
 
   /**
@@ -112,8 +112,8 @@ export class AttestationBuilder {
    * @returns Estimated size in bytes
    */
   estimateSize(input: AttestationInput): number {
-    const attestation = this.buildCompactAttestation(input);
-    return JSON.stringify(attestation).length;
+    const attestation = this.buildCompactAttestation(input)
+    return JSON.stringify(attestation).length
   }
 
   /**
@@ -125,12 +125,12 @@ export class AttestationBuilder {
     return providers.map((p: any) => ({
       id: p.id,
       compactId: p.compactId,
-      name: p.name
-    }));
+      name: p.name,
+    }))
   }
 }
 
 /**
  * Default attestation builder instance
  */
-export const attestationBuilder = new AttestationBuilder();
+export const attestationBuilder = new AttestationBuilder()

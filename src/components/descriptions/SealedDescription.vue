@@ -4,7 +4,9 @@
       Congratulations! Your document has been sealed with a unique QR code.
     </p>
     
-    <h4 class="text-lg font-medium mb-2">What's in Your Seal?</h4>
+    <h4 class="text-lg font-medium mb-2">
+      What's in Your Seal?
+    </h4>
     <p class="mb-4">
       Your digital seal contains:
     </p>
@@ -16,7 +18,9 @@
       <li>A verification URL</li>
     </ul>
     
-    <h4 class="text-lg font-medium mb-2">Sharing Your Document</h4>
+    <h4 class="text-lg font-medium mb-2">
+      Sharing Your Document
+    </h4>
     <p class="mb-4">
       When you share your sealed document, recipients can scan the QR code to verify:
     </p>

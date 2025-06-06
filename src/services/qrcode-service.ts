@@ -3,13 +3,13 @@
  * Handles compact attestation data encoding and pixel-perfect generation
  */
 
-import QRCode from 'qrcode';
+import QRCode from 'qrcode'
 import type {
   AttestationData,
   QRCodeGenerationOptions,
   QRCodeResult,
-  QRCodeEmbeddingOptions
-} from '@/types/qrcode';
+  QRCodeEmbeddingOptions,
+} from '@/types/qrcode'
 
 /**
  * Core QR code generation service
@@ -28,32 +28,32 @@ export class QRCodeService {
       sizeInPixels,
       errorCorrectionLevel = 'H',
       margin = 1,
-      colors = { dark: '#000000', light: '#FFFFFF' }
-    } = options;
+      colors = { dark: '#000000', light: '#FFFFFF' },
+    } = options
 
     try {
       // Serialize attestation data to compact JSON
-      const serializedData = JSON.stringify(data);
+      const serializedData = JSON.stringify(data)
       
       // Generate QR code with exact pixel dimensions
       const dataUrl = await QRCode.toDataURL(serializedData, {
         width: sizeInPixels,
         margin,
         errorCorrectionLevel,
-        color: colors
-      });
+        color: colors,
+      })
 
       return {
         dataUrl,
         dimensions: {
           width: sizeInPixels,
-          height: sizeInPixels
+          height: sizeInPixels,
         },
-        attestationData: data
-      };
+        attestationData: data,
+      }
     } catch (error) {
-      console.error('Failed to generate QR code:', error);
-      throw new Error('QR code generation failed');
+      console.error('Failed to generate QR code:', error)
+      throw new Error('QR code generation failed')
     }
   }
 
@@ -69,8 +69,8 @@ export class QRCodeService {
       data: options.attestationData,
       sizeInPixels: options.sizeInPixels,
       errorCorrectionLevel: 'H', // High error correction for document embedding
-      margin: 1
-    });
+      margin: 1,
+    })
   }
 
   /**
@@ -83,7 +83,7 @@ export class QRCodeService {
    */
   estimateDataCapacity(
     sizeInPixels: number, 
-    errorCorrectionLevel: 'L' | 'M' | 'Q' | 'H' = 'H'
+    errorCorrectionLevel: 'L' | 'M' | 'Q' | 'H' = 'H',
   ): number {
     // Rough estimation based on QR code version and error correction
     // This is a simplified calculation - actual capacity depends on data type
@@ -91,12 +91,12 @@ export class QRCodeService {
       'L': 0.95, // Low error correction
       'M': 0.85, // Medium error correction  
       'Q': 0.75, // Quartile error correction
-      'H': 0.65  // High error correction
-    };
+      'H': 0.65,  // High error correction
+    }
     
     // Estimate based on pixel size (very rough approximation)
-    const baseCapacity = Math.floor(sizeInPixels / 4); // Simplified calculation
-    return Math.floor(baseCapacity * capacityMap[errorCorrectionLevel]);
+    const baseCapacity = Math.floor(sizeInPixels / 4) // Simplified calculation
+    return Math.floor(baseCapacity * capacityMap[errorCorrectionLevel])
   }
 
   /**
@@ -107,14 +107,14 @@ export class QRCodeService {
    * @returns True if data should fit, false otherwise
    */
   validateDataSize(data: AttestationData, sizeInPixels: number): boolean {
-    const serializedSize = JSON.stringify(data).length;
-    const estimatedCapacity = this.estimateDataCapacity(sizeInPixels, 'H');
+    const serializedSize = JSON.stringify(data).length
+    const estimatedCapacity = this.estimateDataCapacity(sizeInPixels, 'H')
     
-    return serializedSize <= estimatedCapacity;
+    return serializedSize <= estimatedCapacity
   }
 }
 
 /**
  * Default QR code service instance
  */
-export const qrCodeService = new QRCodeService();
+export const qrCodeService = new QRCodeService()

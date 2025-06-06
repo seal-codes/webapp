@@ -6,8 +6,8 @@
 import type {
   QRCodeUIPosition,
   DocumentDimensions,
-  PixelCalculationResult
-} from '@/types/qrcode';
+  PixelCalculationResult,
+} from '@/types/qrcode'
 
 /**
  * Service for converting UI positioning to pixel-perfect embedding coordinates
@@ -26,32 +26,32 @@ export class QRCodeUICalculator {
     uiPosition: QRCodeUIPosition,
     uiSizePercent: number,
     documentDimensions: DocumentDimensions,
-    documentType: 'pdf' | 'image'
+    documentType: 'pdf' | 'image',
   ): PixelCalculationResult {
     // Calculate size based on document type
     const sizeInPixels = this.calculateSizeInPixels(
       uiSizePercent,
       documentDimensions,
-      documentType
-    );
+      documentType,
+    )
 
     // Calculate position (center-based positioning)
     const position = {
       x: (documentDimensions.width * uiPosition.x / 100) - (sizeInPixels / 2),
-      y: (documentDimensions.height * uiPosition.y / 100) - (sizeInPixels / 2)
-    };
+      y: (documentDimensions.height * uiPosition.y / 100) - (sizeInPixels / 2),
+    }
 
     // Ensure QR code stays within document bounds
     const boundedPosition = this.ensureBounds(
       position,
       sizeInPixels,
-      documentDimensions
-    );
+      documentDimensions,
+    )
 
     return {
       position: boundedPosition,
-      sizeInPixels
-    };
+      sizeInPixels,
+    }
   }
 
   /**
@@ -66,15 +66,15 @@ export class QRCodeUICalculator {
   private calculateSizeInPixels(
     sizePercent: number,
     documentDimensions: DocumentDimensions,
-    documentType: 'pdf' | 'image'
+    documentType: 'pdf' | 'image',
   ): number {
     if (documentType === 'image') {
       // For images: use percentage of smallest dimension for pixel-perfect scaling
-      const minDimension = Math.min(documentDimensions.width, documentDimensions.height);
-      return Math.round(minDimension * sizePercent / 100);
+      const minDimension = Math.min(documentDimensions.width, documentDimensions.height)
+      return Math.round(minDimension * sizePercent / 100)
     } else {
       // For PDFs: use percentage of width (PDFs are typically portrait)
-      return Math.round(documentDimensions.width * sizePercent / 100);
+      return Math.round(documentDimensions.width * sizePercent / 100)
     }
   }
 
@@ -85,13 +85,13 @@ export class QRCodeUICalculator {
    * @returns Complete seal dimensions
    */
   calculateCompleteSealDimensions(qrSizeInPixels: number): { width: number; height: number } {
-    const padding = 12; // Padding around QR code
-    const identityHeight = 50; // Height of identity section
+    const padding = 12 // Padding around QR code
+    const identityHeight = 50 // Height of identity section
     
     return {
       width: qrSizeInPixels + (padding * 2),
-      height: qrSizeInPixels + (padding * 2) + identityHeight
-    };
+      height: qrSizeInPixels + (padding * 2) + identityHeight,
+    }
   }
 
   /**
@@ -106,15 +106,15 @@ export class QRCodeUICalculator {
   private ensureBounds(
     position: { x: number; y: number },
     qrSize: number,
-    documentDimensions: DocumentDimensions
+    documentDimensions: DocumentDimensions,
   ): { x: number; y: number } {
     // Calculate complete seal dimensions
-    const sealDimensions = this.calculateCompleteSealDimensions(qrSize);
+    const sealDimensions = this.calculateCompleteSealDimensions(qrSize)
     
     return {
       x: Math.max(0, Math.min(documentDimensions.width - sealDimensions.width, position.x)),
-      y: Math.max(0, Math.min(documentDimensions.height - sealDimensions.height, position.y))
-    };
+      y: Math.max(0, Math.min(documentDimensions.height - sealDimensions.height, position.y)),
+    }
   }
 
   /**
@@ -127,19 +127,19 @@ export class QRCodeUICalculator {
    */
   calculateSafeMargins(
     qrSizePercent: number,
-    documentDimensions: DocumentDimensions
+    _documentDimensions: DocumentDimensions,
   ): {
     horizontal: number; // percentage
     vertical: number;   // percentage
   } {
     // Calculate minimum margins based on QR size
-    const baseMargin = qrSizePercent / 2; // Half the QR size
-    const minMargin = 5; // Minimum 5% margin
+    const baseMargin = qrSizePercent / 2 // Half the QR size
+    const minMargin = 5 // Minimum 5% margin
     
     return {
       horizontal: Math.max(baseMargin, minMargin),
-      vertical: Math.max(baseMargin, minMargin)
-    };
+      vertical: Math.max(baseMargin, minMargin),
+    }
   }
 
   /**
@@ -149,20 +149,20 @@ export class QRCodeUICalculator {
    * @returns Corner positions as percentages
    */
   getCornerPositions(
-    qrSizePercent: number
+    qrSizePercent: number,
   ): Record<string, QRCodeUIPosition> {
-    const margins = this.calculateSafeMargins(qrSizePercent, { width: 100, height: 100 });
+    const margins = this.calculateSafeMargins(qrSizePercent, { width: 100, height: 100 })
     
     return {
       topLeft: { x: margins.horizontal, y: margins.vertical },
       topRight: { x: 100 - margins.horizontal, y: margins.vertical },
       bottomLeft: { x: margins.horizontal, y: 100 - margins.vertical },
-      bottomRight: { x: 100 - margins.horizontal, y: 100 - margins.vertical }
-    };
+      bottomRight: { x: 100 - margins.horizontal, y: 100 - margins.vertical },
+    }
   }
 }
 
 /**
  * Default QR code UI calculator instance
  */
-export const qrCodeUICalculator = new QRCodeUICalculator();
+export const qrCodeUICalculator = new QRCodeUICalculator()

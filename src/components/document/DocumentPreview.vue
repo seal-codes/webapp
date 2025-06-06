@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref, onMounted, watch, computed } from 'vue';
-import QRCodePreview from '@/components/qrcode/QRCodePreview.vue';
-import type { QRCodeUIPosition, AttestationData } from '@/types/qrcode';
+import { ref, onMounted, watch, computed } from 'vue'
+import QRCodePreview from '@/components/qrcode/QRCodePreview.vue'
+import type { QRCodeUIPosition, AttestationData } from '@/types/qrcode'
 
 const props = defineProps<{
   document: File | null;
@@ -11,81 +11,83 @@ const props = defineProps<{
   attestationData?: AttestationData;
   authProvider?: string;
   userName?: string;
-}>();
+}>()
 
-const previewUrl = ref('');
-const documentType = ref<'pdf' | 'image' | null>(null);
-const isLoading = ref(true);
-const containerWidth = ref(0);
-const containerHeight = ref(0);
-const previewRef = ref<HTMLElement | null>(null);
+const previewUrl = ref('')
+const documentType = ref<'pdf' | 'image' | null>(null)
+const isLoading = ref(true)
+const containerWidth = ref(0)
+const containerHeight = ref(0)
+const previewRef = ref<HTMLElement | null>(null)
 
 // Container dimensions for QR calculations
 const containerDimensions = computed(() => ({
   width: containerWidth.value,
-  height: containerHeight.value
-}));
+  height: containerHeight.value,
+}))
 
 // Create document preview
 watch(() => props.document, async (newDocument) => {
-  if (!newDocument) return;
+  if (!newDocument) {
+    return
+  }
   
-  isLoading.value = true;
+  isLoading.value = true
   
   // Determine document type
   if (newDocument.type === 'application/pdf') {
-    documentType.value = 'pdf';
+    documentType.value = 'pdf'
   } else if (newDocument.type.startsWith('image/')) {
-    documentType.value = 'image';
+    documentType.value = 'image'
   } else {
-    documentType.value = null;
-    isLoading.value = false;
-    return;
+    documentType.value = null
+    isLoading.value = false
+    return
   }
   
   // Create object URL for preview
-  previewUrl.value = URL.createObjectURL(newDocument);
-  isLoading.value = false;
-}, { immediate: true });
+  previewUrl.value = URL.createObjectURL(newDocument)
+  isLoading.value = false
+}, { immediate: true })
 
 // Update container dimensions when image loads
 onMounted(() => {
   const updateDimensions = () => {
     if (previewRef.value) {
-      const rect = previewRef.value.getBoundingClientRect();
-      containerWidth.value = rect.width;
-      containerHeight.value = rect.height;
+      const rect = previewRef.value.getBoundingClientRect()
+      containerWidth.value = rect.width
+      containerHeight.value = rect.height
     }
-  };
+  }
 
-  window.addEventListener('resize', updateDimensions);
+  window.addEventListener('resize', updateDimensions)
   
   // Initial update after image loads
-  const img = new Image();
-  img.onload = updateDimensions;
+  const img = new Image()
+  img.onload = updateDimensions
   if (previewUrl.value) {
-    img.src = previewUrl.value;
+    img.src = previewUrl.value
   }
 
   return () => {
-    window.removeEventListener('resize', updateDimensions);
+    window.removeEventListener('resize', updateDimensions)
     if (previewUrl.value) {
-      URL.revokeObjectURL(previewUrl.value);
+      URL.revokeObjectURL(previewUrl.value)
     }
-  };
-});
+  }
+})
 
-const emit = defineEmits<{
+const _emit = defineEmits<{
   (e: 'positionUpdated', position: QRCodeUIPosition): void;
   (e: 'sizeUpdated', sizePercent: number): void;
-}>();
+}>()
 </script>
 
 <template>
   <div class="bg-gray-100 rounded-lg">
     <!-- Loading indicator -->
     <div v-if="isLoading" class="flex justify-center items-center p-12">
-      <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500"></div>
+      <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500" />
     </div>
     
     <!-- Image preview -->
