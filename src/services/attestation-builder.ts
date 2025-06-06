@@ -5,6 +5,7 @@
 
 import { providers } from '@/types/auth'
 import type { AttestationData } from '@/types/qrcode'
+import type { Provider } from '@/types/auth'
 
 /**
  * Input data for building attestation
@@ -40,7 +41,7 @@ export class AttestationBuilder {
    * @returns Compact attestation data ready for QR encoding
    */
   buildCompactAttestation(input: AttestationInput): AttestationData {
-    const provider = providers.find((p: any) => p.id === input.identity.provider)
+    const provider = providers.find((p: Provider) => p.id === input.identity.provider)
     
     if (!provider) {
       throw new Error(`Unknown provider: ${input.identity.provider}`)
@@ -75,7 +76,7 @@ export class AttestationBuilder {
    */
   validateInput(input: AttestationInput): boolean {
     // Validate provider exists
-    const provider = providers.find((p: any) => p.id === input.identity.provider)
+    const provider = providers.find((p: Provider) => p.id === input.identity.provider)
     if (!provider) {
       throw new Error(`Unknown provider: ${input.identity.provider}`)
     }
@@ -122,7 +123,7 @@ export class AttestationBuilder {
    * @returns Array of provider compact IDs
    */
   getSupportedProviders(): Array<{ id: string; compactId: string; name: string }> {
-    return providers.map((p: any) => ({
+    return providers.map((p: Provider) => ({
       id: p.id,
       compactId: p.compactId,
       name: p.name,

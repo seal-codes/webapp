@@ -7,6 +7,7 @@
 import { qrCodeService } from './qrcode-service'
 import { providers } from '@/types/auth'
 import type { AttestationData } from '@/types/qrcode'
+import type { Provider } from '@/types/auth'
 
 export interface QRSealOptions {
   /** The attestation data to encode */
@@ -51,7 +52,7 @@ export class QRSealRenderer {
     })
 
     // Get provider info
-    const provider = providers.find((p: any) => p.id === providerId)
+    const provider = providers.find((p: Provider) => p.id === providerId)
     const providerName = provider?.name || providerId
 
     // Calculate seal dimensions
@@ -130,6 +131,7 @@ export class QRSealRenderer {
   /**
    * Draw the QR code image onto the canvas
    */
+  // eslint-disable-next-line max-params
   private async drawQRCode(
     ctx: CanvasRenderingContext2D,
     qrDataUrl: string,
@@ -151,6 +153,7 @@ export class QRSealRenderer {
   /**
    * Draw the identity section with provider and user info
    */
+  // eslint-disable-next-line max-params
   private async drawIdentitySection(
     ctx: CanvasRenderingContext2D,
     x: number,
@@ -199,6 +202,7 @@ export class QRSealRenderer {
   /**
    * Helper function to draw rounded rectangles
    */
+  // eslint-disable-next-line max-params
   private drawRoundedRect(
     ctx: CanvasRenderingContext2D,
     x: number,

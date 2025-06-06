@@ -77,7 +77,7 @@ onMounted(() => {
   }
 })
 
-const _emit = defineEmits<{
+const emit = defineEmits<{
   (e: 'positionUpdated', position: QRCodeUIPosition): void;
   (e: 'sizeUpdated', sizePercent: number): void;
 }>()
@@ -120,8 +120,8 @@ const _emit = defineEmits<{
         :is-placeholder="!attestationData"
         :auth-provider="authProvider"
         :user-name="userName"
-        @position-updated="$emit('positionUpdated', $event)"
-        @size-updated="$emit('sizeUpdated', $event)"
+        @position-updated="emit('positionUpdated', $event)"
+        @size-updated="emit('sizeUpdated', $event)"
       />
     </div>
     
@@ -155,8 +155,8 @@ const _emit = defineEmits<{
         :is-placeholder="!attestationData"
         :auth-provider="authProvider"
         :user-name="userName"
-        @position-updated="$emit('positionUpdated', $event)"
-        @size-updated="$emit('sizeUpdated', $event)"
+        @position-updated="emit('positionUpdated', $event)"
+        @size-updated="emit('sizeUpdated', $event)"
       />
     </div>
     

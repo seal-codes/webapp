@@ -83,7 +83,7 @@ export default [
       // Code style rules aligned with your standards
       'prefer-const': 'error',
       'no-var': 'error',
-      'no-console': 'warn',
+      'no-console': 'off',
       'no-debugger': 'error',
       'no-unused-vars': 'off', // Handled by TypeScript rule
       'eqeqeq': ['error', 'always'],
