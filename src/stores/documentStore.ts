@@ -1,9 +1,9 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import { PDFDocument } from 'pdf-lib';
-import { qrCodeService } from '@/services/qrcode-service';
 import { qrCodeUICalculator } from '@/services/qrcode-ui-calculator';
 import { attestationBuilder } from '@/services/attestation-builder';
+import { qrSealRenderer } from '@/services/qr-seal-renderer';
 import type { QRCodeUIPosition, AttestationData } from '@/types/qrcode';
 
 // Unique ID generation for documents
@@ -88,18 +88,29 @@ export const useDocumentStore = defineStore('document', () => {
       // Build compact attestation data
       const attestationData = buildAttestationData();
 
-      // Generate QR code using our service with exact dimensions
-      const qrResult = await qrCodeService.generateForEmbedding({
-        position: pixelCalculation.position,
-        sizeInPixels: pixelCalculation.sizeInPixels,
-        attestationData
+      // Generate complete QR seal (including borders, identity, etc.)
+      const sealResult = await qrSealRenderer.generateSeal({
+        attestationData,
+        qrSizeInPixels: pixelCalculation.sizeInPixels,
+        providerId: authProvider.value!,
+        userIdentifier: userName.value!
       });
 
-      // Embed using the same QR code that was generated
+      // Embed the complete seal
       if (documentType.value === 'pdf') {
-        await sealPdfDocument(qrResult.dataUrl, pixelCalculation.position, pixelCalculation.sizeInPixels);
+        await sealPdfDocument(
+          sealResult.dataUrl, 
+          pixelCalculation.position, 
+          sealResult.dimensions.width,
+          sealResult.dimensions.height
+        );
       } else if (documentType.value === 'image') {
-        await sealImageDocument(qrResult.dataUrl, pixelCalculation.position, pixelCalculation.sizeInPixels);
+        await sealImageDocument(
+          sealResult.dataUrl, 
+          pixelCalculation.position, 
+          sealResult.dimensions.width,
+          sealResult.dimensions.height
+        );
       }
 
       return documentId.value;
@@ -159,9 +170,10 @@ export const useDocumentStore = defineStore('document', () => {
   };
   
   const sealPdfDocument = async (
-    qrCodeDataUrl: string, 
+    sealDataUrl: string, 
     position: { x: number; y: number }, 
-    size: number
+    width: number,
+    height: number
   ) => {
     if (!uploadedDocument.value) return;
     
@@ -169,19 +181,19 @@ export const useDocumentStore = defineStore('document', () => {
     const fileArrayBuffer = await uploadedDocument.value.arrayBuffer();
     const pdfDoc = await PDFDocument.load(fileArrayBuffer);
     
-    // Convert QR code data URL to image
-    const qrImage = await pdfDoc.embedPng(qrCodeDataUrl);
+    // Convert seal image to PNG for embedding
+    const sealImage = await pdfDoc.embedPng(sealDataUrl);
     
-    // Add QR code to each page of the PDF
+    // Add seal to the first page of the PDF
     const pages = pdfDoc.getPages();
     const firstPage = pages[0];
     
-    // Use the exact position and size calculated by our UI calculator
-    firstPage.drawImage(qrImage, {
+    // Use the exact position and dimensions of the complete seal
+    firstPage.drawImage(sealImage, {
       x: position.x,
       y: position.y,
-      width: size,
-      height: size,
+      width: width,
+      height: height,
     });
     
     // Save the PDF
@@ -193,9 +205,10 @@ export const useDocumentStore = defineStore('document', () => {
   };
   
   const sealImageDocument = async (
-    qrCodeDataUrl: string, 
+    sealDataUrl: string, 
     position: { x: number; y: number }, 
-    size: number
+    width: number,
+    height: number
   ) => {
     if (!uploadedDocument.value) return;
     
@@ -217,11 +230,11 @@ export const useDocumentStore = defineStore('document', () => {
         // Draw the original image
         ctx.drawImage(img, 0, 0);
         
-        // Load QR code image
-        const qrImg = new Image();
-        qrImg.onload = () => {
-          // Use the exact position and size calculated by our UI calculator
-          ctx.drawImage(qrImg, position.x, position.y, size, size);
+        // Load complete seal image
+        const sealImg = new Image();
+        sealImg.onload = () => {
+          // Use the exact position and dimensions of the complete seal
+          ctx.drawImage(sealImg, position.x, position.y, width, height);
           
           // Convert canvas to blob
           canvas.toBlob((blob) => {
@@ -235,8 +248,8 @@ export const useDocumentStore = defineStore('document', () => {
           }, uploadedDocument.value?.type);
         };
         
-        qrImg.onerror = () => reject(new Error('Failed to load QR code image'));
-        qrImg.src = qrCodeDataUrl;
+        sealImg.onerror = () => reject(new Error('Failed to load seal image'));
+        sealImg.src = sealDataUrl;
       };
       
       img.onerror = () => reject(new Error('Failed to load original image'));

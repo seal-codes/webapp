@@ -56,11 +56,12 @@ export class QRCodeUICalculator {
 
   /**
    * Calculate QR code size in pixels based on document type
+   * Note: This is the QR code portion size, the complete seal will be larger
    * 
    * @param sizePercent - Size as percentage
    * @param documentDimensions - Document dimensions
    * @param documentType - Document type
-   * @returns Size in pixels
+   * @returns Size in pixels for the QR code portion
    */
   private calculateSizeInPixels(
     sizePercent: number,
@@ -78,10 +79,27 @@ export class QRCodeUICalculator {
   }
 
   /**
+   * Calculate the complete seal dimensions (QR code + borders + identity section)
+   * 
+   * @param qrSizeInPixels - Size of just the QR code portion
+   * @returns Complete seal dimensions
+   */
+  calculateCompleteSealDimensions(qrSizeInPixels: number): { width: number; height: number } {
+    const padding = 12; // Padding around QR code
+    const identityHeight = 50; // Height of identity section
+    
+    return {
+      width: qrSizeInPixels + (padding * 2),
+      height: qrSizeInPixels + (padding * 2) + identityHeight
+    };
+  }
+
+  /**
    * Ensure QR code position stays within document bounds
+   * Updated to account for complete seal dimensions
    * 
    * @param position - Calculated position
-   * @param qrSize - QR code size in pixels
+   * @param qrSize - QR code size in pixels (just the QR portion)
    * @param documentDimensions - Document dimensions
    * @returns Bounded position
    */
@@ -90,9 +108,12 @@ export class QRCodeUICalculator {
     qrSize: number,
     documentDimensions: DocumentDimensions
   ): { x: number; y: number } {
+    // Calculate complete seal dimensions
+    const sealDimensions = this.calculateCompleteSealDimensions(qrSize);
+    
     return {
-      x: Math.max(0, Math.min(documentDimensions.width - qrSize, position.x)),
-      y: Math.max(0, Math.min(documentDimensions.height - qrSize, position.y))
+      x: Math.max(0, Math.min(documentDimensions.width - sealDimensions.width, position.x)),
+      y: Math.max(0, Math.min(documentDimensions.height - sealDimensions.height, position.y))
     };
   }
 
