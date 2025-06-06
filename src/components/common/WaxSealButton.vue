@@ -1,35 +1,48 @@
 <script setup lang="ts">
+import { ref } from 'vue'
+
 defineProps<{
   text: string;
 }>()
+
+const isPressed = ref(false)
+
+const handlePress = () => {
+  isPressed.value = true
+  setTimeout(() => {
+    isPressed.value = false
+  }, 200)
+}
 </script>
 
 <template>
   <button 
-    class="relative group"
+    class="relative group focus:outline-none"
+    @mousedown="handlePress"
   >
+    <!-- Button background -->
     <div 
-      class="absolute inset-0 bg-secondary-500 rounded-full transition-all duration-300 group-hover:scale-110 group-hover:blur-sm group-active:scale-125 group-active:blur-md"
+      class="absolute inset-0 bg-secondary-500 rounded-full shadow-lg transition-all duration-200"
+      :class="{
+        'bg-secondary-600 scale-110 shadow-inner': isPressed,
+        'bg-secondary-500 scale-100 shadow-lg': !isPressed
+      }"
     />
-    
-    <!-- Wax seal effect -->
-    <div 
-      class="absolute -inset-1 bg-secondary-500 rounded-full opacity-0 transition-all duration-300
-      group-hover:opacity-50 group-hover:scale-[1.2] group-hover:blur-lg
-      group-active:opacity-70 group-active:scale-[1.4] group-active:blur-xl"
-    >
-      <!-- Wax bulges -->
-      <div class="absolute top-0 left-1/4 w-4 h-4 bg-secondary-500 rounded-full transform -translate-y-1/2" />
-      <div class="absolute top-0 right-1/4 w-4 h-4 bg-secondary-500 rounded-full transform -translate-y-1/2" />
-      <div class="absolute bottom-0 left-1/4 w-4 h-4 bg-secondary-500 rounded-full transform translate-y-1/2" />
-      <div class="absolute bottom-0 right-1/4 w-4 h-4 bg-secondary-500 rounded-full transform translate-y-1/2" />
-    </div>
     
     <!-- Button content -->
     <div 
-      class="relative px-12 py-4 bg-secondary-500 text-white text-xl rounded-full shadow-lg transition-transform duration-300 group-hover:transform group-hover:scale-105 group-active:scale-110"
+      class="relative px-12 py-4 text-white text-xl font-semibold transition-all duration-200 rounded-full"
+      :class="{
+        'transform scale-110': isPressed,
+        'transform scale-100': !isPressed
+      }"
     >
       {{ text }}
     </div>
+    
+    <!-- Hover effect -->
+    <div 
+      class="absolute inset-0 bg-white/10 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
+    />
   </button>
 </template>
