@@ -23,7 +23,7 @@ const handleSocialAuth = async (provider: string) => {
   isProcessing.value = true;
   try {
     await documentStore.authenticateWith(provider);
-    await documentStore.sealDocument({ ...qrPosition.value, size: qrSize.value });
+    await documentStore.sealDocument(qrPosition.value, qrSize.value);
     router.push(`/sealed/${documentStore.documentId}`);
   } catch (error) {
     console.error('Authentication error:', error);
@@ -87,7 +87,11 @@ const updateQrSize = (size: number) => {
                 <DocumentPreview 
                   :document="documentStore.uploadedDocument" 
                   :qr-position="qrPosition"
+                  :qr-size-percent="qrSize"
                   :has-qr="false"
+                  :attestation-data="documentStore.currentAttestationData"
+                  :auth-provider="documentStore.authProvider || undefined"
+                  :user-name="documentStore.userName || undefined"
                   @position-updated="updateQrPosition"
                   @size-updated="updateQrSize"
                 />

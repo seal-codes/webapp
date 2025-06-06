@@ -86,7 +86,7 @@ const validateAndEmitFile = (file: File) => {
     @dragover="handleDragOver"
     @dragleave="handleDragLeave"
     @drop="handleDrop"
-    @click="$refs.fileInput.click()"
+    @click="($refs.fileInput as HTMLInputElement)?.click()"
   >
     <input 
       type="file"

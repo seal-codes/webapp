@@ -1,7 +1,10 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import { PDFDocument } from 'pdf-lib';
-import QRCode from 'qrcode';
+import { qrCodeService } from '@/services/qrcode-service';
+import { qrCodeUICalculator } from '@/services/qrcode-ui-calculator';
+import { attestationBuilder } from '@/services/attestation-builder';
+import type { QRCodeUIPosition, AttestationData } from '@/types/qrcode';
 
 // Unique ID generation for documents
 const generateUniqueId = () => {
@@ -23,6 +26,18 @@ export const useDocumentStore = defineStore('document', () => {
   // Getters
   const hasDocument = computed(() => uploadedDocument.value !== null);
   const fileName = computed(() => uploadedDocument.value?.name || '');
+  const currentAttestationData = computed((): AttestationData | undefined => {
+    if (!isAuthenticated.value || !authProvider.value || !userName.value) {
+      return undefined;
+    }
+    
+    try {
+      return buildAttestationData();
+    } catch (error) {
+      console.warn('Could not build attestation data:', error);
+      return undefined;
+    }
+  });
   
   // Actions
   const setDocument = async (file: File) => {
@@ -53,29 +68,40 @@ export const useDocumentStore = defineStore('document', () => {
     documentId.value = generateUniqueId();
   };
   
-  const sealDocument = async (position: { x: number, y: number }) => {
+  const sealDocument = async (position: QRCodeUIPosition, sizePercent: number = 20) => {
     if (!uploadedDocument.value || !isAuthenticated.value) {
       throw new Error('Document or authentication missing');
     }
-    
+
     try {
-      // Generate QR code data URL containing verification info
-      const verificationUrl = `https://seal.codes/verify/${documentId.value}`;
-      const qrCodeDataUrl = await QRCode.toDataURL(verificationUrl, {
-        width: 200,
-        margin: 1,
-        errorCorrectionLevel: 'H'
+      // Get document dimensions for pixel calculation
+      const documentDimensions = await getDocumentDimensions();
+      
+      // Calculate exact pixel positioning using our UI calculator
+      const pixelCalculation = qrCodeUICalculator.calculateEmbeddingPixels(
+        position,
+        sizePercent,
+        documentDimensions,
+        documentType.value as 'pdf' | 'image'
+      );
+
+      // Build compact attestation data
+      const attestationData = buildAttestationData();
+
+      // Generate QR code using our service with exact dimensions
+      const qrResult = await qrCodeService.generateForEmbedding({
+        position: pixelCalculation.position,
+        sizeInPixels: pixelCalculation.sizeInPixels,
+        attestationData
       });
-      
-      // Handle PDF documents
+
+      // Embed using the same QR code that was generated
       if (documentType.value === 'pdf') {
-        await sealPdfDocument(qrCodeDataUrl, position);
-      } 
-      // Handle image documents
-      else if (documentType.value === 'image') {
-        await sealImageDocument(qrCodeDataUrl, position);
+        await sealPdfDocument(qrResult.dataUrl, pixelCalculation.position, pixelCalculation.sizeInPixels);
+      } else if (documentType.value === 'image') {
+        await sealImageDocument(qrResult.dataUrl, pixelCalculation.position, pixelCalculation.sizeInPixels);
       }
-      
+
       return documentId.value;
     } catch (error) {
       console.error('Error sealing document:', error);
@@ -83,7 +109,60 @@ export const useDocumentStore = defineStore('document', () => {
     }
   };
   
-  const sealPdfDocument = async (qrCodeDataUrl: string, position: { x: number, y: number }) => {
+  // Helper function to get document dimensions
+  const getDocumentDimensions = async (): Promise<{ width: number; height: number }> => {
+    if (!uploadedDocument.value) {
+      throw new Error('No document available');
+    }
+
+    if (documentType.value === 'image') {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve({ width: img.naturalWidth, height: img.naturalHeight });
+        img.onerror = () => reject(new Error('Failed to load image dimensions'));
+        img.src = documentPreviewUrl.value;
+      });
+    } else if (documentType.value === 'pdf') {
+      // For PDFs, we need to get the page dimensions
+      const fileArrayBuffer = await uploadedDocument.value.arrayBuffer();
+      const pdfDoc = await PDFDocument.load(fileArrayBuffer);
+      const firstPage = pdfDoc.getPages()[0];
+      const { width, height } = firstPage.getSize();
+      return { width, height };
+    }
+
+    throw new Error('Unsupported document type');
+  };
+
+  // Helper function to build attestation data
+  const buildAttestationData = (): AttestationData => {
+    if (!authProvider.value || !userName.value) {
+      throw new Error('Authentication data missing');
+    }
+
+    // TODO: Generate actual document hashes (cryptographic, pHash, dHash)
+    // For now, using placeholder values
+    return attestationBuilder.buildCompactAttestation({
+      documentHashes: {
+        cryptographic: 'placeholder-crypto-hash',
+        pHash: 'placeholder-phash',
+        dHash: 'placeholder-dhash'
+      },
+      identity: {
+        provider: authProvider.value,
+        identifier: userName.value
+      },
+      serviceInfo: {
+        publicKeyId: 'placeholder-key-id'
+      }
+    });
+  };
+  
+  const sealPdfDocument = async (
+    qrCodeDataUrl: string, 
+    position: { x: number; y: number }, 
+    size: number
+  ) => {
     if (!uploadedDocument.value) return;
     
     // Read the PDF file
@@ -97,17 +176,12 @@ export const useDocumentStore = defineStore('document', () => {
     const pages = pdfDoc.getPages();
     const firstPage = pages[0];
     
-    // Calculate position
-    const { width, height } = firstPage.getSize();
-    const qrSize = 100;
-    const qrX = (width * position.x / 100) - (qrSize / 2);
-    const qrY = (height * (100 - position.y) / 100) - (qrSize / 2); // Invert Y coordinate
-    
+    // Use the exact position and size calculated by our UI calculator
     firstPage.drawImage(qrImage, {
-      x: qrX,
-      y: qrY,
-      width: qrSize,
-      height: qrSize,
+      x: position.x,
+      y: position.y,
+      width: size,
+      height: size,
     });
     
     // Save the PDF
@@ -118,7 +192,11 @@ export const useDocumentStore = defineStore('document', () => {
     sealedDocumentUrl.value = URL.createObjectURL(sealedPdfBlob);
   };
   
-  const sealImageDocument = async (qrCodeDataUrl: string, position: { x: number, y: number }) => {
+  const sealImageDocument = async (
+    qrCodeDataUrl: string, 
+    position: { x: number; y: number }, 
+    size: number
+  ) => {
     if (!uploadedDocument.value) return;
     
     return new Promise<void>((resolve, reject) => {
@@ -142,13 +220,8 @@ export const useDocumentStore = defineStore('document', () => {
         // Load QR code image
         const qrImg = new Image();
         qrImg.onload = () => {
-          // Calculate QR code position
-          const qrSize = Math.min(canvas.width, canvas.height) * 0.15; // 15% of smallest dimension
-          const qrX = (canvas.width * position.x / 100) - (qrSize / 2);
-          const qrY = (canvas.height * position.y / 100) - (qrSize / 2);
-          
-          // Draw QR code
-          ctx.drawImage(qrImg, qrX, qrY, qrSize, qrSize);
+          // Use the exact position and size calculated by our UI calculator
+          ctx.drawImage(qrImg, position.x, position.y, size, size);
           
           // Convert canvas to blob
           canvas.toBlob((blob) => {
@@ -224,6 +297,7 @@ export const useDocumentStore = defineStore('document', () => {
     // Getters
     hasDocument,
     fileName,
+    currentAttestationData,
     
     // Actions
     setDocument,

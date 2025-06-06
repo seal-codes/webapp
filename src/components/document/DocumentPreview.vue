@@ -1,11 +1,16 @@
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue';
-import QrCodePlaceholder from './QrCodePlaceholder.vue';
+import { ref, onMounted, watch, computed } from 'vue';
+import QRCodePreview from '@/components/qrcode/QRCodePreview.vue';
+import type { QRCodeUIPosition, AttestationData } from '@/types/qrcode';
 
 const props = defineProps<{
   document: File | null;
-  qrPosition: { x: number, y: number };
+  qrPosition: QRCodeUIPosition;
+  qrSizePercent: number;
   hasQr?: boolean;
+  attestationData?: AttestationData;
+  authProvider?: string;
+  userName?: string;
 }>();
 
 const previewUrl = ref('');
@@ -14,6 +19,12 @@ const isLoading = ref(true);
 const containerWidth = ref(0);
 const containerHeight = ref(0);
 const previewRef = ref<HTMLElement | null>(null);
+
+// Container dimensions for QR calculations
+const containerDimensions = computed(() => ({
+  width: containerWidth.value,
+  height: containerHeight.value
+}));
 
 // Create document preview
 watch(() => props.document, async (newDocument) => {
@@ -65,8 +76,8 @@ onMounted(() => {
 });
 
 const emit = defineEmits<{
-  (e: 'positionUpdated', position: { x: number, y: number }): void;
-  (e: 'sizeUpdated', size: number): void;
+  (e: 'positionUpdated', position: QRCodeUIPosition): void;
+  (e: 'sizeUpdated', sizePercent: number): void;
 }>();
 </script>
 
@@ -88,20 +99,25 @@ const emit = defineEmits<{
         alt="Document preview" 
         class="w-full rounded" 
         @load="() => {
-          if (previewRef.value) {
-            const rect = previewRef.value.getBoundingClientRect();
+          if (previewRef) {
+            const rect = previewRef.getBoundingClientRect();
             containerWidth = rect.width;
             containerHeight = rect.height;
           }
         }"
       />
       
-      <!-- QR code placeholder -->
-      <QrCodePlaceholder
-        v-if="!hasQr && containerWidth && containerHeight"
+      <!-- QR code preview -->
+      <QRCodePreview
+        v-if="!hasQr && containerDimensions.width && containerDimensions.height && documentType"
         :position="qrPosition"
-        :container-width="containerWidth"
-        :container-height="containerHeight"
+        :size-percent="qrSizePercent"
+        :container-dimensions="containerDimensions"
+        :document-type="documentType"
+        :attestation-data="attestationData"
+        :is-placeholder="!attestationData"
+        :auth-provider="authProvider"
+        :user-name="userName"
         @position-updated="$emit('positionUpdated', $event)"
         @size-updated="$emit('sizeUpdated', $event)"
       />
@@ -117,14 +133,26 @@ const emit = defineEmits<{
         :src="`${previewUrl}#view=FitH`" 
         class="w-full h-full rounded" 
         title="PDF preview"
+        @load="() => {
+          if (previewRef) {
+            const rect = previewRef.getBoundingClientRect();
+            containerWidth = rect.width;
+            containerHeight = rect.height;
+          }
+        }"
       />
       
-      <!-- QR code placeholder -->
-      <QrCodePlaceholder
-        v-if="!hasQr && containerWidth && containerHeight"
+      <!-- QR code preview -->
+      <QRCodePreview
+        v-if="!hasQr && containerDimensions.width && containerDimensions.height && documentType"
         :position="qrPosition"
-        :container-width="containerWidth"
-        :container-height="containerHeight"
+        :size-percent="qrSizePercent"
+        :container-dimensions="containerDimensions"
+        :document-type="documentType"
+        :attestation-data="attestationData"
+        :is-placeholder="!attestationData"
+        :auth-provider="authProvider"
+        :user-name="userName"
         @position-updated="$emit('positionUpdated', $event)"
         @size-updated="$emit('sizeUpdated', $event)"
       />
