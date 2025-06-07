@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import BaseButton from '../common/BaseButton.vue'
 
 const emit = defineEmits<{
   (e: 'fileLoaded', file: File): void;
@@ -125,9 +126,9 @@ const validateAndEmitFile = (file: File) => {
         Upload a PDF, PNG, or JPG file
       </p>
       
-      <button class="bg-primary-500 text-white px-6 py-2 rounded-lg hover:bg-primary-600 transition-colors">
+      <BaseButton variant="primary">
         Select File
-      </button>
+      </BaseButton>
     </div>
   </div>
 </template>

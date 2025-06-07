@@ -2,7 +2,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useDocumentStore } from '../stores/documentStore'
-// import DescriptionWrapper from '../components/common/DescriptionWrapper.vue' // Uncomment when needed
+import BaseButton from '../components/common/BaseButton.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -77,19 +77,19 @@ const sealInfo = [
             </div>
             
             <div class="flex justify-between items-center">
-              <button 
-                class="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors flex items-center gap-2"
+              <BaseButton 
+                variant="secondary"
                 @click="goBack"
               >
-                <span>← Back</span>
-              </button>
+                ← Back
+              </BaseButton>
               
-              <button 
-                class="px-6 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors flex items-center gap-2" 
+              <BaseButton 
+                variant="primary"
                 @click="downloadDocument"
               >
-                <span>Download Document</span>
-              </button>
+                Download Document
+              </BaseButton>
             </div>
           </div>
         </div>
@@ -107,7 +107,7 @@ const sealInfo = [
                 :key="index"
                 class="flex items-start gap-3"
               >
-                <div class="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-medium">
+                <div class="numbered-circle">
                   {{ index + 1 }}
                 </div>
                 <p class="text-gray-700">

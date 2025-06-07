@@ -6,6 +6,7 @@ import DocumentDropzone from '../components/document/DocumentDropzone.vue'
 import DocumentPreview from '../components/document/DocumentPreview.vue'
 import SocialAuthSelector from '../components/auth/SocialAuthSelector.vue'
 import HowItWorks from '../components/document/HowItWorks.vue'
+import BaseButton from '../components/common/BaseButton.vue'
 
 const router = useRouter()
 const documentStore = useDocumentStore()
@@ -101,12 +102,12 @@ const updateQrSize = (size: number) => {
               
               <!-- Controls Bar -->
               <div class="flex justify-between items-center mb-6">
-                <button 
-                  class="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                <BaseButton 
+                  variant="outline"
                   @click="chooseNewDocument"
                 >
                   Choose Another Document
-                </button>
+                </BaseButton>
                 
                 <div class="flex gap-2">
                   <button 

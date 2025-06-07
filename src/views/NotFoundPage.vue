@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
+import BaseButton from '../components/common/BaseButton.vue'
 
 const router = useRouter()
 
@@ -20,9 +21,9 @@ const goHome = () => {
       <p class="text-gray-600 mb-8 max-w-md mx-auto">
         The page you are looking for doesn't exist or has been moved.
       </p>
-      <button class="btn btn-primary" @click="goHome">
+      <BaseButton variant="primary" @click="goHome">
         Return to Home
-      </button>
+      </BaseButton>
     </div>
   </div>
 </template>
