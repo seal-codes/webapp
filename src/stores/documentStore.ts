@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
+import { ref, computed, watchEffect } from 'vue'
 import { PDFDocument } from 'pdf-lib'
 import { qrCodeUICalculator } from '@/services/qrcode-ui-calculator'
 import { attestationBuilder } from '@/services/attestation-builder'
@@ -15,6 +15,7 @@ export const useDocumentStore = defineStore('document', () => {
   // State
   const uploadedDocument = ref<File | null>(null)
   const documentType = ref<'pdf' | 'image' | null>(null)
+  const imageType = ref<string | null>(null)
   const documentId = ref<string>('')
   const documentPreviewUrl = ref<string>('')
   const sealedDocumentUrl = ref<string>('')
@@ -26,16 +27,19 @@ export const useDocumentStore = defineStore('document', () => {
   // Getters
   const hasDocument = computed(() => uploadedDocument.value !== null)
   const fileName = computed(() => uploadedDocument.value?.name || '')
-  const currentAttestationData = computed((): AttestationData | undefined => {
+  const currentAttestationData = ref<AttestationData | undefined>(undefined)
+
+  watchEffect(async () => {
     if (!isAuthenticated.value || !authProvider.value || !userName.value) {
-      return undefined
+      currentAttestationData.value = undefined
+      return
     }
-    
+
     try {
-      return buildAttestationData()
+      currentAttestationData.value = await buildAttestationData()
     } catch (error) {
       console.warn('Could not build attestation data:', error)
-      return undefined
+      currentAttestationData.value = undefined
     }
   })
   
@@ -48,6 +52,7 @@ export const useDocumentStore = defineStore('document', () => {
       documentType.value = 'pdf'
     } else if (file.type.startsWith('image/')) {
       documentType.value = 'image'
+      imageType.value = file.type
     } else {
       throw new Error('Unsupported file type')
     }
@@ -86,7 +91,7 @@ export const useDocumentStore = defineStore('document', () => {
       )
 
       // Build compact attestation data
-      const attestationData = buildAttestationData()
+      const attestationData = await buildAttestationData()
 
       // Generate complete QR seal (including borders, identity, etc.)
       const sealResult = await qrSealRenderer.generateSeal({
@@ -146,18 +151,25 @@ export const useDocumentStore = defineStore('document', () => {
   }
 
   // Helper function to build attestation data
-  const buildAttestationData = (): AttestationData => {
+  const buildAttestationData = async (): Promise<AttestationData> => {
     if (!authProvider.value || !userName.value) {
       throw new Error('Authentication data missing')
     }
 
     // TODO: Generate actual document hashes (cryptographic, pHash, dHash)
     // For now, using placeholder values
+    if (!uploadedDocument.value) {
+      throw new Error('File not uploaded')
+    }
+
+    const fileArrayBuffer = await uploadedDocument.value.arrayBuffer()
+    const hash = window.GetHashOfImage(new Uint8Array(fileArrayBuffer), uploadedDocument.value.type)
+    
     return attestationBuilder.buildCompactAttestation({
       documentHashes: {
         cryptographic: 'placeholder-crypto-hash',
-        pHash: 'placeholder-phash',
-        dHash: 'placeholder-dhash',
+        pHash: hash.phash,
+        dHash: hash.dhash,
       },
       identity: {
         provider: authProvider.value,
