@@ -163,6 +163,7 @@ export const useDocumentStore = defineStore('document', () => {
     }
 
     const fileArrayBuffer = await uploadedDocument.value.arrayBuffer()
+    // TODO: Only create pHash, or dHash if the document type is either 'image/png' or 'image/jpeg'
     const hash = window.GetHashOfImage(new Uint8Array(fileArrayBuffer), uploadedDocument.value.type)
     
     return attestationBuilder.buildCompactAttestation({
