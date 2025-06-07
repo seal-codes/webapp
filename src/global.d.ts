@@ -3,7 +3,7 @@ export interface Hashes {
   dhash: string;
 }
 
-export {};
+export {}
 declare global {
     export interface Window {
         Go: {
