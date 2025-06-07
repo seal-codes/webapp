@@ -15,7 +15,7 @@ const documentStore = useDocumentStore()
 const isDocumentLoaded = computed(() => documentStore.hasDocument)
 const isProcessing = ref(false)
 const qrPosition = ref({ x: 50, y: 50 })
-const qrSize = ref(20) // Default 20% of container width
+const qrSize = ref(20) // Default 20% of container width (between min 15% and max 35%)
 
 const handleDocumentLoaded = (file: File) => {
   documentStore.setDocument(file)

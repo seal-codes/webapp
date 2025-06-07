@@ -203,10 +203,17 @@ const handleDrag = (e: MouseEvent | TouchEvent) => {
   emit('positionUpdated', { x: safeX, y: safeY })
 }
 
-// Size adjustment
+// Size adjustment with improved constraints
 const adjustSize = (delta: number) => {
-  const newSize = Math.max(10, Math.min(30, props.sizePercent + delta))
-  emit('sizeUpdated', newSize)
+  // Set minimum size to 15% and maximum to 35% for better usability
+  const minSize = 15
+  const maxSize = 35
+  const newSize = Math.max(minSize, Math.min(maxSize, props.sizePercent + delta))
+  
+  // Only emit if the size actually changed
+  if (newSize !== props.sizePercent) {
+    emit('sizeUpdated', newSize)
+  }
 }
 </script>
 
@@ -296,21 +303,22 @@ const adjustSize = (delta: number) => {
     <div 
       v-if="!isDragging"
       class="absolute left-1/2 transform -translate-x-1/2 mt-2 flex gap-1 bg-white rounded-lg shadow-md p-1 border border-gray-200"
+      @mousedown.stop
+      @touchstart.stop
     >
       <button 
-        class="w-8 h-8 md:w-7 md:h-7 flex items-center justify-center text-gray-600 hover:bg-gray-100 rounded text-sm font-medium touch-manipulation" 
-        title="Decrease size"
-        @click="adjustSize(-2)"
+        class="w-9 h-9 md:w-8 md:h-8 flex items-center justify-center text-gray-600 hover:bg-gray-100 active:bg-gray-200 rounded text-lg font-bold touch-manipulation disabled:opacity-50 disabled:cursor-not-allowed transition-colors" 
+        title="Make smaller"
+        :disabled="sizePercent <= 15"
+        @click.stop="adjustSize(-3)"
       >
         −
       </button>
-      <div class="flex items-center px-2 text-xs text-gray-500 font-medium min-w-[2rem] justify-center">
-        {{ sizePercent }}%
-      </div>
       <button 
-        class="w-8 h-8 md:w-7 md:h-7 flex items-center justify-center text-gray-600 hover:bg-gray-100 rounded text-sm font-medium touch-manipulation"
-        title="Increase size"
-        @click="adjustSize(2)"
+        class="w-9 h-9 md:w-8 md:h-8 flex items-center justify-center text-gray-600 hover:bg-gray-100 active:bg-gray-200 rounded text-lg font-bold touch-manipulation disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        title="Make larger"
+        :disabled="sizePercent >= 35"
+        @click.stop="adjustSize(3)"
       >
         +
       </button>
