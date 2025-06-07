@@ -1,0 +1,165 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "close": "Close",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "retry": "Retry"
+  },
+  "navigation": {
+    "home": "Home",
+    "sealDocument": "Seal Document",
+    "howItWorks": "How It Works",
+    "about": "About"
+  },
+  "home": {
+    "hero": {
+      "title": "The Digital {seal} for the Modern Age",
+      "subtitle": "Add visible marks of authenticity to your documents, just like the royal seals of old.",
+      "cta": "It's yours – seal it!"
+    },
+    "steps": {
+      "loadDocument": {
+        "title": "Load Document",
+        "description": "Load any PDF or image file you want to protect with a seal."
+      },
+      "positionSeal": {
+        "title": "Position Your Seal",
+        "description": "Place your unique seal exactly where you want it on the document."
+      },
+      "sealIt": {
+        "title": "Seal it",
+        "description": "seal.codes creates a cryptographic seal that clearly proves your ownership."
+      }
+    }
+  },
+  "document": {
+    "title": "Load Your Document",
+    "dropzone": {
+      "title": "Drop your document here",
+      "subtitle": "or click to browse",
+      "supportedFormats": "Supported formats: PDF, PNG, JPG, JPEG",
+      "maxSize": "Maximum file size: 10MB",
+      "dragActive": "Drop the file here...",
+      "processing": "Processing document...",
+      "error": "Error processing document. Please try again.",
+      "selectFile": "Select File"
+    },
+    "preview": {
+      "title": "Document Preview",
+      "qrPosition": "QR Code Position",
+      "qrSize": "QR Code Size",
+      "corners": {
+        "topLeft": "Top Left Corner",
+        "topRight": "Top Right Corner",
+        "bottomLeft": "Bottom Left Corner",
+        "bottomRight": "Bottom Right Corner"
+      }
+    },
+    "controls": {
+      "chooseAnother": "Choose Another Document",
+      "authenticateWith": "Authenticate yourself with"
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "steps": {
+        "upload": {
+          "title": "Upload Document",
+          "description": "Select the PDF or image file you want to seal."
+        },
+        "position": {
+          "title": "Position QR Code",
+          "description": "Choose where to place your authentication seal on the document."
+        },
+        "authenticate": {
+          "title": "Authenticate",
+          "description": "Sign in with your social account to create the seal."
+        },
+        "download": {
+          "title": "Download",
+          "description": "Get your sealed document with embedded authentication."
+        }
+      }
+    }
+  },
+  "auth": {
+    "socialProviders": {
+      "title": "Choose Authentication Provider",
+      "subtitle": "Select how you want to authenticate your identity",
+      "github": "Continue with GitHub",
+      "google": "Continue with Google",
+      "twitter": "Continue with Twitter",
+      "linkedin": "Continue with LinkedIn"
+    },
+    "processing": "Authenticating...",
+    "error": "Authentication failed. Please try again.",
+    "success": "Authentication successful!"
+  },
+  "sealed": {
+    "title": "Document Sealed Successfully",
+    "subtitle": "Your document has been sealed with your digital signature",
+    "download": "Download Sealed Document",
+    "verify": "Verify Document",
+    "share": "Share Document",
+    "details": {
+      "title": "Seal Details",
+      "sealedBy": "Sealed by",
+      "sealedAt": "Sealed at",
+      "provider": "Authentication Provider",
+      "documentHash": "Document Hash",
+      "verificationUrl": "Verification URL"
+    },
+    "actions": {
+      "sealAnother": "Seal Another Document",
+      "viewOriginal": "View Original"
+    }
+  },
+  "verification": {
+    "title": "Document Verification",
+    "scanning": "Scanning QR code...",
+    "verified": "Document Verified",
+    "invalid": "Invalid Seal",
+    "details": {
+      "authentic": "This document is authentic",
+      "sealedBy": "Sealed by {name}",
+      "sealedAt": "Sealed on {date}",
+      "provider": "Authenticated via {provider}",
+      "integrity": "Document integrity confirmed"
+    },
+    "errors": {
+      "invalidQr": "Invalid QR code",
+      "networkError": "Network error during verification",
+      "documentModified": "Document has been modified since sealing",
+      "sealExpired": "Seal has expired"
+    }
+  },
+  "errors": {
+    "fileTooBig": "File is too large. Maximum size is 10MB.",
+    "unsupportedFormat": "Unsupported file format. Please use PDF, PNG, JPG, or JPEG.",
+    "uploadFailed": "Upload failed. Please try again.",
+    "processingFailed": "Document processing failed. Please try again.",
+    "authenticationFailed": "Authentication failed. Please try again.",
+    "sealingFailed": "Document sealing failed. Please try again.",
+    "networkError": "Network error. Please check your connection and try again.",
+    "unexpectedError": "An unexpected error occurred. Please try again."
+  },
+  "footer": {
+    "copyright": "© 2024 seal.codes. All rights reserved.",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service",
+    "contact": "Contact"
+  },
+  "notFound": {
+    "title": "Page Not Found",
+    "subtitle": "The page you're looking for doesn't exist.",
+    "backHome": "Back to Home"
+  }
+}

@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
+import LanguageSwitcher from '../common/LanguageSwitcher.vue'
 
 const router = useRouter()
+const { t } = useI18n()
 const isMenuOpen = ref(false)
 
 const toggleMenu = () => {
@@ -27,21 +30,23 @@ const navigateTo = (path: string) => {
         </div>
         
         <!-- Desktop Navigation -->
-        <nav class="hidden md:flex space-x-8">
+        <nav class="hidden md:flex items-center space-x-8">
           <a 
             href="/" 
             class="text-gray-700 hover:text-primary-500 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200"
             @click.prevent="navigateTo('/')"
           >
-            Home
+            {{ t('navigation.home') }}
           </a>
           <a 
             href="/document" 
             class="text-gray-700 hover:text-primary-500 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200"
             @click.prevent="navigateTo('/document')"
           >
-            Seal Document
+            {{ t('navigation.sealDocument') }}
           </a>
+          
+          <LanguageSwitcher />
         </nav>
         
         <!-- Mobile Menu Button -->
@@ -87,15 +92,19 @@ const navigateTo = (path: string) => {
             class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary-500 hover:bg-gray-50"
             @click.prevent="navigateTo('/')"
           >
-            Home
+            {{ t('navigation.home') }}
           </a>
           <a 
             href="/document" 
             class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary-500 hover:bg-gray-50"
             @click.prevent="navigateTo('/document')"
           >
-            Seal Document
+            {{ t('navigation.sealDocument') }}
           </a>
+          
+          <div class="px-3 py-2">
+            <LanguageSwitcher />
+          </div>
         </div>
       </div>
     </div>

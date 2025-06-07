@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import BaseButton from '../common/BaseButton.vue'
 
 const emit = defineEmits<{
   (e: 'fileLoaded', file: File): void;
 }>()
 
+const { t } = useI18n()
 const isDragging = ref(false)
 const errorMessage = ref('')
 
@@ -60,14 +62,14 @@ const validateAndEmitFile = (file: File) => {
   
   // Check file type
   if (!allowedTypes.includes(file.type)) {
-    errorMessage.value = 'Unsupported file type. Please use PDF, JPEG, or PNG.'
+    errorMessage.value = t('errors.unsupportedFormat')
     return
   }
   
   // Check file size (10MB max)
   const maxSize = 10 * 1024 * 1024 // 10MB in bytes
   if (file.size > maxSize) {
-    errorMessage.value = 'File too large. Maximum size is 10MB.'
+    errorMessage.value = t('errors.fileTooBig')
     return
   }
   
@@ -115,7 +117,7 @@ const validateAndEmitFile = (file: File) => {
       </div>
       
       <h3 class="text-xl font-medium mb-2">
-        Drag & Drop Document
+        {{ t('document.dropzone.title') }}
       </h3>
       
       <p v-if="errorMessage" class="text-error-600 mb-2">
@@ -123,11 +125,11 @@ const validateAndEmitFile = (file: File) => {
       </p>
       
       <p class="text-gray-500 mb-4">
-        Upload a PDF, PNG, or JPG file
+        {{ t('document.dropzone.subtitle') }}
       </p>
       
       <BaseButton variant="primary">
-        Select File
+        {{ t('document.dropzone.selectFile') }}
       </BaseButton>
     </div>
   </div>

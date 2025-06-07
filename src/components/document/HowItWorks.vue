@@ -1,20 +1,24 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
+
 const steps = [
   {
     number: 1,
-    text: 'Load your document - it never leaves your device!',
+    text: t('document.howItWorks.steps.upload.description'),
   },
   {
     number: 2,
-    text: 'Place your seal anywhere on the document using drag and drop.',
+    text: t('document.howItWorks.steps.position.description'),
   },
   {
     number: 3,
-    text: 'Add a cryptographic seal that proves your ownership.',
+    text: t('document.howItWorks.steps.authenticate.description'),
   },
   {
     number: 4,
-    text: 'Share your sealed document with confidence.',
+    text: t('document.howItWorks.steps.download.description'),
   },
 ]
 
@@ -24,7 +28,7 @@ const fileTypes = ['PDF', 'PNG', 'JPG/JPEG']
 <template>
   <div class="bg-white rounded-xl shadow-sm p-6">
     <h2 class="text-xl font-bold mb-6">
-      How It Works
+      {{ t('document.howItWorks.title') }}
     </h2>
     
     <!-- Steps -->

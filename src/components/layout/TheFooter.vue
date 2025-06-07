@@ -1,5 +1,7 @@
 <script setup lang="ts">
-// No props or state needed for this basic footer
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 </script>
 
 <template>
@@ -68,7 +70,7 @@
       <!-- Copyright -->
       <div class="mt-8 border-t border-gray-200 pt-4">
         <p class="text-sm text-gray-500 text-center">
-          &copy; {{ new Date().getFullYear() }} seal.codes — All rights reserved.
+          {{ t('footer.copyright') }}
         </p>
         <p class="text-xs text-gray-400 text-center mt-1">
           All document processing happens client-side. Your files never leave your device.

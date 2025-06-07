@@ -1,0 +1,165 @@
+{
+  "common": {
+    "loading": "Lädt...",
+    "error": "Fehler",
+    "success": "Erfolgreich",
+    "cancel": "Abbrechen",
+    "confirm": "Bestätigen",
+    "close": "Schließen",
+    "save": "Speichern",
+    "delete": "Löschen",
+    "edit": "Bearbeiten",
+    "back": "Zurück",
+    "next": "Weiter",
+    "previous": "Vorherige",
+    "retry": "Wiederholen"
+  },
+  "navigation": {
+    "home": "Startseite",
+    "sealDocument": "Dokument siegeln",
+    "howItWorks": "So funktioniert's",
+    "about": "Über uns"
+  },
+  "home": {
+    "hero": {
+      "title": "Das digitale {seal} für das moderne Zeitalter",
+      "subtitle": "Füge sichtbare Authentizitätsmerkmale zu deinen Dokumenten hinzu, genau wie die königlichen Siegel vergangener Zeiten.",
+      "cta": "Es gehört dir – siegle es!"
+    },
+    "steps": {
+      "loadDocument": {
+        "title": "Dokument laden",
+        "description": "Lade eine beliebige PDF- oder Bilddatei, die du mit einem Siegel schützen möchtest."
+      },
+      "positionSeal": {
+        "title": "Siegel positionieren",
+        "description": "Platziere dein einzigartiges Siegel genau dort, wo du es auf dem Dokument haben möchtest."
+      },
+      "sealIt": {
+        "title": "Siegeln",
+        "description": "seal.codes erstellt ein kryptographisches Siegel, das eindeutig dein Eigentum beweist."
+      }
+    }
+  },
+  "document": {
+    "title": "Lade dein Dokument",
+    "dropzone": {
+      "title": "Dokument hier ablegen",
+      "subtitle": "oder klicken zum Durchsuchen",
+      "supportedFormats": "Unterstützte Formate: PDF, PNG, JPG, JPEG",
+      "maxSize": "Maximale Dateigröße: 10MB",
+      "dragActive": "Datei hier ablegen...",
+      "processing": "Dokument wird verarbeitet...",
+      "error": "Fehler beim Verarbeiten des Dokuments. Bitte versuche es erneut.",
+      "selectFile": "Datei auswählen"
+    },
+    "preview": {
+      "title": "Dokumentvorschau",
+      "qrPosition": "QR-Code Position",
+      "qrSize": "QR-Code Größe",
+      "corners": {
+        "topLeft": "Obere linke Ecke",
+        "topRight": "Obere rechte Ecke",
+        "bottomLeft": "Untere linke Ecke",
+        "bottomRight": "Untere rechte Ecke"
+      }
+    },
+    "controls": {
+      "chooseAnother": "Anderes Dokument wählen",
+      "authenticateWith": "Authentifiziere dich mit"
+    },
+    "howItWorks": {
+      "title": "So funktioniert's",
+      "steps": {
+        "upload": {
+          "title": "Dokument hochladen",
+          "description": "Wähle die PDF- oder Bilddatei aus, die du siegeln möchtest."
+        },
+        "position": {
+          "title": "QR-Code positionieren",
+          "description": "Wähle aus, wo du dein Authentifizierungssiegel auf dem Dokument platzieren möchtest."
+        },
+        "authenticate": {
+          "title": "Authentifizieren",
+          "description": "Melde dich mit deinem Social-Media-Konto an, um das Siegel zu erstellen."
+        },
+        "download": {
+          "title": "Herunterladen",
+          "description": "Erhalte dein gesiegeltes Dokument mit eingebetteter Authentifizierung."
+        }
+      }
+    }
+  },
+  "auth": {
+    "socialProviders": {
+      "title": "Authentifizierungsanbieter wählen",
+      "subtitle": "Wähle aus, wie du deine Identität authentifizieren möchtest",
+      "github": "Mit GitHub fortfahren",
+      "google": "Mit Google fortfahren",
+      "twitter": "Mit Twitter fortfahren",
+      "linkedin": "Mit LinkedIn fortfahren"
+    },
+    "processing": "Authentifizierung läuft...",
+    "error": "Authentifizierung fehlgeschlagen. Bitte versuche es erneut.",
+    "success": "Authentifizierung erfolgreich!"
+  },
+  "sealed": {
+    "title": "Dokument erfolgreich gesiegelt",
+    "subtitle": "Dein Dokument wurde mit deiner digitalen Signatur gesiegelt",
+    "download": "Gesiegeltes Dokument herunterladen",
+    "verify": "Dokument verifizieren",
+    "share": "Dokument teilen",
+    "details": {
+      "title": "Siegel-Details",
+      "sealedBy": "Gesiegelt von",
+      "sealedAt": "Gesiegelt am",
+      "provider": "Authentifizierungsanbieter",
+      "documentHash": "Dokument-Hash",
+      "verificationUrl": "Verifizierungs-URL"
+    },
+    "actions": {
+      "sealAnother": "Weiteres Dokument siegeln",
+      "viewOriginal": "Original anzeigen"
+    }
+  },
+  "verification": {
+    "title": "Dokumentverifizierung",
+    "scanning": "QR-Code wird gescannt...",
+    "verified": "Dokument verifiziert",
+    "invalid": "Ungültiges Siegel",
+    "details": {
+      "authentic": "Dieses Dokument ist authentisch",
+      "sealedBy": "Gesiegelt von {name}",
+      "sealedAt": "Gesiegelt am {date}",
+      "provider": "Authentifiziert über {provider}",
+      "integrity": "Dokumentintegrität bestätigt"
+    },
+    "errors": {
+      "invalidQr": "Ungültiger QR-Code",
+      "networkError": "Netzwerkfehler bei der Verifizierung",
+      "documentModified": "Dokument wurde seit der Siegelung verändert",
+      "sealExpired": "Siegel ist abgelaufen"
+    }
+  },
+  "errors": {
+    "fileTooBig": "Datei ist zu groß. Maximale Größe ist 10MB.",
+    "unsupportedFormat": "Nicht unterstütztes Dateiformat. Bitte verwende PDF, PNG, JPG oder JPEG.",
+    "uploadFailed": "Upload fehlgeschlagen. Bitte versuche es erneut.",
+    "processingFailed": "Dokumentverarbeitung fehlgeschlagen. Bitte versuche es erneut.",
+    "authenticationFailed": "Authentifizierung fehlgeschlagen. Bitte versuche es erneut.",
+    "sealingFailed": "Dokumentsiegelung fehlgeschlagen. Bitte versuche es erneut.",
+    "networkError": "Netzwerkfehler. Bitte überprüfe deine Verbindung und versuche es erneut.",
+    "unexpectedError": "Ein unerwarteter Fehler ist aufgetreten. Bitte versuche es erneut."
+  },
+  "footer": {
+    "copyright": "© 2024 seal.codes. Alle Rechte vorbehalten.",
+    "privacy": "Datenschutzerklärung",
+    "terms": "Nutzungsbedingungen",
+    "contact": "Kontakt"
+  },
+  "notFound": {
+    "title": "Seite nicht gefunden",
+    "subtitle": "Die gesuchte Seite existiert nicht.",
+    "backHome": "Zurück zur Startseite"
+  }
+}

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useDocumentStore } from '../stores/documentStore'
 import { qrCodeUICalculator } from '@/services/qrcode-ui-calculator'
 import DocumentDropzone from '../components/document/DocumentDropzone.vue'
@@ -10,6 +11,7 @@ import HowItWorks from '../components/document/HowItWorks.vue'
 import BaseButton from '../components/common/BaseButton.vue'
 
 const router = useRouter()
+const { t } = useI18n()
 const documentStore = useDocumentStore()
 
 const isDocumentLoaded = computed(() => documentStore.hasDocument)
@@ -64,7 +66,7 @@ const updateQrSize = (size: number) => {
     <div class="container mx-auto px-4 py-8">
       <div class="mb-6">
         <h1 class="text-3xl font-bold">
-          Load Your Document
+          {{ t('document.title') }}
         </h1>
       </div>
       
@@ -98,7 +100,7 @@ const updateQrSize = (size: number) => {
                   variant="outline"
                   @click="chooseNewDocument"
                 >
-                  Choose Another Document
+                  {{ t('document.controls.chooseAnother') }}
                 </BaseButton>
                 
                 <div class="flex gap-2">
@@ -111,7 +113,7 @@ const updateQrSize = (size: number) => {
                     }"
                     :key="key"
                     class="w-12 h-12 md:w-10 md:h-10 bg-white rounded-lg shadow-sm hover:bg-gray-50 active:bg-gray-100 flex items-center justify-center border border-gray-200 transition-colors touch-manipulation"
-                    :title="`${key.replace(/([A-Z])/g, ' $1').trim()} Corner`"
+                    :title="t(`document.preview.corners.${key}`)"
                     @click="setCornerPosition(key as any)"
                   >
                     {{ position }}
@@ -121,7 +123,7 @@ const updateQrSize = (size: number) => {
               
               <div>
                 <h3 class="text-xl font-medium mb-3">
-                  Authenticate yourself with
+                  {{ t('document.controls.authenticateWith') }}
                 </h3>
                 <SocialAuthSelector 
                   :is-processing="isProcessing"
