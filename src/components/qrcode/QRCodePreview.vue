@@ -4,7 +4,7 @@
  * Shows draggable QR code preview with size controls for document sealing
  */
 
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { qrCodeService } from '@/services/qrcode-service'
 import { qrCodeUICalculator } from '@/services/qrcode-ui-calculator'
 import type { 
@@ -105,33 +105,60 @@ watch([() => props.attestationData, qrSizeInPixels], generateQRCode, { deep: tru
 // Generate initial QR code
 onMounted(generateQRCode)
 
-// Drag handling
-const startDragging = (e: MouseEvent) => {
+// Cleanup event listeners on unmount
+onUnmounted(() => {
+  if (isDragging.value) {
+    stopDragging()
+  }
+})
+
+// Drag handling - supports both mouse and touch events
+const startDragging = (e: MouseEvent | TouchEvent) => {
+  e.preventDefault()
+  
   const element = e.currentTarget as HTMLElement
   const rect = element.getBoundingClientRect()
   
+  // Get coordinates from either mouse or touch event
+  const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX
+  const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY
+  
   dragOffset.value = {
-    x: e.clientX - (rect.left + rect.width / 2),
-    y: e.clientY - (rect.top + rect.height / 2),
+    x: clientX - (rect.left + rect.width / 2),
+    y: clientY - (rect.top + rect.height / 2),
   }
   
   isDragging.value = true
+  
+  // Add both mouse and touch event listeners
   document.addEventListener('mousemove', handleDrag)
   document.addEventListener('mouseup', stopDragging)
+  document.addEventListener('touchmove', handleDrag, { passive: false })
+  document.addEventListener('touchend', stopDragging)
+  
   document.body.style.userSelect = 'none'
+  document.body.style.touchAction = 'none' // Prevent scrolling on mobile
 }
 
 const stopDragging = () => {
   isDragging.value = false
+  
+  // Remove all event listeners
   document.removeEventListener('mousemove', handleDrag)
   document.removeEventListener('mouseup', stopDragging)
+  document.removeEventListener('touchmove', handleDrag)
+  document.removeEventListener('touchend', stopDragging)
+  
   document.body.style.userSelect = ''
+  document.body.style.touchAction = ''
 }
 
-const handleDrag = (e: MouseEvent) => {
+const handleDrag = (e: MouseEvent | TouchEvent) => {
   if (!isDragging.value) {
     return
   }
+  
+  e.preventDefault()
   
   const container = document.querySelector('.document-preview')
   if (!container) {
@@ -140,21 +167,40 @@ const handleDrag = (e: MouseEvent) => {
   
   const rect = container.getBoundingClientRect()
   
-  // Calculate position as percentage
-  const x = ((e.clientX - dragOffset.value.x - rect.left) / rect.width) * 100
-  const y = ((e.clientY - dragOffset.value.y - rect.top) / rect.height) * 100
+  // Ensure we have valid container dimensions
+  if (rect.width < 10 || rect.height < 10) {
+    return
+  }
   
-  // Calculate safe margins
+  // Get coordinates from either mouse or touch event
+  const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX
+  const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY
+  
+  // Calculate position as percentage
+  const x = ((clientX - dragOffset.value.x - rect.left) / rect.width) * 100
+  const y = ((clientY - dragOffset.value.y - rect.top) / rect.height) * 100
+  
+  // Use actual container dimensions from the DOM
+  const actualDimensions = {
+    width: rect.width,
+    height: rect.height,
+  }
+  
+  // Calculate safe margins using the actual container dimensions
   const margins = qrCodeUICalculator.calculateSafeMargins(
     props.sizePercent,
-    props.containerDimensions,
+    actualDimensions,
   )
   
-  // Keep QR code within safe bounds
+  // Keep QR code within safe bounds with extra safety check
   const boundedX = Math.max(margins.horizontal, Math.min(100 - margins.horizontal, x))
   const boundedY = Math.max(margins.vertical, Math.min(100 - margins.vertical, y))
   
-  emit('positionUpdated', { x: boundedX, y: boundedY })
+  // Additional safety check to ensure position is within 0-100 range
+  const safeX = Math.max(0, Math.min(100, boundedX))
+  const safeY = Math.max(0, Math.min(100, boundedY))
+  
+  emit('positionUpdated', { x: safeX, y: safeY })
 }
 
 // Size adjustment
@@ -166,7 +212,7 @@ const adjustSize = (delta: number) => {
 
 <template>
   <div 
-    class="absolute cursor-move select-none z-10"
+    class="absolute cursor-move select-none z-10 touch-none"
     :class="{ 'transition-none': isDragging }"
     :style="{
       left: `${position.x}%`,
@@ -175,16 +221,17 @@ const adjustSize = (delta: number) => {
       transition: isDragging ? 'none' : 'all 0.2s ease'
     }"
     @mousedown="startDragging"
+    @touchstart="startDragging"
   >
     <!-- QR Code Container -->
     <div 
       class="relative bg-white rounded-lg shadow-lg border-2"
       :class="{ 
         'scale-105 border-blue-400': isDragging,
-        'border-gray-200': !isDragging
+        'border-gray-200 hover:border-gray-300': !isDragging
       }"
       :style="{
-        transition: isDragging ? 'none' : 'transform 0.2s ease',
+        transition: isDragging ? 'none' : 'transform 0.2s ease, border-color 0.2s ease',
       }"
     >
       <!-- Loading indicator -->
@@ -233,6 +280,15 @@ const adjustSize = (delta: number) => {
             {{ userName || 'user@example.com' }}
           </div>
         </div>
+        <!-- Drag indicator -->
+        <div class="flex justify-center mt-1">
+          <div class="flex gap-0.5">
+            <div class="w-1 h-1 bg-gray-400 rounded-full"></div>
+            <div class="w-1 h-1 bg-gray-400 rounded-full"></div>
+            <div class="w-1 h-1 bg-gray-400 rounded-full"></div>
+            <div class="w-1 h-1 bg-gray-400 rounded-full"></div>
+          </div>
+        </div>
       </div>
     </div>
     
@@ -242,17 +298,17 @@ const adjustSize = (delta: number) => {
       class="absolute left-1/2 transform -translate-x-1/2 mt-2 flex gap-1 bg-white rounded-lg shadow-md p-1 border border-gray-200"
     >
       <button 
-        class="w-7 h-7 flex items-center justify-center text-gray-600 hover:bg-gray-100 rounded text-sm font-medium" 
+        class="w-8 h-8 md:w-7 md:h-7 flex items-center justify-center text-gray-600 hover:bg-gray-100 rounded text-sm font-medium touch-manipulation" 
         title="Decrease size"
         @click="adjustSize(-2)"
       >
         −
       </button>
-      <div class="flex items-center px-2 text-xs text-gray-500 font-medium">
+      <div class="flex items-center px-2 text-xs text-gray-500 font-medium min-w-[2rem] justify-center">
         {{ sizePercent }}%
       </div>
       <button 
-        class="w-7 h-7 flex items-center justify-center text-gray-600 hover:bg-gray-100 rounded text-sm font-medium"
+        class="w-8 h-8 md:w-7 md:h-7 flex items-center justify-center text-gray-600 hover:bg-gray-100 rounded text-sm font-medium touch-manipulation"
         title="Increase size"
         @click="adjustSize(2)"
       >

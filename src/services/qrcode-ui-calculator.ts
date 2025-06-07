@@ -120,6 +120,7 @@ export class QRCodeUICalculator {
   /**
    * Calculate safe margins for QR code placement
    * Ensures QR code doesn't get too close to document edges
+   * Accounts for the complete seal dimensions including identity section
    * 
    * @param qrSizePercent - QR code size as percentage
    * @param documentDimensions - Document dimensions
@@ -127,18 +128,40 @@ export class QRCodeUICalculator {
    */
   calculateSafeMargins(
     qrSizePercent: number,
-    _documentDimensions: DocumentDimensions,
+    documentDimensions: DocumentDimensions,
   ): {
     horizontal: number; // percentage
     vertical: number;   // percentage
   } {
-    // Calculate minimum margins based on QR size
-    const baseMargin = qrSizePercent / 2 // Half the QR size
-    const minMargin = 5 // Minimum 5% margin
+    // Fallback to reasonable defaults if dimensions are invalid
+    if (!documentDimensions.width || !documentDimensions.height || 
+        documentDimensions.width < 10 || documentDimensions.height < 10) {
+      return {
+        horizontal: Math.max(qrSizePercent / 2 + 5, 12),
+        vertical: Math.max(qrSizePercent / 2 + 8, 15), // Extra vertical margin for identity section
+      }
+    }
     
+    // Calculate the QR code size in pixels based on the smaller dimension
+    const minDimension = Math.min(documentDimensions.width, documentDimensions.height)
+    const qrSizeInPixels = Math.round(minDimension * qrSizePercent / 100)
+    
+    // Get complete seal dimensions
+    const sealDimensions = this.calculateCompleteSealDimensions(qrSizeInPixels)
+    
+    // Convert seal dimensions to percentages of the document
+    const sealWidthPercent = (sealDimensions.width / documentDimensions.width) * 100
+    const sealHeightPercent = (sealDimensions.height / documentDimensions.height) * 100
+    
+    // Calculate margins as half the seal size (since position is center-based)
+    // Add a small buffer to ensure the seal never touches the edges
+    const horizontalMargin = Math.max(sealWidthPercent / 2 + 2, 8) // At least 8%
+    const verticalMargin = Math.max(sealHeightPercent / 2 + 2, 8) // At least 8%
+    
+    // Ensure margins don't exceed reasonable limits (max 25% to keep usable area)
     return {
-      horizontal: Math.max(baseMargin, minMargin),
-      vertical: Math.max(baseMargin, minMargin),
+      horizontal: Math.min(horizontalMargin, 25),
+      vertical: Math.min(verticalMargin, 25),
     }
   }
 
@@ -151,7 +174,10 @@ export class QRCodeUICalculator {
   getCornerPositions(
     qrSizePercent: number,
   ): Record<string, QRCodeUIPosition> {
-    const margins = this.calculateSafeMargins(qrSizePercent, { width: 100, height: 100 })
+    // Use a standard document dimension for margin calculation
+    // This ensures consistent positioning across different document sizes
+    const standardDimensions = { width: 800, height: 600 }
+    const margins = this.calculateSafeMargins(qrSizePercent, standardDimensions)
     
     return {
       topLeft: { x: margins.horizontal, y: margins.vertical },

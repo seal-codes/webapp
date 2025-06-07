@@ -2,6 +2,7 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useDocumentStore } from '../stores/documentStore'
+import { qrCodeUICalculator } from '@/services/qrcode-ui-calculator'
 import DocumentDropzone from '../components/document/DocumentDropzone.vue'
 import DocumentPreview from '../components/document/DocumentPreview.vue'
 import SocialAuthSelector from '../components/auth/SocialAuthSelector.vue'
@@ -33,25 +34,16 @@ const handleSocialAuth = async (provider: string) => {
   }
 }
 
-// Calculate safe margins based on QR code size
-const safeMargin = computed(() => {
-  // Add extra margin for the identity section below QR code
-  const identityHeightPercent = 10 // Approximate height of identity section as percentage
-  const totalHeightPercent = qrSize.value + identityHeightPercent
-  return Math.max(totalHeightPercent / 2, 10) // At least 10% margin
+// Calculate safe margins based on QR code size using the UI calculator
+const cornerPositions = computed(() => {
+  return qrCodeUICalculator.getCornerPositions(qrSize.value)
 })
 
 const setCornerPosition = (corner: 'topLeft' | 'topRight' | 'bottomLeft' | 'bottomRight') => {
-  const margin = safeMargin.value
-  
-  const positions = {
-    topLeft: { x: margin, y: margin },
-    topRight: { x: 100 - margin, y: margin },
-    bottomLeft: { x: margin, y: 100 - margin },
-    bottomRight: { x: 100 - margin, y: 100 - margin },
+  const position = cornerPositions.value[corner]
+  if (position) {
+    qrPosition.value = position
   }
-  
-  qrPosition.value = positions[corner]
 }
 
 const chooseNewDocument = () => {
@@ -118,7 +110,7 @@ const updateQrSize = (size: number) => {
                       bottomRight: '↘'
                     }"
                     :key="key"
-                    class="w-10 h-10 bg-white rounded-lg shadow-sm hover:bg-gray-50 flex items-center justify-center border border-gray-200 transition-colors"
+                    class="w-12 h-12 md:w-10 md:h-10 bg-white rounded-lg shadow-sm hover:bg-gray-50 active:bg-gray-100 flex items-center justify-center border border-gray-200 transition-colors touch-manipulation"
                     :title="`${key.replace(/([A-Z])/g, ' $1').trim()} Corner`"
                     @click="setCornerPosition(key as any)"
                   >

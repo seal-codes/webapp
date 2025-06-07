@@ -60,17 +60,47 @@ onMounted(() => {
     }
   }
 
+  // Use ResizeObserver for more reliable dimension tracking
+  let resizeObserver: ResizeObserver | null = null
+  
+  const setupObserver = () => {
+    if (window.ResizeObserver && previewRef.value) {
+      resizeObserver = new ResizeObserver(updateDimensions)
+      resizeObserver.observe(previewRef.value)
+    }
+  }
+
   window.addEventListener('resize', updateDimensions)
+  window.addEventListener('orientationchange', () => {
+    // Delay update after orientation change to ensure layout is complete
+    setTimeout(updateDimensions, 100)
+  })
   
   // Initial update after image loads
   const img = new Image()
-  img.onload = updateDimensions
+  img.onload = () => {
+    updateDimensions()
+    setupObserver()
+  }
   if (previewUrl.value) {
     img.src = previewUrl.value
   }
 
+  // Watch for previewRef changes
+  watch(previewRef, () => {
+    if (resizeObserver) {
+      resizeObserver.disconnect()
+    }
+    setupObserver()
+    updateDimensions()
+  })
+
   return () => {
     window.removeEventListener('resize', updateDimensions)
+    window.removeEventListener('orientationchange', updateDimensions)
+    if (resizeObserver) {
+      resizeObserver.disconnect()
+    }
     if (previewUrl.value) {
       URL.revokeObjectURL(previewUrl.value)
     }
