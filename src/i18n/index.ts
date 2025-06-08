@@ -18,16 +18,20 @@ export const DEFAULT_LOCALE: SupportedLocale = 'en'
  * Falls back to default locale if not supported
  */
 function getPreferredLocale(): SupportedLocale {
-  // Check localStorage first
-  const stored = localStorage.getItem('seal-codes-locale')
-  if (stored && SUPPORTED_LOCALES.includes(stored as SupportedLocale)) {
-    return stored as SupportedLocale
-  }
+  try {
+    // Check localStorage first
+    const stored = localStorage.getItem('seal-codes-locale')
+    if (stored && SUPPORTED_LOCALES.includes(stored as SupportedLocale)) {
+      return stored as SupportedLocale
+    }
 
-  // Check browser language
-  const browserLang = navigator.language.split('-')[0]
-  if (SUPPORTED_LOCALES.includes(browserLang as SupportedLocale)) {
-    return browserLang as SupportedLocale
+    // Check browser language
+    const browserLang = navigator.language.split('-')[0]
+    if (SUPPORTED_LOCALES.includes(browserLang as SupportedLocale)) {
+      return browserLang as SupportedLocale
+    }
+  } catch (error) {
+    console.warn('Error accessing localStorage for locale preference:', error)
   }
 
   return DEFAULT_LOCALE
@@ -50,9 +54,13 @@ export const i18n = createI18n({
  * Set the application locale and persist to localStorage
  */
 export function setLocale(locale: SupportedLocale) {
-  i18n.global.locale.value = locale
-  localStorage.setItem('seal-codes-locale', locale)
-  document.documentElement.lang = locale
+  try {
+    i18n.global.locale.value = locale
+    localStorage.setItem('seal-codes-locale', locale)
+    document.documentElement.lang = locale
+  } catch (error) {
+    console.error('Error setting locale:', error)
+  }
 }
 
 /**

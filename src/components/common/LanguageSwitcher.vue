@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { setLocale, getCurrentLocale, SUPPORTED_LOCALES, type SupportedLocale } from '@/i18n'
 import { ChevronDown } from 'lucide-vue-next'
 
 const { locale } = useI18n()
 const isOpen = ref(false)
+const dropdownRef = ref<HTMLDivElement>()
 
 /**
  * Language options with their display names and flag emojis
@@ -38,17 +39,26 @@ const changeLanguage = (newLocale: SupportedLocale) => {
 /**
  * Close dropdown when clicking outside
  */
-const closeDropdown = () => {
-  isOpen.value = false
+const handleClickOutside = (event: MouseEvent) => {
+  if (dropdownRef.value && !dropdownRef.value.contains(event.target as Node)) {
+    isOpen.value = false
+  }
 }
+
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside)
+})
 </script>
 
 <template>
-  <div class="relative">
+  <div ref="dropdownRef" class="relative">
     <button
       class="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 hover:text-primary-500 rounded-md transition-colors duration-200"
       @click="toggleDropdown"
-      @blur="closeDropdown"
     >
       <span>{{ currentLanguage.flag }}</span>
       <span class="hidden sm:inline">{{ currentLanguage.name }}</span>
