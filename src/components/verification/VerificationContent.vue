@@ -9,16 +9,19 @@ import VerificationQRScanner from './VerificationQRScanner.vue'
 import VerificationActions from './VerificationActions.vue'
 import VerificationResults from './VerificationResults.vue'
 import type { DecodedVerificationData, VerificationResult } from '@/services/verification-service'
+import type { ScanState, VerificationState } from '@/stores/verificationStore'
 
 interface Props {
   uploadedDocument: File
   documentPreviewUrl: string
   decodedData: DecodedVerificationData | null
   verificationResult: VerificationResult | null
-  isScanning: boolean
-  isVerifying: boolean
+  scanState: ScanState
+  verificationState: VerificationState
+  scanError: string | null
+  verificationError: string | null
   hasValidData: boolean
-  scanFailed: boolean
+  canManuallySelect: boolean
 }
 
 interface Emits {
@@ -64,17 +67,14 @@ const handleScanSelectedArea = (selection: { x: number; y: number; width: number
         :uploaded-document="uploadedDocument"
         :document-preview-url="documentPreviewUrl"
         :decoded-data="decodedData"
-        :is-scanning="isScanning"
-        :scan-failed="scanFailed"
+        :can-manually-select="canManuallySelect"
         @scan-selected-area="handleScanSelectedArea"
       />
       
       <!-- QR Scanning Status -->
       <VerificationQRScanner
-        :is-scanning="isScanning"
-        :uploaded-document="uploadedDocument"
-        :has-valid-data="hasValidData"
-        :scan-failed="scanFailed"
+        :scan-state="scanState"
+        :scan-error="scanError"
       />
       
       <!-- Verification Results -->
@@ -84,7 +84,7 @@ const handleScanSelectedArea = (selection: { x: number; y: number; width: number
       />
       
       <!-- Verifying State -->
-      <div v-else-if="isVerifying" class="flex justify-center items-center py-8">
+      <div v-else-if="verificationState === 'verifying'" class="flex justify-center items-center py-8">
         <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary-500" />
         <span class="ml-3">{{ t('verification.scanning') }}</span>
       </div>
@@ -93,7 +93,7 @@ const handleScanSelectedArea = (selection: { x: number; y: number; width: number
       <VerificationActions
         :decoded-data="decodedData"
         :verification-result="verificationResult"
-        :is-verifying="isVerifying"
+        :is-verifying="verificationState === 'verifying'"
         @verify-document="emit('verify-document')"
         @reset-verification="emit('reset-verification')"
       />

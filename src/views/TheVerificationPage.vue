@@ -18,11 +18,13 @@ const {
   documentPreviewUrl,
   decodedData,
   verificationResult,
-  isScanning,
-  isVerifying,
+  scanState,
+  verificationState,
   hasEncodedData,
   hasValidData,
-  scanFailed
+  canManuallySelect,
+  scanError,
+  verificationError
 } = storeToRefs(verificationStore)
 
 // Check for encoded data in URL
@@ -94,10 +96,12 @@ const handleScanSelectedArea = async (selection: { x: number; y: number; width: 
             :document-preview-url="documentPreviewUrl"
             :decoded-data="decodedData"
             :verification-result="verificationResult"
-            :is-scanning="isScanning"
-            :is-verifying="isVerifying"
+            :scan-state="scanState"
+            :verification-state="verificationState"
+            :scan-error="scanError"
+            :verification-error="verificationError"
             :has-valid-data="hasValidData"
-            :scan-failed="scanFailed"
+            :can-manually-select="canManuallySelect"
             @verify-document="handleVerifyDocument"
             @reset-verification="handleResetVerification"
             @scan-selected-area="handleScanSelectedArea"

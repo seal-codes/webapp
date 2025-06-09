@@ -9,6 +9,15 @@ import { attestationBuilder } from './attestation-builder'
 import { qrScanService } from './qr-scan-service'
 import type { AttestationData } from '@/types/qrcode'
 
+export type VerificationStatus = 
+  | 'verified_exact'           // Exact cryptographic match
+  | 'verified_demo'            // Hash prefix matches (demo mode)
+  | 'verified_visual'          // Visual content matches (compressed)
+  | 'modified'                 // Document has been modified
+  | 'error_hash_mismatch'      // Hash doesn't match
+  | 'error_invalid_format'     // Invalid document format
+  | 'error_processing'         // Error during processing
+
 /**
  * Verification result for document integrity check
  */
@@ -16,9 +25,7 @@ export interface VerificationResult {
   /** Whether the document integrity is verified */
   isValid: boolean;
   /** Detailed verification status */
-  status: 'verified' | 'modified' | 'hash_mismatch' | 'error';
-  /** Human-readable message */
-  message: string;
+  status: VerificationStatus;
   /** Detailed comparison results */
   details: {
     cryptographicMatch: boolean;
@@ -35,8 +42,8 @@ export interface DecodedVerificationData {
   attestationData: AttestationData;
   /** Whether decoding was successful */
   isValid: boolean;
-  /** Error message if decoding failed */
-  error?: string;
+  /** Error code if decoding failed */
+  errorCode?: 'invalid_format' | 'decode_failed' | 'invalid_structure';
 }
 
 /**
@@ -243,7 +250,7 @@ export class VerificationService {
         return {
           attestationData: {} as AttestationData,
           isValid: false,
-          error: 'Invalid attestation data structure'
+          errorCode: 'invalid_structure'
         }
       }
       
@@ -256,7 +263,7 @@ export class VerificationService {
       return {
         attestationData: {} as AttestationData,
         isValid: false,
-        error: 'Failed to decode verification data'
+        errorCode: 'decode_failed'
       }
     }
   }
@@ -319,30 +326,25 @@ export class VerificationService {
       const perceptualMatch = pHashMatch || dHashMatch
       
       // Determine verification result
-      let status: VerificationResult['status']
-      let message: string
+      let status: VerificationStatus
       let isValid: boolean
       
       if (cryptographicMatch) {
-        status = 'verified'
-        message = storedHash.includes('truncated') 
-          ? 'Document integrity verified - hash prefix matches (demo mode)'
-          : 'Document integrity verified - exact match'
         isValid = true
+        status = storedHash.includes('truncated') 
+          ? 'verified_demo'
+          : 'verified_exact'
       } else if (perceptualMatch) {
-        status = 'verified'
-        message = 'Document integrity verified - visual content matches (document may have been compressed)'
         isValid = true
+        status = 'verified_visual'
       } else {
-        status = 'modified'
-        message = 'Document has been modified since sealing'
         isValid = false
+        status = 'modified'
       }
       
       return {
         isValid,
         status,
-        message,
         details: {
           cryptographicMatch,
           perceptualMatch,
@@ -353,8 +355,7 @@ export class VerificationService {
       console.error('Error verifying document:', error)
       return {
         isValid: false,
-        status: 'error',
-        message: 'Error occurred during verification',
+        status: 'error_processing',
         details: {
           cryptographicMatch: false,
           perceptualMatch: false,

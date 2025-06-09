@@ -3,21 +3,33 @@ import { ref, computed } from 'vue'
 import type { DecodedVerificationData, VerificationResult } from '@/services/verification-service'
 import { verificationService } from '@/services/verification-service'
 
+// Verification states for better state management
+export type ScanState = 'idle' | 'scanning' | 'success' | 'failed' | 'error'
+export type VerificationState = 'idle' | 'verifying' | 'success' | 'failed' | 'error'
+
 export const useVerificationStore = defineStore('verification', () => {
   // State
   const uploadedDocument = ref<File | null>(null)
   const documentPreviewUrl = ref<string | null>(null)
   const decodedData = ref<DecodedVerificationData | null>(null)
   const verificationResult = ref<VerificationResult | null>(null)
-  const isScanning = ref(false)
-  const isVerifying = ref(false)
+  const scanState = ref<ScanState>('idle')
+  const verificationState = ref<VerificationState>('idle')
   const scanDebugInfo = ref<any>(null)
   const hasEncodedData = ref(false)
-  const scanAttempted = ref(false)
+  const scanError = ref<string | null>(null)
+  const verificationError = ref<string | null>(null)
 
   // Computed
   const hasValidData = computed(() => decodedData.value?.isValid === true)
-  const scanFailed = computed(() => scanAttempted.value && !hasValidData.value && uploadedDocument.value?.type.startsWith('image/'))
+  const isScanning = computed(() => scanState.value === 'scanning')
+  const isVerifying = computed(() => verificationState.value === 'verifying')
+  const scanFailed = computed(() => scanState.value === 'failed' || scanState.value === 'error')
+  const canManuallySelect = computed(() => 
+    uploadedDocument.value?.type.startsWith('image/') && 
+    !hasValidData.value && 
+    !isScanning.value
+  )
 
   // Actions
   const reset = () => {
@@ -28,18 +40,22 @@ export const useVerificationStore = defineStore('verification', () => {
     documentPreviewUrl.value = null
     decodedData.value = null
     verificationResult.value = null
-    isScanning.value = false
-    isVerifying.value = false
+    scanState.value = 'idle'
+    verificationState.value = 'idle'
     scanDebugInfo.value = null
     hasEncodedData.value = false
-    scanAttempted.value = false
+    scanError.value = null
+    verificationError.value = null
   }
 
   const resetVerification = () => {
     decodedData.value = null
     verificationResult.value = null
+    scanState.value = 'idle'
+    verificationState.value = 'idle'
     scanDebugInfo.value = null
-    scanAttempted.value = false
+    scanError.value = null
+    verificationError.value = null
   }
 
   const setUploadedDocument = async (file: File) => {
@@ -70,9 +86,9 @@ export const useVerificationStore = defineStore('verification', () => {
 
   const scanImageForQR = async (imageFile: File) => {
     console.log('Starting QR scan for:', imageFile.name)
-    isScanning.value = true
+    scanState.value = 'scanning'
+    scanError.value = null
     scanDebugInfo.value = null
-    scanAttempted.value = true
     
     try {
       // First, try to get exclusion zone if we have attestation data
@@ -94,6 +110,7 @@ export const useVerificationStore = defineStore('verification', () => {
           attestationData: scanResult.attestationData,
           isValid: true
         }
+        scanState.value = 'success'
         console.log('QR code successfully decoded, attestation data available')
         console.log('Decoded attestation data from QR:', scanResult.attestationData)
         
@@ -101,19 +118,20 @@ export const useVerificationStore = defineStore('verification', () => {
         scanDebugInfo.value = scanResult.debugInfo
       } else {
         console.log('No QR code found in automatic scan')
+        scanState.value = 'failed'
       }
     } catch (error) {
       console.error('QR scan error:', error)
-    } finally {
-      isScanning.value = false
+      scanState.value = 'error'
+      scanError.value = error instanceof Error ? error.message : 'Unknown error'
     }
   }
 
   const scanSelectedArea = async (selection: { x: number; y: number; width: number; height: number }) => {
     if (!uploadedDocument.value) return
     
-    isScanning.value = true
-    scanAttempted.value = true
+    scanState.value = 'scanning'
+    scanError.value = null
     
     try {
       const result = await verificationService.scanImageForQR(uploadedDocument.value, selection)
@@ -124,24 +142,28 @@ export const useVerificationStore = defineStore('verification', () => {
           attestationData: result.attestationData,
           isValid: true
         }
+        scanState.value = 'success'
         
         // Store debug info
         scanDebugInfo.value = result.debugInfo
         
         // Proceed with verification
         await verifyDocument()
+      } else {
+        scanState.value = 'failed'
       }
     } catch (error) {
       console.error('Error scanning selected area:', error)
-    } finally {
-      isScanning.value = false
+      scanState.value = 'error'
+      scanError.value = error instanceof Error ? error.message : 'Unknown error'
     }
   }
 
   const verifyDocument = async () => {
     if (!uploadedDocument.value || !decodedData.value?.attestationData) return
     
-    isVerifying.value = true
+    verificationState.value = 'verifying'
+    verificationError.value = null
     
     try {
       const result = await verificationService.verifyDocument(
@@ -149,20 +171,13 @@ export const useVerificationStore = defineStore('verification', () => {
         decodedData.value.attestationData
       )
       verificationResult.value = result
+      verificationState.value = result.isValid ? 'success' : 'failed'
     } catch (error) {
       console.error('Verification error:', error)
-      verificationResult.value = {
-        isValid: false,
-        status: 'error',
-        message: error instanceof Error ? error.message : 'Unknown error',
-        details: {
-          cryptographicMatch: false,
-          perceptualMatch: false,
-          documentType: uploadedDocument.value.type
-        }
-      }
-    } finally {
-      isVerifying.value = false
+      verificationState.value = 'error'
+      verificationError.value = error instanceof Error ? error.message : 'Unknown error'
+      // Note: We don't create a fake VerificationResult here anymore
+      // The components will handle the error state appropriately
     }
   }
 
@@ -179,15 +194,19 @@ export const useVerificationStore = defineStore('verification', () => {
     documentPreviewUrl,
     decodedData,
     verificationResult,
-    isScanning,
-    isVerifying,
+    scanState,
+    verificationState,
     scanDebugInfo,
     hasEncodedData,
-    scanAttempted,
+    scanError,
+    verificationError,
 
     // Computed
     hasValidData,
+    isScanning,
+    isVerifying,
     scanFailed,
+    canManuallySelect,
 
     // Actions
     reset,

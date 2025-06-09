@@ -162,7 +162,7 @@
       "scanning": "Scanne nach QR-Code...",
       "scanningSelected": "Scanne ausgewählten Bereich...",
       "found": "QR-Code gefunden und erfolgreich dekodiert!",
-      "foundMessage": "QR-Code gefunden und erfolgreich dekodiert!",
+      "foundMessage": "Aud dem geladenen Dokument wurde ein seal.code extrahiert und dekodiert.",
       "failed": "QR-Scan fehlgeschlagen",
       "notFound": "Kein QR-Code gefunden. Versuche, den Bereich manuell auszuwählen.",
       "notFoundInArea": "Kein QR-Code im ausgewählten Bereich gefunden.",
@@ -177,7 +177,16 @@
       "perceptualHash": "Perzeptueller Hash",
       "exactMatch": "Exakte Übereinstimmung",
       "visualMatch": "Visuelle Übereinstimmung",
-      "noMatch": "Keine Übereinstimmung"
+      "noMatch": "Keine Übereinstimmung",
+      "status": {
+        "verified_exact": "Dokumentintegrität verifiziert - exakte Übereinstimmung",
+        "verified_demo": "Dokumentintegrität verifiziert - Hash-Präfix stimmt überein (Demo-Modus)",
+        "verified_visual": "Dokumentintegrität verifiziert - visueller Inhalt stimmt überein (Dokument wurde möglicherweise komprimiert)",
+        "modified": "Dokument wurde seit der Versiegelung verändert",
+        "error_hash_mismatch": "Hash-Verifizierung fehlgeschlagen",
+        "error_invalid_format": "Ungültiges Dokumentformat",
+        "error_processing": "Fehler bei der Verifizierung aufgetreten"
+      }
     },
     "actions": {
       "verifyIntegrity": "Dokumentintegrität überprüfen",
