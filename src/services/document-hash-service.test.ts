@@ -81,4 +81,24 @@ describe('DocumentHashService', () => {
       expect(hash1).not.toBe(hash2)
     })
   })
+
+  describe('perceptual hashes', () => {
+    it('should produce correct hash sizes for optimized QR code format', async () => {
+      // Create a simple test image data
+      const canvas = document.createElement('canvas')
+      canvas.width = 100
+      canvas.height = 100
+      const ctx = canvas.getContext('2d')!
+      ctx.fillStyle = 'red'
+      ctx.fillRect(0, 0, 100, 100)
+      const imageData = ctx.getImageData(0, 0, 100, 100)
+      
+      const result = await (service as any).calculatePerceptualHashes(imageData)
+      
+      expect(result.pHash).toHaveLength(256) // 16x16 = 256 bits
+      expect(result.dHash).toHaveLength(36)  // 6x6 = 36 bits
+      expect(result.pHash).toMatch(/^[01]{256}$/) // Should be binary string
+      expect(result.dHash).toMatch(/^[01]{36}$/)  // Should be binary string
+    })
+  })
 })

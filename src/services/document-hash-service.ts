@@ -161,8 +161,8 @@ export class DocumentHashService {
     // Calculate cryptographic hash (SHA-256)
     const cryptoHash = await this.calculateSHA256(buffer)
     
-    // Calculate perceptual hashes with exclusion zone awareness
-    const { pHash, dHash } = await this.calculatePerceptualHashes(imageData, exclusionZone)
+    // Calculate perceptual hashes (exclusion zone already applied to imageData)
+    const { pHash, dHash } = await this.calculatePerceptualHashes(imageData)
     
     return {
       cryptographic: cryptoHash,
@@ -196,13 +196,10 @@ export class DocumentHashService {
   }
 
   /**
-   * Calculate perceptual hashes (pHash and dHash)
-   * Takes into account the exclusion zone to avoid QR code area affecting the hash
+   * Calculate perceptual hashes (pHash and dHash) - optimized for QR code size
+   * Uses smaller hash sizes to fit in QR codes while maintaining reasonable accuracy
    */
-  private async calculatePerceptualHashes(
-    imageData: ImageData,
-    exclusionZone?: QRCodeExclusionZone
-  ): Promise<{ pHash: string; dHash: string }> {
+  private async calculatePerceptualHashes(imageData: ImageData): Promise<{ pHash: string; dHash: string }> {
     // Create a temporary canvas for image processing
     const canvas = document.createElement('canvas')
     const ctx = canvas.getContext('2d')
@@ -211,123 +208,49 @@ export class DocumentHashService {
     }
 
     // For pHash:
-    // 1. Resize to 32x32 (reduces high frequency variations)
-    canvas.width = 32
-    canvas.height = 32
-    
-    // Calculate scale factors for exclusion zone
-    const scaleX = 32 / imageData.width
-    const scaleY = 32 / imageData.height
-    
-    // Draw scaled image
-    ctx.scale(scaleX, scaleY)
+    // 1. Resize to 16x16 (reduced from 32x32 for QR code size optimization)
+    canvas.width = 16
+    canvas.height = 16
     ctx.putImageData(imageData, 0, 0)
-    ctx.setTransform(1, 0, 0, 1, 0, 0) // Reset transform
     
-    // 2. Calculate pixel weights based on exclusion zone
-    const weights = new Array(1024).fill(1.0) // Default weight is 1.0
-    if (exclusionZone) {
-      const scaledZone = {
-        x: Math.floor(exclusionZone.x * scaleX),
-        y: Math.floor(exclusionZone.y * scaleY),
-        width: Math.ceil(exclusionZone.width * scaleX),
-        height: Math.ceil(exclusionZone.height * scaleY)
-      }
-      
-      // Set weights to 0 for pixels in exclusion zone
-      for (let y = scaledZone.y; y < scaledZone.y + scaledZone.height; y++) {
-        for (let x = scaledZone.x; x < scaledZone.x + scaledZone.width; x++) {
-          if (x >= 0 && x < 32 && y >= 0 && y < 32) {
-            weights[y * 32 + x] = 0
-          }
-        }
-      }
-    }
+    // 2. Convert to grayscale and calculate average
+    const grayValues = new Array(256) // 16x16
+    let averageValue = 0
     
-    // 3. Convert to grayscale and calculate weighted average
-    const grayValues = new Array(1024) // 32x32
-    let totalWeight = 0
-    let weightedSum = 0
-    
-    const imgData = ctx.getImageData(0, 0, 32, 32)
+    const imgData = ctx.getImageData(0, 0, 16, 16)
     for (let i = 0; i < imgData.data.length; i += 4) {
-      const pixelIndex = i / 4
-      const weight = weights[pixelIndex]
-      
       // Convert to grayscale using luminosity method
       const gray = Math.round(
         0.299 * imgData.data[i] + 
         0.587 * imgData.data[i + 1] + 
         0.114 * imgData.data[i + 2]
       )
-      grayValues[pixelIndex] = gray
-      
-      if (weight > 0) {
-        weightedSum += gray * weight
-        totalWeight += weight
-      }
+      grayValues[i / 4] = gray
+      averageValue += gray
     }
-    const averageValue = totalWeight > 0 ? weightedSum / totalWeight : 128
+    averageValue /= 256
 
-    // 4. Compare each pixel to average to generate hash, skipping excluded pixels
+    // 3. Compare each pixel to average to generate hash
     let pHashValue = ''
-    for (let i = 0; i < 1024; i++) {
-      if (weights[i] > 0) {
-        pHashValue += grayValues[i] > averageValue ? '1' : '0'
-      } else {
-        // For excluded pixels, use a consistent value
-        pHashValue += '0'
-      }
+    for (let i = 0; i < 256; i++) {
+      pHashValue += grayValues[i] > averageValue ? '1' : '0'
     }
 
     // For dHash:
-    // 1. Resize to 9x8 (we'll compare adjacent pixels)
-    canvas.width = 9
-    canvas.height = 8
-    
-    // Draw scaled image
-    ctx.scale(9 / imageData.width, 8 / imageData.height)
+    // 1. Resize to 7x6 (we'll compare adjacent pixels to get 6x6 = 36 bits)
+    canvas.width = 7
+    canvas.height = 6
     ctx.putImageData(imageData, 0, 0)
-    ctx.setTransform(1, 0, 0, 1, 0, 0) // Reset transform
     
-    // 2. Calculate weights for 9x8 grid
-    const dHashWeights = new Array(72).fill(1.0)
-    if (exclusionZone) {
-      const dScaleX = 9 / imageData.width
-      const dScaleY = 8 / imageData.height
-      const scaledZone = {
-        x: Math.floor(exclusionZone.x * dScaleX),
-        y: Math.floor(exclusionZone.y * dScaleY),
-        width: Math.ceil(exclusionZone.width * dScaleX),
-        height: Math.ceil(exclusionZone.height * dScaleY)
-      }
-      
-      for (let y = scaledZone.y; y < scaledZone.y + scaledZone.height; y++) {
-        for (let x = scaledZone.x; x < scaledZone.x + scaledZone.width; x++) {
-          if (x >= 0 && x < 9 && y >= 0 && y < 8) {
-            dHashWeights[y * 9 + x] = 0
-          }
-        }
-      }
-    }
-    
-    // 3. Calculate differences between adjacent pixels, skipping excluded areas
-    const dHashData = ctx.getImageData(0, 0, 9, 8)
+    // 2. Calculate differences between adjacent pixels
+    const dHashData = ctx.getImageData(0, 0, 7, 6)
     let dHashValue = ''
     
-    for (let y = 0; y < 8; y++) {
-      for (let x = 0; x < 8; x++) {
-        const leftIndex = y * 9 + x
-        const rightIndex = y * 9 + x + 1
-        
-        // Skip if either pixel is in exclusion zone
-        if (dHashWeights[leftIndex] === 0 || dHashWeights[rightIndex] === 0) {
-          dHashValue += '0' // Use consistent value for excluded areas
-        } else {
-          const left = dHashData.data[leftIndex * 4] // Red channel is enough for grayscale
-          const right = dHashData.data[rightIndex * 4]
-          dHashValue += left > right ? '1' : '0'
-        }
+    for (let y = 0; y < 6; y++) {
+      for (let x = 0; x < 6; x++) {
+        const left = dHashData.data[(y * 7 + x) * 4]
+        const right = dHashData.data[(y * 7 + x + 1) * 4]
+        dHashValue += left > right ? '1' : '0'
       }
     }
 
