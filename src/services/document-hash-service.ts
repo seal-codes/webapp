@@ -110,25 +110,12 @@ export class DocumentHashService {
     // Calculate cryptographic hash of the raw PDF data
     const cryptoHash = await this.calculateSHA256(fileBuffer)
     
-    // For perceptual hashes, we need to render the first page
-    const pdfDoc = await PDFDocument.load(fileBuffer)
-    const firstPage = pdfDoc.getPages()[0]
-    
-    // Create a temporary canvas for rendering
-    const canvas = document.createElement('canvas')
-    const ctx = canvas.getContext('2d')
-    if (!ctx) {
-      throw new Error('Could not get canvas context')
-    }
-    
-    // Set canvas size to match PDF page
-    const { width, height } = firstPage.getSize()
-    canvas.width = width
-    canvas.height = height
-    
-    // TODO: Implement PDF rendering to canvas
-    // For now, we'll use placeholder perceptual hashes since PDF.js or similar
-    // would be needed for proper rendering
+    // TODO: Implement proper PDF perceptual hashing
+    // This will require:
+    // 1. Rendering the PDF to an image (using PDF.js or similar)
+    // 2. Applying the exclusion zone
+    // 3. Calculating perceptual hashes from the rendered image
+    // For now, return placeholder values for perceptual hashes
     
     return {
       cryptographic: cryptoHash,
