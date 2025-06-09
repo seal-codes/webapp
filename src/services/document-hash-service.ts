@@ -94,7 +94,6 @@ export class DocumentHashService {
 
   /**
    * Calculate hashes for PDF documents
-   * TODO: Implement PDF hash calculation with exclusion zone
    * 
    * @param pdfFile - The PDF file
    * @param exclusionZone - Area to exclude from hash calculation
@@ -104,13 +103,36 @@ export class DocumentHashService {
     pdfFile: File,
     exclusionZone?: QRCodeExclusionZone
   ): Promise<DocumentHashes> {
-    // TODO: Implement PDF hash calculation
-    // For now, return placeholder values
-    console.warn('PDF hash calculation not yet implemented')
+    // Read the PDF file
+    const fileBuffer = await pdfFile.arrayBuffer()
+    
+    // Calculate cryptographic hash of the raw PDF data
+    const cryptoHash = await this.calculateSHA256(fileBuffer)
+    
+    // For perceptual hashes, we need to render the first page
+    const pdfDoc = await PDFDocument.load(fileBuffer)
+    const firstPage = pdfDoc.getPages()[0]
+    
+    // Create a temporary canvas for rendering
+    const canvas = document.createElement('canvas')
+    const ctx = canvas.getContext('2d')
+    if (!ctx) {
+      throw new Error('Could not get canvas context')
+    }
+    
+    // Set canvas size to match PDF page
+    const { width, height } = firstPage.getSize()
+    canvas.width = width
+    canvas.height = height
+    
+    // TODO: Implement PDF rendering to canvas
+    // For now, we'll use placeholder perceptual hashes since PDF.js or similar
+    // would be needed for proper rendering
+    
     return {
-      cryptographic: 'placeholder-pdf-crypto-hash',
-      pHash: 'placeholder-pdf-phash',
-      dHash: 'placeholder-pdf-dhash'
+      cryptographic: cryptoHash,
+      pHash: 'pdf-phash-not-implemented',
+      dHash: 'pdf-dhash-not-implemented'
     }
   }
 
@@ -136,27 +158,112 @@ export class DocumentHashService {
 
   /**
    * Calculate hashes from image data
-   * TODO: Implement actual hash algorithms
    * 
    * @param imageData - Canvas image data
    * @returns Promise resolving to calculated hashes
    */
   private async calculateHashesFromImageData(imageData: ImageData): Promise<DocumentHashes> {
-    // TODO: Implement actual hash calculation algorithms
-    // For now, create deterministic placeholder hashes based on image data
+    // Convert ImageData to a format suitable for hashing
+    const buffer = await this.imageDataToBuffer(imageData)
     
-    // Simple checksum for demonstration (not cryptographically secure)
-    let checksum = 0
-    for (let i = 0; i < imageData.data.length; i += 4) {
-      checksum += imageData.data[i] + imageData.data[i + 1] + imageData.data[i + 2]
-    }
+    // Calculate cryptographic hash (SHA-256)
+    const cryptoHash = await this.calculateSHA256(buffer)
     
-    const baseHash = checksum.toString(16)
+    // Calculate perceptual hashes
+    const { pHash, dHash } = await this.calculatePerceptualHashes(imageData)
     
     return {
-      cryptographic: `sha256-${baseHash}-crypto`,
-      pHash: `phash-${baseHash}-perceptual`,
-      dHash: `dhash-${baseHash}-difference`
+      cryptographic: cryptoHash,
+      pHash,
+      dHash
+    }
+  }
+
+  /**
+   * Convert ImageData to ArrayBuffer for hashing
+   */
+  private async imageDataToBuffer(imageData: ImageData): Promise<ArrayBuffer> {
+    // Create a buffer from the RGBA values
+    const buffer = new ArrayBuffer(imageData.data.length)
+    const view = new Uint8Array(buffer)
+    view.set(imageData.data)
+    return buffer
+  }
+
+  /**
+   * Calculate SHA-256 hash of data
+   */
+  private async calculateSHA256(data: ArrayBuffer): Promise<string> {
+    // Use the Web Crypto API to calculate SHA-256
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data)
+    
+    // Convert to hex string
+    const hashArray = Array.from(new Uint8Array(hashBuffer))
+    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
+    return hashHex
+  }
+
+  /**
+   * Calculate perceptual hashes (pHash and dHash)
+   */
+  private async calculatePerceptualHashes(imageData: ImageData): Promise<{ pHash: string; dHash: string }> {
+    // Create a temporary canvas for image processing
+    const canvas = document.createElement('canvas')
+    const ctx = canvas.getContext('2d')
+    if (!ctx) {
+      throw new Error('Could not get canvas context')
+    }
+
+    // For pHash:
+    // 1. Resize to 32x32 (reduces high frequency variations)
+    canvas.width = 32
+    canvas.height = 32
+    ctx.putImageData(imageData, 0, 0)
+    
+    // 2. Convert to grayscale and calculate average
+    const grayValues = new Array(1024) // 32x32
+    let averageValue = 0
+    
+    const imgData = ctx.getImageData(0, 0, 32, 32)
+    for (let i = 0; i < imgData.data.length; i += 4) {
+      // Convert to grayscale using luminosity method
+      const gray = Math.round(
+        0.299 * imgData.data[i] + 
+        0.587 * imgData.data[i + 1] + 
+        0.114 * imgData.data[i + 2]
+      )
+      grayValues[i / 4] = gray
+      averageValue += gray
+    }
+    averageValue /= 1024
+
+    // 3. Compare each pixel to average to generate hash
+    let pHashValue = ''
+    for (let i = 0; i < 1024; i++) {
+      pHashValue += grayValues[i] > averageValue ? '1' : '0'
+    }
+
+    // For dHash:
+    // 1. Resize to 9x8 (we'll compare adjacent pixels)
+    canvas.width = 9
+    canvas.height = 8
+    ctx.putImageData(imageData, 0, 0)
+    
+    // 2. Calculate differences between adjacent pixels
+    const dHashData = ctx.getImageData(0, 0, 9, 8)
+    let dHashValue = ''
+    
+    for (let y = 0; y < 8; y++) {
+      for (let x = 0; x < 8; x++) {
+        const left = dHashData.data[(y * 9 + x) * 4]
+        const right = dHashData.data[(y * 9 + x + 1) * 4]
+        dHashValue += left > right ? '1' : '0'
+      }
+    }
+
+    return {
+      pHash: pHashValue,
+      dHash: dHashValue
     }
   }
 
