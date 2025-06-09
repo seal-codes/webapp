@@ -133,6 +133,10 @@
     "upload": {
       "title": "Upload a Sealed Document",
       "description": "Upload a document that contains an embedded QR code seal. We'll automatically scan the document, extract the attestation data, and allow you to verify the document's integrity.",
+      "uploadToVerify": "Upload Document to Verify",
+      "uploadToVerifyDescription": "Now upload the document to verify that it matches the seal information shown above.",
+      "qrDataFound": "QR Code Data Found",
+      "qrDataFoundDescription": "We found attestation data from the QR code link. This shows what the document should contain when verified.",
       "howItWorks": "How it works: When you upload an image with an embedded QR code seal, we automatically scan and extract the verification data. You can then verify that the document hasn't been modified since it was sealed.",
       "privacy": "All processing happens in your browser - your documents are never uploaded to our servers.",
       "invalidLink": "Invalid verification link",
@@ -151,7 +155,9 @@
       "title": "Document Verification",
       "selectQRHint": "Click and drag to select QR code area",
       "selectQRHintAlt": "Or wait for automatic scanning to complete",
-      "manualSelectionTip": "💡 Try clicking and dragging on the image above to manually select the QR code area."
+      "manualSelectionTip": "💡 Try clicking and dragging on the image above to manually select the QR code area.",
+      "uploadRequired": "Document Upload Required",
+      "uploadRequiredDescription": "We have the seal information from the QR code. Please upload the document to verify that it matches this seal."
     },
     "qr": {
       "scanning": "Scanning for QR code...",

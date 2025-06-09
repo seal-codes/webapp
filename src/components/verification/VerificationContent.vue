@@ -2,6 +2,7 @@
 import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { FileText } from 'lucide-vue-next'
+import BaseMessage from '@/components/common/BaseMessage.vue'
 import VerificationSealInfo from './VerificationSealInfo.vue'
 import VerificationDocumentPreview from './VerificationDocumentPreview.vue'
 import VerificationQRScanner from './VerificationQRScanner.vue'
@@ -49,8 +50,17 @@ const handleScanSelectedArea = (selection: { x: number; y: number; width: number
       :decoded-data="decodedData"
     />
 
+    <!-- Upload Required Message (when we have attestation data but no document) -->
+    <BaseMessage
+      v-if="decodedData?.isValid && !uploadedDocument"
+      type="warning"
+      :title="t('verification.document.uploadRequired')"
+      :message="t('verification.document.uploadRequiredDescription')"
+      class="mb-6"
+    />
+
     <!-- Document Preview and Status -->
-    <div class="bg-white rounded-xl shadow-sm p-6">
+    <div v-if="uploadedDocument" class="bg-white rounded-xl shadow-sm p-6">
       <h2 class="text-xl font-bold mb-6 flex items-center gap-2">
         <FileText class="w-6 h-6 text-primary-500" />
         {{ t('verification.document.title') }}

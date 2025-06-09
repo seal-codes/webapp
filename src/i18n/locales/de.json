@@ -133,6 +133,10 @@
     "upload": {
       "title": "Gesiegeltes Dokument hochladen",
       "description": "Lade ein Dokument hoch, das einen eingebetteten QR-Code-Siegel enthält. Wir scannen das Dokument automatisch, extrahieren die Attestierungsdaten und ermöglichen dir die Überprüfung der Dokumentintegrität.",
+      "uploadToVerify": "Dokument zur Verifizierung hochladen",
+      "uploadToVerifyDescription": "Lade jetzt das Dokument hoch, um zu überprüfen, ob es mit den oben gezeigten Siegel-Informationen übereinstimmt.",
+      "qrDataFound": "QR-Code-Daten gefunden",
+      "qrDataFoundDescription": "Wir haben Attestierungsdaten aus dem QR-Code-Link gefunden. Dies zeigt, was das Dokument bei der Verifizierung enthalten sollte.",
       "howItWorks": "So funktioniert's: Wenn du ein Bild mit einem eingebetteten QR-Code-Siegel hochlädst, scannen wir automatisch und extrahieren die Verifizierungsdaten. Du kannst dann überprüfen, ob das Dokument seit der Siegelung nicht verändert wurde.",
       "privacy": "Die gesamte Verarbeitung erfolgt in deinem Browser - deine Dokumente werden niemals auf unsere Server hochgeladen.",
       "invalidLink": "Ungültiger Verifizierungslink",
@@ -151,7 +155,9 @@
       "title": "Dokumentverifizierung",
       "selectQRHint": "Klicken und ziehen, um QR-Code-Bereich auszuwählen",
       "selectQRHintAlt": "Oder warten, bis der automatische Scan abgeschlossen ist",
-      "manualSelectionTip": "💡 Versuche, auf das Bild oben zu klicken und zu ziehen, um den QR-Code-Bereich manuell auszuwählen."
+      "manualSelectionTip": "💡 Versuche, auf das Bild oben zu klicken und zu ziehen, um den QR-Code-Bereich manuell auszuwählen.",
+      "uploadRequired": "Dokument-Upload erforderlich",
+      "uploadRequiredDescription": "Wir haben die Siegel-Informationen aus dem QR-Code. Bitte lade das Dokument hoch, um zu überprüfen, ob es mit diesem Siegel übereinstimmt."
     },
     "qr": {
       "scanning": "Suche nach QR-Code...",
