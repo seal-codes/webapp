@@ -19,8 +19,15 @@ const isProcessing = ref(false)
 const qrPosition = ref({ x: 50, y: 50 })
 const qrSize = ref(20) // Default 20% of container width (between min 15% and max 35%)
 
-const handleDocumentLoaded = (file: File) => {
-  documentStore.setDocument(file)
+const handleDocumentLoaded = async (file: File) => {
+  console.log('🔥 Document loaded in TheDocumentPage:', file.name, file.type)
+  try {
+    await documentStore.setDocument(file)
+    console.log('✅ Document successfully set in store')
+  } catch (error) {
+    console.error('❌ Error setting document in store:', error)
+    // TODO: Show error message to user
+  }
 }
 
 const handleSocialAuth = async (provider: string) => {
@@ -31,6 +38,7 @@ const handleSocialAuth = async (provider: string) => {
     router.push(`/sealed/${documentStore.documentId}`)
   } catch (error) {
     console.error('Authentication error:', error)
+    // TODO: Show error message to user
   } finally {
     isProcessing.value = false
   }
@@ -74,11 +82,12 @@ const updateQrSize = (size: number) => {
         <!-- Main Content -->
         <div class="md:col-span-2">
           <div class="bg-white rounded-xl shadow-sm p-6">
-            <DocumentDropzone 
-              v-if="!isDocumentLoaded" 
-              @file-loaded="handleDocumentLoaded" 
-            />
+            <!-- Document Upload Section -->
+            <div v-if="!isDocumentLoaded">
+              <DocumentDropzone @file-loaded="handleDocumentLoaded" />
+            </div>
             
+            <!-- Document Preview and Controls Section -->
             <div v-else>
               <div class="mb-4">
                 <DocumentPreview 
@@ -121,6 +130,7 @@ const updateQrSize = (size: number) => {
                 </div>
               </div>
               
+              <!-- Social Authentication Section -->
               <div>
                 <h3 class="text-xl font-medium mb-3">
                   {{ t('document.controls.authenticateWith') }}

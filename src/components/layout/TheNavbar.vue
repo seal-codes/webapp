@@ -45,6 +45,13 @@ const navigateTo = (path: string) => {
           >
             {{ t('navigation.sealDocument') }}
           </a>
+          <a 
+            href="/verify" 
+            class="text-gray-700 hover:text-primary-500 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200"
+            @click.prevent="navigateTo('/verify')"
+          >
+            Verify Document
+          </a>
           
           <LanguageSwitcher />
         </nav>
@@ -100,6 +107,13 @@ const navigateTo = (path: string) => {
             @click.prevent="navigateTo('/document')"
           >
             {{ t('navigation.sealDocument') }}
+          </a>
+          <a 
+            href="/verify" 
+            class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary-500 hover:bg-gray-50"
+            @click.prevent="navigateTo('/verify')"
+          >
+            Verify Document
           </a>
           
           <div class="px-3 py-2">

@@ -124,7 +124,7 @@
   },
   "verification": {
     "title": "Dokumentverifizierung",
-    "scanning": "QR-Code wird gescannt...",
+    "scanning": "Dokument wird verifiziert...",
     "verified": "Dokument verifiziert",
     "invalid": "Ungültiges Siegel",
     "details": {

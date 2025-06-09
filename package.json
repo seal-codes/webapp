@@ -12,6 +12,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "cbor-x": "^1.5.9",
+    "jsqr": "^1.4.0",
     "lucide-vue-next": "^0.513.0",
     "pdf-lib": "^1.17.1",
     "pinia": "^2.1.7",

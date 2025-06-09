@@ -4,6 +4,7 @@ import { PDFDocument } from 'pdf-lib'
 import { qrCodeUICalculator } from '@/services/qrcode-ui-calculator'
 import { attestationBuilder } from '@/services/attestation-builder'
 import { qrSealRenderer } from '@/services/qr-seal-renderer'
+import { documentHashService } from '@/services/document-hash-service'
 import type { QRCodeUIPosition, AttestationData } from '@/types/qrcode'
 
 // Unique ID generation for documents
@@ -41,6 +42,8 @@ export const useDocumentStore = defineStore('document', () => {
   
   // Actions
   const setDocument = async (file: File) => {
+    console.log('📄 Setting document in store:', file.name, file.type)
+    
     uploadedDocument.value = file
     
     // Determine document type
@@ -54,9 +57,18 @@ export const useDocumentStore = defineStore('document', () => {
     
     // Create a preview URL
     documentPreviewUrl.value = URL.createObjectURL(file)
+    
+    console.log('✅ Document set successfully:', {
+      name: file.name,
+      type: documentType.value,
+      size: file.size,
+      previewUrl: documentPreviewUrl.value
+    })
   }
   
   const authenticateWith = async (provider: string) => {
+    console.log('🔐 Authenticating with provider:', provider)
+    
     // Simulate authentication with a 1 second delay
     await new Promise(resolve => setTimeout(resolve, 1000))
     
@@ -66,6 +78,12 @@ export const useDocumentStore = defineStore('document', () => {
     
     // Generate a unique document ID
     documentId.value = generateUniqueId()
+    
+    console.log('✅ Authentication successful:', {
+      provider: authProvider.value,
+      userName: userName.value,
+      documentId: documentId.value
+    })
   }
   
   const sealDocument = async (position: QRCodeUIPosition, sizePercent: number = 20) => {
@@ -73,9 +91,12 @@ export const useDocumentStore = defineStore('document', () => {
       throw new Error('Document or authentication missing')
     }
 
+    console.log('🔒 Starting document sealing process...')
+
     try {
       // Get document dimensions for pixel calculation
       const documentDimensions = await getDocumentDimensions()
+      console.log('📐 Document dimensions:', documentDimensions)
       
       // Calculate exact pixel positioning using our UI calculator
       const pixelCalculation = qrCodeUICalculator.calculateEmbeddingPixels(
@@ -84,17 +105,39 @@ export const useDocumentStore = defineStore('document', () => {
         documentDimensions,
         documentType.value as 'pdf' | 'image',
       )
+      console.log('📍 Pixel calculation result:', pixelCalculation)
 
-      // Build compact attestation data
-      const attestationData = buildAttestationData()
+      // Calculate document hashes with exclusion zone
+      const documentHashes = await documentHashService.calculateDocumentHashes(
+        uploadedDocument.value,
+        pixelCalculation.exclusionZone
+      )
+      console.log('🔢 Document hashes calculated:', documentHashes)
+
+      // Build compact attestation data with exclusion zone
+      const attestationData = attestationBuilder.buildCompactAttestation({
+        documentHashes,
+        identity: {
+          provider: authProvider.value!,
+          identifier: userName.value!,
+        },
+        serviceInfo: {
+          publicKeyId: 'placeholder-key-id',
+        },
+        exclusionZone: pixelCalculation.exclusionZone,
+      })
+      console.log('📋 Attestation data built:', attestationData)
 
       // Generate complete QR seal (including borders, identity, etc.)
+      // Pass the base URL for verification links
       const sealResult = await qrSealRenderer.generateSeal({
         attestationData,
         qrSizeInPixels: pixelCalculation.sizeInPixels,
         providerId: authProvider.value!,
         userIdentifier: userName.value!,
+        baseUrl: window.location.origin
       })
+      console.log('🎨 QR seal generated:', sealResult.dimensions)
 
       // Embed the complete seal
       if (documentType.value === 'pdf') {
@@ -113,9 +156,10 @@ export const useDocumentStore = defineStore('document', () => {
         )
       }
 
+      console.log('✅ Document sealing completed successfully')
       return documentId.value
     } catch (error) {
-      console.error('Error sealing document:', error)
+      console.error('❌ Error sealing document:', error)
       throw new Error('Failed to seal document')
     }
   }
@@ -151,8 +195,16 @@ export const useDocumentStore = defineStore('document', () => {
       throw new Error('Authentication data missing')
     }
 
-    // TODO: Generate actual document hashes (cryptographic, pHash, dHash)
+    // TODO: Use actual document hashes and exclusion zone
     // For now, using placeholder values
+    const placeholderExclusionZone = {
+      x: 0,
+      y: 0,
+      width: 100,
+      height: 100,
+      fillColor: '#FFFFFF'
+    }
+
     return attestationBuilder.buildCompactAttestation({
       documentHashes: {
         cryptographic: 'placeholder-crypto-hash',
@@ -166,6 +218,7 @@ export const useDocumentStore = defineStore('document', () => {
       serviceInfo: {
         publicKeyId: 'placeholder-key-id',
       },
+      exclusionZone: placeholderExclusionZone,
     })
   }
   
@@ -178,6 +231,8 @@ export const useDocumentStore = defineStore('document', () => {
     if (!uploadedDocument.value) {
       return
     }
+    
+    console.log('📄 Sealing PDF document...')
     
     // Read the PDF file
     const fileArrayBuffer = await uploadedDocument.value.arrayBuffer()
@@ -204,6 +259,8 @@ export const useDocumentStore = defineStore('document', () => {
     
     sealedDocumentBlob.value = sealedPdfBlob
     sealedDocumentUrl.value = URL.createObjectURL(sealedPdfBlob)
+    
+    console.log('✅ PDF sealing completed')
   }
   
   const sealImageDocument = async (
@@ -215,6 +272,8 @@ export const useDocumentStore = defineStore('document', () => {
     if (!uploadedDocument.value) {
       return
     }
+    
+    console.log('🖼️ Sealing image document...')
     
     return new Promise<void>((resolve, reject) => {
       const img = new Image()
@@ -245,6 +304,7 @@ export const useDocumentStore = defineStore('document', () => {
             if (blob) {
               sealedDocumentBlob.value = blob
               sealedDocumentUrl.value = URL.createObjectURL(blob)
+              console.log('✅ Image sealing completed')
               resolve()
             } else {
               reject(new Error('Failed to create image blob'))
@@ -286,6 +346,8 @@ export const useDocumentStore = defineStore('document', () => {
   }
   
   const reset = () => {
+    console.log('🔄 Resetting document store...')
+    
     // Clean up object URLs to prevent memory leaks
     if (documentPreviewUrl.value) {
       URL.revokeObjectURL(documentPreviewUrl.value)
@@ -304,6 +366,8 @@ export const useDocumentStore = defineStore('document', () => {
     isAuthenticated.value = false
     authProvider.value = null
     userName.value = null
+    
+    console.log('✅ Document store reset completed')
   }
   
   return { 

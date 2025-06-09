@@ -4,6 +4,7 @@ import { RouteRecordRaw } from 'vue-router'
 import TheHomePage from '../views/TheHomePage.vue'
 import TheDocumentPage from '../views/TheDocumentPage.vue'
 import TheSealedDocumentPage from '../views/TheSealedDocumentPage.vue'
+import TheVerificationPage from '../views/TheVerificationPage.vue'
 import NotFoundPage from '../views/NotFoundPage.vue'
 
 const routes: RouteRecordRaw[] = [
@@ -32,6 +33,22 @@ const routes: RouteRecordRaw[] = [
     },
   },
   {
+    path: '/v/:encodedData?',
+    name: 'verification',
+    component: TheVerificationPage,
+    meta: {
+      title: 'Document Verification - seal.codes',
+    },
+  },
+  {
+    path: '/verify',
+    name: 'verify-alias',
+    component: TheVerificationPage,
+    meta: {
+      title: 'Document Verification - seal.codes',
+    },
+  },
+  {
     path: '/:pathMatch(.*)*',
     name: 'not-found',
     component: NotFoundPage,
@@ -40,11 +57,5 @@ const routes: RouteRecordRaw[] = [
     },
   },
 ]
-
-// Update document title based on route
-// const updateDocumentTitle = (to: any) => {
-//   const title = to.meta.title || 'seal.codes'
-//   document.title = title
-// }
 
 export default routes

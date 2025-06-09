@@ -4,6 +4,22 @@
  */
 
 /**
+ * QR code exclusion zone information for hash calculation
+ */
+export interface QRCodeExclusionZone {
+  /** X position in pixels */
+  x: number;
+  /** Y position in pixels */
+  y: number;
+  /** Width in pixels */
+  width: number;
+  /** Height in pixels */
+  height: number;
+  /** Fill color used in exclusion zone (hex format) */
+  fillColor: string;
+}
+
+/**
  * Compact attestation data structure for QR code embedding
  * All property names are shortened to minimize QR code size
  */
@@ -36,6 +52,19 @@ export interface AttestationData {
     /** Public key ID */
     k: string;
   };
+  /** QR code exclusion zone for verification */
+  e: {
+    /** X position */
+    x: number;
+    /** Y position */
+    y: number;
+    /** Width */
+    w: number;
+    /** Height */
+    h: number;
+    /** Fill color (hex without #) */
+    f: string;
+  };
   /** Optional user-provided URL */
   u?: string;
 }
@@ -57,6 +86,8 @@ export interface QRCodeGenerationOptions {
     dark: string;
     light: string;
   };
+  /** Base URL for verification links */
+  baseUrl?: string;
 }
 
 /**
@@ -72,6 +103,8 @@ export interface QRCodeResult {
   };
   /** The compact attestation data that was encoded */
   attestationData: AttestationData;
+  /** The verification URL that was encoded in the QR code */
+  verificationUrl?: string;
 }
 
 /**
@@ -88,6 +121,8 @@ export interface QRCodeEmbeddingOptions {
   sizeInPixels: number;
   /** The compact attestation data to encode */
   attestationData: AttestationData;
+  /** Base URL for verification links */
+  baseUrl?: string;
 }
 
 /**
@@ -119,4 +154,11 @@ export interface PixelCalculationResult {
   };
   /** Size in pixels */
   sizeInPixels: number;
+  /** Complete seal dimensions including borders */
+  completeSealDimensions: {
+    width: number;
+    height: number;
+  };
+  /** Exclusion zone for hash calculation */
+  exclusionZone: QRCodeExclusionZone;
 }

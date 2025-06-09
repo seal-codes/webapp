@@ -124,7 +124,7 @@
   },
   "verification": {
     "title": "Document Verification",
-    "scanning": "Scanning QR code...",
+    "scanning": "Verifying document...",
     "verified": "Document Verified",
     "invalid": "Invalid Seal",
     "details": {

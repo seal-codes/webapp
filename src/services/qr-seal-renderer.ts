@@ -18,6 +18,8 @@ export interface QRSealOptions {
   providerId: string;
   /** User identifier for identity display */
   userIdentifier: string;
+  /** Base URL for verification links */
+  baseUrl?: string;
 }
 
 export interface QRSealResult {
@@ -41,14 +43,15 @@ export class QRSealRenderer {
    * @returns Promise resolving to complete seal image
    */
   async generateSeal(options: QRSealOptions): Promise<QRSealResult> {
-    const { attestationData, qrSizeInPixels, providerId, userIdentifier } = options
+    const { attestationData, qrSizeInPixels, providerId, userIdentifier, baseUrl } = options
     
-    // Generate the QR code
+    // Generate the QR code with verification URL
     const qrResult = await qrCodeService.generateQRCode({
       data: attestationData,
       sizeInPixels: qrSizeInPixels,
       errorCorrectionLevel: 'H',
       margin: 0, // No margin in QR itself, we'll add padding in the seal
+      baseUrl: baseUrl || window.location.origin
     })
 
     // Get provider info

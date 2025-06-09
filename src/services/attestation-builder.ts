@@ -4,7 +4,7 @@
  */
 
 import { providers } from '@/types/auth'
-import type { AttestationData } from '@/types/qrcode'
+import type { AttestationData, QRCodeExclusionZone } from '@/types/qrcode'
 import type { Provider } from '@/types/auth'
 
 /**
@@ -26,6 +26,8 @@ export interface AttestationInput {
   serviceInfo: {
     publicKeyId: string;
   };
+  /** QR code exclusion zone for verification */
+  exclusionZone: QRCodeExclusionZone;
   /** Optional user-provided URL */
   userUrl?: string;
 }
@@ -64,7 +66,30 @@ export class AttestationBuilder {
         n: 'sc', // seal.codes shortened
         k: input.serviceInfo.publicKeyId,
       },
+      e: {
+        x: input.exclusionZone.x,
+        y: input.exclusionZone.y,
+        w: input.exclusionZone.width,
+        h: input.exclusionZone.height,
+        f: input.exclusionZone.fillColor.replace('#', ''), // Remove # for compactness
+      },
       ...(input.userUrl && { u: input.userUrl }),
+    }
+  }
+
+  /**
+   * Extract exclusion zone from compact attestation data
+   * 
+   * @param attestationData - Compact attestation data
+   * @returns Exclusion zone configuration
+   */
+  extractExclusionZone(attestationData: AttestationData): QRCodeExclusionZone {
+    return {
+      x: attestationData.e.x,
+      y: attestationData.e.y,
+      width: attestationData.e.w,
+      height: attestationData.e.h,
+      fillColor: `#${attestationData.e.f}`, // Add # back
     }
   }
 
@@ -100,6 +125,19 @@ export class AttestationBuilder {
     
     if (!input.serviceInfo.publicKeyId) {
       throw new Error('Public key ID is required')
+    }
+
+    // Validate exclusion zone
+    if (!input.exclusionZone) {
+      throw new Error('Exclusion zone is required')
+    }
+
+    if (input.exclusionZone.x < 0 || input.exclusionZone.y < 0) {
+      throw new Error('Exclusion zone position must be non-negative')
+    }
+
+    if (input.exclusionZone.width <= 0 || input.exclusionZone.height <= 0) {
+      throw new Error('Exclusion zone dimensions must be positive')
     }
 
     return true
