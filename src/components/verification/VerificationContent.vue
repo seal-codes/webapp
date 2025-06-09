@@ -84,15 +84,6 @@ const handleScanSelectedArea = (selection: { x: number; y: number; width: number
         :is-success="decodedData?.isValid"
       />
       
-      <!-- Action Buttons -->
-      <VerificationActions
-        :decoded-data="decodedData"
-        :verification-result="verificationResult"
-        :is-verifying="isVerifying"
-        @verify-document="emit('verify-document')"
-        @reset-verification="emit('reset-verification')"
-      />
-      
       <!-- Verification Results -->
       <VerificationResults
         v-if="verificationResult"
@@ -104,6 +95,15 @@ const handleScanSelectedArea = (selection: { x: number; y: number; width: number
         <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary-500" />
         <span class="ml-3">{{ t('verification.scanning') }}</span>
       </div>
+      
+      <!-- Action Buttons -->
+      <VerificationActions
+        :decoded-data="decodedData"
+        :verification-result="verificationResult"
+        :is-verifying="isVerifying"
+        @verify-document="emit('verify-document')"
+        @reset-verification="emit('reset-verification')"
+      />
     </div>
   </div>
 </template>

@@ -22,7 +22,7 @@ const { t } = useI18n()
 </script>
 
 <template>
-  <div class="flex gap-3 mb-6">
+  <div class="flex gap-3 mt-6">
     <!-- Verify Document -->
     <BaseButton 
       v-if="decodedData?.isValid && !verificationResult && !isVerifying"

@@ -2,6 +2,7 @@
 import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { FileText } from 'lucide-vue-next'
+import BaseMessage from '@/components/common/BaseMessage.vue'
 import type { DecodedVerificationData } from '@/services/verification-service'
 
 interface Props {
@@ -185,6 +186,15 @@ defineExpose({ resetSelection })
             </div>
           </div>
         </div>
+
+        <!-- Manual Selection Hint - Only shown when automatic detection failed -->
+        <BaseMessage
+          v-if="!decodedData?.isValid && !isScanning"
+          type="info"
+          :title="t('verification.document.manualSelectionTitle')"
+          :message="t('verification.document.manualSelectionDescription')"
+          class="mt-4"
+        />
       </div>
       
       <!-- PDF Preview -->

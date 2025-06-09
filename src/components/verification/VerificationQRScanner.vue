@@ -10,7 +10,7 @@ interface Props {
   isSuccess?: boolean
 }
 
-
+const props = defineProps<Props>()
 const { t } = useI18n()
 
 const messageType = computed(() => {
@@ -24,8 +24,6 @@ const messageTitle = computed(() => {
   if (props.isSuccess) return t('verification.qr.found')
   return t('verification.qr.failed')
 })
-
-const props = defineProps<Props>()
 </script>
 
 <template>
@@ -35,7 +33,6 @@ const props = defineProps<Props>()
       :type="messageType"
       :title="messageTitle"
       :message="qrScanResult"
-      :details="!isSuccess && uploadedDocument?.type.startsWith('image/') ? t('verification.document.manualSelectionTip') : undefined"
     />
   </div>
 </template>

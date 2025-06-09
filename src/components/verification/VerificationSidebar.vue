@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
-import { QrCode } from 'lucide-vue-next'
 
 const { t } = useI18n()
 </script>
@@ -57,18 +56,6 @@ const { t } = useI18n()
       <p class="text-sm text-blue-700">
         <strong>{{ t('common.privacy') }}:</strong> {{ t('verification.sidebar.privacy') }}
       </p>
-    </div>
-    
-    <!-- Manual Selection Info -->
-    <div class="mt-4 p-4 bg-amber-50 rounded-lg">
-      <div class="flex items-start gap-2">
-        <QrCode class="w-4 h-4 text-amber-600 mt-0.5" />
-        <div>
-          <p class="text-sm text-amber-800">
-            <strong>{{ t('verification.sidebar.manualSelection') }}</strong>
-          </p>
-        </div>
-      </div>
     </div>
   </div>
 </template>

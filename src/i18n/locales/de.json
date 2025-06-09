@@ -18,8 +18,9 @@
   },
   "navigation": {
     "home": "Startseite",
-    "sealDocument": "Dokument siegeln",
+    "sealDocument": "Dokument versiegeln",
     "howItWorks": "So funktioniert's",
+    "verify": "Verifizieren",
     "about": "Über uns"
   },
   "home": {
@@ -38,7 +39,7 @@
         "description": "Platziere dein einzigartiges Siegel genau dort, wo du es auf dem Dokument haben möchtest."
       },
       "sealIt": {
-        "title": "Siegeln",
+        "title": "Versiegeln",
         "description": "seal.codes erstellt ein kryptographisches Siegel, das eindeutig dein Eigentum beweist."
       }
     }
@@ -87,7 +88,7 @@
         },
         "download": {
           "title": "Herunterladen",
-          "description": "Erhalte dein gesiegeltes Dokument mit eingebetteter Authentifizierung."
+          "description": "Erhalte dein versiegeltes Dokument mit eingebetteter Authentifizierung."
         }
       }
     }
@@ -106,56 +107,54 @@
     "success": "Authentifizierung erfolgreich!"
   },
   "sealed": {
-    "title": "Dokument erfolgreich gesiegelt",
-    "subtitle": "Dein Dokument wurde mit deiner digitalen Signatur gesiegelt",
-    "download": "Gesiegeltes Dokument herunterladen",
+    "title": "Dokument erfolgreich versiegelt",
+    "subtitle": "Dein Dokument wurde mit deiner digitalen Signatur versiegelt",
+    "download": "Versiegeltes Dokument herunterladen",
     "verify": "Dokument verifizieren",
     "share": "Dokument teilen",
     "details": {
       "title": "Siegel-Details",
-      "sealedBy": "Gesiegelt von",
-      "sealedAt": "Gesiegelt am",
+      "sealedBy": "Versiegelt von",
+      "sealedAt": "Versiegelt am",
       "provider": "Authentifizierungsanbieter",
       "documentHash": "Dokument-Hash",
       "verificationUrl": "Verifizierungs-URL"
     },
     "actions": {
-      "sealAnother": "Weiteres Dokument siegeln",
+      "sealAnother": "Weiteres Dokument versiegeln",
       "viewOriginal": "Original anzeigen"
     }
   },
   "verification": {
     "title": "Dokumentverifizierung",
-    "subtitle": "Überprüfe die Authentizität und Integrität eines gesiegelten Dokuments",
+    "subtitle": "Überprüfe die Authentizität und Integrität eines versiegelten Dokuments",
     "scanning": "Dokument wird verifiziert...",
     "verified": "Dokument verifiziert",
     "invalid": "Ungültiges Siegel",
     "upload": {
-      "title": "Gesiegeltes Dokument hochladen",
-      "description": "Lade ein Dokument hoch, das einen eingebetteten QR-Code-Siegel enthält. Wir scannen das Dokument automatisch, extrahieren die Attestierungsdaten und ermöglichen dir die Überprüfung der Dokumentintegrität.",
+      "title": "Versiegeltes Dokument hochladen",
       "uploadToVerify": "Dokument zur Verifizierung hochladen",
       "uploadToVerifyDescription": "Lade jetzt das Dokument hoch, um zu überprüfen, ob es mit den oben gezeigten Siegel-Informationen übereinstimmt.",
       "qrDataFound": "QR-Code-Daten gefunden",
       "qrDataFoundDescription": "Wir haben Attestierungsdaten aus dem QR-Code-Link gefunden. Dies zeigt, was das Dokument bei der Verifizierung enthalten sollte.",
-      "howItWorks": "So funktioniert's: Wenn du ein Bild mit einem eingebetteten QR-Code-Siegel hochlädst, scannen wir automatisch und extrahieren die Verifizierungsdaten. Du kannst dann überprüfen, ob das Dokument seit der Siegelung nicht verändert wurde.",
-      "privacy": "Die gesamte Verarbeitung erfolgt in deinem Browser - deine Dokumente werden niemals auf unsere Server hochgeladen.",
       "invalidLink": "Ungültiger Verifizierungslink",
       "invalidLinkDescription": "Die Verifizierungsdaten in der URL sind ungültig.",
-      "canStillUpload": "Du kannst trotzdem ein gesiegeltes Dokument hochladen, um automatisch nach QR-Codes zu scannen."
+      "canStillUpload": "Du kannst trotzdem ein versiegeltes Dokument hochladen, um automatisch nach QR-Codes zu scannen."
     },
     "seal": {
       "title": "Digitale Siegel-Informationen",
-      "description": "Der QR-Code enthält die folgenden Informationen darüber, wann und von wem dieses Dokument gesiegelt wurde.",
+      "description": "Der QR-Code enthält die folgenden Informationen darüber, wann und von wem dieses Dokument versiegelt wurde.",
       "documentHash": "Dokument-Hash",
-      "sealedOn": "Gesiegelt am",
-      "sealedBy": "Gesiegelt von",
+      "sealedOn": "Versiegelt am",
+      "sealedBy": "Versiegelt von",
       "authProvider": "Authentifizierungsanbieter"
     },
     "document": {
       "title": "Dokumentverifizierung",
       "selectQRHint": "Klicken und ziehen, um QR-Code-Bereich auszuwählen",
       "selectQRHintAlt": "Oder warten, bis der automatische Scan abgeschlossen ist",
-      "manualSelectionTip": "💡 Versuche, auf das Bild oben zu klicken und zu ziehen, um den QR-Code-Bereich manuell auszuwählen.",
+      "manualSelectionTitle": "Manuelle QR-Code-Auswahl",
+      "manualSelectionDescription": "Falls die automatische Erkennung fehlschlägt, klicke und ziehe auf dem Bild oben, um den QR-Code-Bereich manuell auszuwählen.",
       "uploadRequired": "Dokument-Upload erforderlich",
       "uploadRequiredDescription": "Wir haben die Siegel-Informationen aus dem QR-Code. Bitte lade das Dokument hoch, um zu überprüfen, ob es mit diesem Siegel übereinstimmt."
     },
@@ -186,8 +185,8 @@
     "sidebar": {
       "title": "So funktioniert die Verifizierung",
       "step1": {
-        "title": "Dokument hochladen",
-        "description": "Lade das gesiegelte Dokument hoch. Wir scannen automatisch nach QR-Codes."
+        "title": "Attestierungsdaten erhalten",
+        "description": "Scanne entweder einen QR-Code oder lade ein versiegeltes Dokument hoch, um die Attestierungsdaten zu erhalten, die die Authentizität beweisen."
       },
       "step2": {
         "title": "QR-Code-Erkennung",
@@ -195,19 +194,18 @@
       },
       "step3": {
         "title": "Hash-Vergleich",
-        "description": "Wir berechnen den Fingerabdruck des Dokuments (ohne QR-Bereich) und vergleichen ihn mit der gesiegelten Version."
+        "description": "Wir berechnen den Fingerabdruck des Dokuments (ohne QR-Bereich) und vergleichen ihn mit der versiegelten Version."
       },
       "step4": {
         "title": "Ergebnis",
-        "description": "Erhalte eine Bestätigung, ob das Dokument mit der ursprünglich gesiegelten Version übereinstimmt."
+        "description": "Erhalte eine Bestätigung, ob das Dokument mit der ursprünglich versiegelten Version übereinstimmt."
       },
-      "privacy": "Datenschutz: Die Dokumentverifizierung erfolgt vollständig in deinem Browser. Deine Dateien werden niemals auf unsere Server hochgeladen.",
-      "manualSelection": "Manuelle Auswahl: Klicke und ziehe auf dem Bild, um den QR-Code-Bereich auszuwählen, falls die automatische Erkennung fehlschlägt."
+      "privacy": "Datenschutz: Die Dokumentverifizierung erfolgt vollständig in deinem Browser. Deine Dateien werden niemals auf unsere Server hochgeladen."
     },
     "details": {
       "authentic": "Dieses Dokument ist authentisch",
-      "sealedBy": "Gesiegelt von {name}",
-      "sealedAt": "Gesiegelt am {date}",
+      "sealedBy": "Versiegelt von {name}",
+      "sealedAt": "Versiegelt am {date}",
       "provider": "Authentifiziert über {provider}",
       "integrity": "Dokumentintegrität bestätigt"
     },

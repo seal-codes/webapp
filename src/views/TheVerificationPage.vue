@@ -208,31 +208,35 @@ onMounted(() => {
         <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500" />
       </div>
 
-      <!-- No document uploaded yet -->
-      <VerificationUploadPrompt
-        v-else-if="!uploadedDocument"
-        :has-encoded-data="hasEncodedData"
-        :decoded-data="decodedData"
-        @file-loaded="handleDocumentUpload"
-      />
-
-      <!-- Document uploaded - show main interface -->
+      <!-- Main Content Grid -->
       <div v-else class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <!-- Main Content -->
-        <VerificationContent
-          :uploaded-document="uploadedDocument"
-          :document-preview-url="documentPreviewUrl"
-          :decoded-data="decodedData"
-          :verification-result="verificationResult"
-          :is-scanning="isScanning"
-          :is-verifying="isVerifying"
-          :qr-scan-result="qrScanResult"
-          @verify-document="verifyDocument"
-          @reset-verification="resetVerification"
-          @scan-selected-area="scanSelectedArea"
-        />
+        <div class="lg:col-span-2">
+          <!-- No document uploaded yet -->
+          <VerificationUploadPrompt
+            v-if="!uploadedDocument"
+            :has-encoded-data="hasEncodedData"
+            :decoded-data="decodedData"
+            @file-loaded="handleDocumentUpload"
+          />
+
+          <!-- Document uploaded - show verification interface -->
+          <VerificationContent
+            v-else
+            :uploaded-document="uploadedDocument"
+            :document-preview-url="documentPreviewUrl"
+            :decoded-data="decodedData"
+            :verification-result="verificationResult"
+            :is-scanning="isScanning"
+            :is-verifying="isVerifying"
+            :qr-scan-result="qrScanResult"
+            @verify-document="verifyDocument"
+            @reset-verification="resetVerification"
+            @scan-selected-area="scanSelectedArea"
+          />
+        </div>
         
-        <!-- Sidebar -->
+        <!-- Sidebar - Always visible -->
         <div class="lg:col-span-1">
           <VerificationSidebar />
         </div>
