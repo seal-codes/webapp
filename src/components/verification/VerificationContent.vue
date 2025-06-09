@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { FileText } from 'lucide-vue-next'
 import BaseMessage from '@/components/common/BaseMessage.vue'
@@ -17,7 +17,8 @@ interface Props {
   verificationResult: VerificationResult | null
   isScanning: boolean
   isVerifying: boolean
-  qrScanResult: string
+  hasValidData: boolean
+  scanFailed: boolean
 }
 
 interface Emits {
@@ -43,24 +44,15 @@ const handleScanSelectedArea = (selection: { x: number; y: number; width: number
 </script>
 
 <template>
-  <div class="lg:col-span-2 space-y-6">
+  <div class="space-y-6">
     <!-- Certificate Information (if we have valid attestation data) -->
     <VerificationSealInfo 
-      v-if="decodedData?.isValid" 
+      v-if="hasValidData" 
       :decoded-data="decodedData"
     />
 
-    <!-- Upload Required Message (when we have attestation data but no document) -->
-    <BaseMessage
-      v-if="decodedData?.isValid && !uploadedDocument"
-      type="warning"
-      :title="t('verification.document.uploadRequired')"
-      :message="t('verification.document.uploadRequiredDescription')"
-      class="mb-6"
-    />
-
     <!-- Document Preview and Status -->
-    <div v-if="uploadedDocument" class="bg-white rounded-xl shadow-sm p-6">
+    <div class="bg-white rounded-xl shadow-sm p-6">
       <h2 class="text-xl font-bold mb-6 flex items-center gap-2">
         <FileText class="w-6 h-6 text-primary-500" />
         {{ t('verification.document.title') }}
@@ -73,15 +65,16 @@ const handleScanSelectedArea = (selection: { x: number; y: number; width: number
         :document-preview-url="documentPreviewUrl"
         :decoded-data="decodedData"
         :is-scanning="isScanning"
+        :scan-failed="scanFailed"
         @scan-selected-area="handleScanSelectedArea"
       />
       
       <!-- QR Scanning Status -->
       <VerificationQRScanner
         :is-scanning="isScanning"
-        :qr-scan-result="qrScanResult"
         :uploaded-document="uploadedDocument"
-        :is-success="decodedData?.isValid"
+        :has-valid-data="hasValidData"
+        :scan-failed="scanFailed"
       />
       
       <!-- Verification Results -->

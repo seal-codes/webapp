@@ -10,6 +10,7 @@ interface Props {
   documentPreviewUrl: string
   decodedData: DecodedVerificationData | null
   isScanning: boolean
+  scanFailed: boolean
 }
 
 interface Emits {
@@ -177,7 +178,7 @@ defineExpose({ resetSelection })
           
           <!-- Instructions Overlay -->
           <div 
-            v-if="!decodedData?.isValid && !isScanning"
+            v-if="(!decodedData?.isValid || scanFailed) && !isScanning"
             class="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center pointer-events-none rounded"
           >
             <div class="text-white text-center bg-black bg-opacity-50 p-4 rounded">
@@ -189,7 +190,7 @@ defineExpose({ resetSelection })
 
         <!-- Manual Selection Hint - Only shown when automatic detection failed -->
         <BaseMessage
-          v-if="!decodedData?.isValid && !isScanning"
+          v-if="(!decodedData?.isValid || scanFailed) && !isScanning"
           type="info"
           :title="t('verification.document.manualSelectionTitle')"
           :message="t('verification.document.manualSelectionDescription')"

@@ -6,6 +6,7 @@
 import { encode, decode } from 'cbor-x'
 import { documentHashService } from './document-hash-service'
 import { attestationBuilder } from './attestation-builder'
+import { qrScanService } from './qr-scan-service'
 import type { AttestationData } from '@/types/qrcode'
 
 /**
@@ -61,6 +62,28 @@ interface UltraCompactData {
  * Service for handling document verification with ultra-compact encoding
  */
 export class VerificationService {
+  /**
+   * Scan an image file for QR codes
+   * 
+   * @param imageFile - The image file to scan
+   * @param exclusionZone - Optional exclusion zone to focus scanning
+   * @returns Promise resolving to scan result
+   */
+  async scanImageForQR(imageFile: File, exclusionZone?: { x: number; y: number; width: number; height: number }) {
+    return qrScanService.scanImageForQR(imageFile, exclusionZone)
+  }
+
+  /**
+   * Verify document integrity against attestation data
+   * 
+   * @param document - The document file to verify
+   * @param attestationData - The attestation data from QR code
+   * @returns Promise resolving to verification result
+   */
+  async verifyDocument(document: File, attestationData: AttestationData): Promise<VerificationResult> {
+    return this.verifyDocumentIntegrity(document, attestationData)
+  }
+
   /**
    * Encode attestation data for QR code URL with maximum compression
    * 

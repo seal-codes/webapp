@@ -159,14 +159,15 @@
       "uploadRequiredDescription": "Wir haben die Siegel-Informationen aus dem QR-Code. Bitte lade das Dokument hoch, um zu überprüfen, ob es mit diesem Siegel übereinstimmt."
     },
     "qr": {
-      "scanning": "Suche nach QR-Code...",
+      "scanning": "Scanne nach QR-Code...",
       "scanningSelected": "Scanne ausgewählten Bereich...",
-      "found": "QR-Code gefunden",
+      "found": "QR-Code gefunden und erfolgreich dekodiert!",
       "foundMessage": "QR-Code gefunden und erfolgreich dekodiert!",
       "failed": "QR-Scan fehlgeschlagen",
-      "notFound": "Kein seal.codes QR-Code im Bild gefunden",
+      "notFound": "Kein QR-Code gefunden. Versuche, den Bereich manuell auszuwählen.",
+      "notFoundInArea": "Kein QR-Code im ausgewählten Bereich gefunden.",
       "notFoundSelected": "Kein QR-Code im ausgewählten Bereich gefunden",
-      "error": "Fehler beim Scannen nach QR-Code"
+      "error": "QR-Scan fehlgeschlagen"
     },
     "results": {
       "verified": "Dokument verifiziert",

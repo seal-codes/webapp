@@ -5,9 +5,9 @@ import BaseMessage from '@/components/common/BaseMessage.vue'
 
 interface Props {
   isScanning: boolean
-  qrScanResult: string
   uploadedDocument: File | null
-  isSuccess?: boolean
+  hasValidData: boolean
+  scanFailed: boolean
 }
 
 const props = defineProps<Props>()
@@ -15,24 +15,33 @@ const { t } = useI18n()
 
 const messageType = computed(() => {
   if (props.isScanning) return 'info'
-  if (props.isSuccess) return 'success'
-  return 'error'
+  if (props.hasValidData) return 'success'
+  if (props.scanFailed) return 'warning'
+  return 'info'
 })
 
 const messageTitle = computed(() => {
   if (props.isScanning) return t('verification.qr.scanning')
-  if (props.isSuccess) return t('verification.qr.found')
-  return t('verification.qr.failed')
+  if (props.hasValidData) return t('verification.qr.found')
+  if (props.scanFailed) return t('verification.qr.failed')
+  return ''
+})
+
+const messageText = computed(() => {
+  if (props.isScanning) return t('verification.qr.scanningSelected')
+  if (props.hasValidData) return t('verification.qr.foundMessage')
+  if (props.scanFailed) return t('verification.qr.notFound')
+  return ''
 })
 </script>
 
 <template>
   <!-- QR Scanning Status -->
-  <div v-if="isScanning || qrScanResult" class="mb-6">
+  <div v-if="isScanning || hasValidData || scanFailed" class="mb-6">
     <BaseMessage
       :type="messageType"
       :title="messageTitle"
-      :message="qrScanResult"
+      :message="messageText"
     />
   </div>
 </template>

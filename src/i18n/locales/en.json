@@ -161,12 +161,13 @@
     "qr": {
       "scanning": "Scanning for QR code...",
       "scanningSelected": "Scanning selected area...",
-      "found": "QR Code Found",
+      "found": "QR code found and successfully decoded!",
       "foundMessage": "QR code found and decoded successfully!",
       "failed": "QR Scan Failed",
-      "notFound": "No seal.codes QR code found in the image",
+      "notFound": "No QR code found. Try manually selecting the QR code area.",
+      "notFoundInArea": "No QR code found in the selected area.",
       "notFoundSelected": "No QR code found in selected area",
-      "error": "Error scanning for QR code"
+      "error": "QR scan failed"
     },
     "results": {
       "verified": "Document Verified",
