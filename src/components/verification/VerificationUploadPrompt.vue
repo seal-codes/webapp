@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
-import { QrCode, XCircle } from 'lucide-vue-next'
+import { QrCode } from 'lucide-vue-next'
 import DocumentDropzone from '@/components/document/DocumentDropzone.vue'
+import BaseMessage from '@/components/common/BaseMessage.vue'
 import type { DecodedVerificationData } from '@/services/verification-service'
 
 interface Props {
@@ -35,38 +36,22 @@ const { t } = useI18n()
       </div>
       
       <!-- Show error for invalid URL parameter -->
-      <div 
-        v-if="hasEncodedData && !decodedData?.isValid" 
-        class="mt-6 p-4 bg-red-50 border border-red-200 rounded-lg max-w-2xl mx-auto"
-      >
-        <div class="flex items-start gap-3">
-          <XCircle class="w-5 h-5 text-red-500 mt-0.5" />
-          <div class="text-left">
-            <p class="text-sm text-red-800">
-              <strong>{{ t('verification.upload.invalidLink') }}:</strong> 
-              {{ decodedData?.error || t('verification.upload.invalidLinkDescription') }}
-            </p>
-            <p class="text-xs text-red-700 mt-1">
-              {{ t('verification.upload.canStillUpload') }}
-            </p>
-          </div>
-        </div>
-      </div>
+      <BaseMessage
+        v-if="hasEncodedData && !decodedData?.isValid"
+        type="error"
+        :title="t('verification.upload.invalidLink')"
+        :message="decodedData?.error || t('verification.upload.invalidLinkDescription')"
+        :details="t('verification.upload.canStillUpload')"
+        class="mt-6 max-w-2xl mx-auto"
+      />
       
-      <div class="mt-6 p-4 bg-blue-50 rounded-lg max-w-2xl mx-auto">
-        <div class="flex items-start gap-3">
-          <QrCode class="w-5 h-5 text-blue-500 mt-0.5" />
-          <div class="text-left">
-            <p class="text-sm text-blue-800">
-              <strong>{{ t('common.howItWorks') }}:</strong> 
-              {{ t('verification.upload.howItWorks') }}
-            </p>
-            <p class="text-xs text-blue-700 mt-2">
-              {{ t('verification.upload.privacy') }}
-            </p>
-          </div>
-        </div>
-      </div>
+      <BaseMessage
+        type="info"
+        :title="t('common.howItWorks')"
+        :message="t('verification.upload.howItWorks')"
+        :details="t('verification.upload.privacy')"
+        class="mt-6 max-w-2xl mx-auto"
+      />
     </div>
   </div>
 </template>

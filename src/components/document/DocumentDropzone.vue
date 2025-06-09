@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import BaseButton from '../common/BaseButton.vue'
+import BaseMessage from '../common/BaseMessage.vue'
 
 const emit = defineEmits<{
   (e: 'fileLoaded', file: File): void;
@@ -120,9 +121,12 @@ const validateAndEmitFile = (file: File) => {
         {{ t('document.dropzone.title') }}
       </h3>
       
-      <p v-if="errorMessage" class="text-error-600 mb-2">
-        {{ errorMessage }}
-      </p>
+      <BaseMessage
+        v-if="errorMessage"
+        type="error"
+        :message="errorMessage"
+        class="mb-4"
+      />
       
       <p class="text-gray-500 mb-4">
         {{ t('document.dropzone.subtitle') }}

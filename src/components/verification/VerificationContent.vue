@@ -71,6 +71,7 @@ const handleScanSelectedArea = (selection: { x: number; y: number; width: number
         :is-scanning="isScanning"
         :qr-scan-result="qrScanResult"
         :uploaded-document="uploadedDocument"
+        :is-success="decodedData?.isValid"
       />
       
       <!-- Action Buttons -->
