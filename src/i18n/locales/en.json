@@ -12,7 +12,9 @@
     "back": "Back",
     "next": "Next",
     "previous": "Previous",
-    "retry": "Retry"
+    "retry": "Retry",
+    "howItWorks": "How it works",
+    "privacy": "Privacy"
   },
   "navigation": {
     "home": "Home",
@@ -124,9 +126,78 @@
   },
   "verification": {
     "title": "Document Verification",
+    "subtitle": "Verify the authenticity and integrity of a sealed document",
     "scanning": "Verifying document...",
     "verified": "Document Verified",
     "invalid": "Invalid Seal",
+    "upload": {
+      "title": "Upload a Sealed Document",
+      "description": "Upload a document that contains an embedded QR code seal. We'll automatically scan the document, extract the attestation data, and allow you to verify the document's integrity.",
+      "howItWorks": "How it works: When you upload an image with an embedded QR code seal, we automatically scan and extract the verification data. You can then verify that the document hasn't been modified since it was sealed.",
+      "privacy": "All processing happens in your browser - your documents are never uploaded to our servers.",
+      "invalidLink": "Invalid verification link",
+      "invalidLinkDescription": "The verification data in the URL is invalid.",
+      "canStillUpload": "You can still upload a sealed document above to scan for QR codes automatically."
+    },
+    "seal": {
+      "title": "Digital Seal Information",
+      "description": "The QR code contains the following information about when and by whom this document was sealed.",
+      "documentHash": "Document Hash",
+      "sealedOn": "Sealed On",
+      "sealedBy": "Sealed By",
+      "authProvider": "Authentication Provider"
+    },
+    "document": {
+      "title": "Document Verification",
+      "selectQRHint": "Click and drag to select QR code area",
+      "selectQRHintAlt": "Or wait for automatic scanning to complete",
+      "manualSelectionTip": "💡 Try clicking and dragging on the image above to manually select the QR code area."
+    },
+    "qr": {
+      "scanning": "Scanning for QR code...",
+      "scanningSelected": "Scanning selected area...",
+      "found": "QR Code Found",
+      "foundMessage": "QR code found and decoded successfully!",
+      "failed": "QR Scan Failed",
+      "notFound": "No seal.codes QR code found in the image",
+      "notFoundSelected": "No QR code found in selected area",
+      "error": "Error scanning for QR code"
+    },
+    "results": {
+      "verified": "Document Verified",
+      "failed": "Verification Failed",
+      "error": "Verification Error",
+      "cryptographicHash": "Cryptographic Hash",
+      "perceptualHash": "Perceptual Hash",
+      "exactMatch": "Exact match",
+      "visualMatch": "Visual match",
+      "noMatch": "No match"
+    },
+    "actions": {
+      "verifyIntegrity": "Verify Document Integrity",
+      "uploadDifferent": "Upload Different Document"
+    },
+    "sidebar": {
+      "title": "How Verification Works",
+      "step1": {
+        "title": "Upload Document",
+        "description": "Upload the sealed document. We'll automatically scan for QR codes."
+      },
+      "step2": {
+        "title": "QR Code Detection",
+        "description": "If automatic detection fails, click and drag on the image to manually select the QR code area."
+      },
+      "step3": {
+        "title": "Hash Comparison",
+        "description": "We calculate the document's fingerprint (excluding the QR area) and compare it with the sealed version."
+      },
+      "step4": {
+        "title": "Result",
+        "description": "Get confirmation whether the document matches the original sealed version."
+      },
+      "privacy": "Privacy: Document verification happens entirely in your browser. Your files are never uploaded to our servers.",
+      "manualSelection": "Manual Selection: Click and drag on the image to select the QR code area if automatic detection fails."
+    },
     "details": {
       "authentic": "This document is authentic",
       "sealedBy": "Sealed by {name}",

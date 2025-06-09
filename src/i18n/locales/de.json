@@ -12,7 +12,9 @@
     "back": "Zurück",
     "next": "Weiter",
     "previous": "Vorherige",
-    "retry": "Wiederholen"
+    "retry": "Wiederholen",
+    "howItWorks": "So funktioniert's",
+    "privacy": "Datenschutz"
   },
   "navigation": {
     "home": "Startseite",
@@ -124,9 +126,78 @@
   },
   "verification": {
     "title": "Dokumentverifizierung",
+    "subtitle": "Überprüfe die Authentizität und Integrität eines gesiegelten Dokuments",
     "scanning": "Dokument wird verifiziert...",
     "verified": "Dokument verifiziert",
     "invalid": "Ungültiges Siegel",
+    "upload": {
+      "title": "Gesiegeltes Dokument hochladen",
+      "description": "Lade ein Dokument hoch, das einen eingebetteten QR-Code-Siegel enthält. Wir scannen das Dokument automatisch, extrahieren die Attestierungsdaten und ermöglichen dir die Überprüfung der Dokumentintegrität.",
+      "howItWorks": "So funktioniert's: Wenn du ein Bild mit einem eingebetteten QR-Code-Siegel hochlädst, scannen wir automatisch und extrahieren die Verifizierungsdaten. Du kannst dann überprüfen, ob das Dokument seit der Siegelung nicht verändert wurde.",
+      "privacy": "Die gesamte Verarbeitung erfolgt in deinem Browser - deine Dokumente werden niemals auf unsere Server hochgeladen.",
+      "invalidLink": "Ungültiger Verifizierungslink",
+      "invalidLinkDescription": "Die Verifizierungsdaten in der URL sind ungültig.",
+      "canStillUpload": "Du kannst trotzdem ein gesiegeltes Dokument hochladen, um automatisch nach QR-Codes zu scannen."
+    },
+    "seal": {
+      "title": "Digitale Siegel-Informationen",
+      "description": "Der QR-Code enthält die folgenden Informationen darüber, wann und von wem dieses Dokument gesiegelt wurde.",
+      "documentHash": "Dokument-Hash",
+      "sealedOn": "Gesiegelt am",
+      "sealedBy": "Gesiegelt von",
+      "authProvider": "Authentifizierungsanbieter"
+    },
+    "document": {
+      "title": "Dokumentverifizierung",
+      "selectQRHint": "Klicken und ziehen, um QR-Code-Bereich auszuwählen",
+      "selectQRHintAlt": "Oder warten, bis der automatische Scan abgeschlossen ist",
+      "manualSelectionTip": "💡 Versuche, auf das Bild oben zu klicken und zu ziehen, um den QR-Code-Bereich manuell auszuwählen."
+    },
+    "qr": {
+      "scanning": "Suche nach QR-Code...",
+      "scanningSelected": "Scanne ausgewählten Bereich...",
+      "found": "QR-Code gefunden",
+      "foundMessage": "QR-Code gefunden und erfolgreich dekodiert!",
+      "failed": "QR-Scan fehlgeschlagen",
+      "notFound": "Kein seal.codes QR-Code im Bild gefunden",
+      "notFoundSelected": "Kein QR-Code im ausgewählten Bereich gefunden",
+      "error": "Fehler beim Scannen nach QR-Code"
+    },
+    "results": {
+      "verified": "Dokument verifiziert",
+      "failed": "Verifizierung fehlgeschlagen",
+      "error": "Verifizierungsfehler",
+      "cryptographicHash": "Kryptographischer Hash",
+      "perceptualHash": "Perzeptueller Hash",
+      "exactMatch": "Exakte Übereinstimmung",
+      "visualMatch": "Visuelle Übereinstimmung",
+      "noMatch": "Keine Übereinstimmung"
+    },
+    "actions": {
+      "verifyIntegrity": "Dokumentintegrität überprüfen",
+      "uploadDifferent": "Anderes Dokument hochladen"
+    },
+    "sidebar": {
+      "title": "So funktioniert die Verifizierung",
+      "step1": {
+        "title": "Dokument hochladen",
+        "description": "Lade das gesiegelte Dokument hoch. Wir scannen automatisch nach QR-Codes."
+      },
+      "step2": {
+        "title": "QR-Code-Erkennung",
+        "description": "Falls die automatische Erkennung fehlschlägt, klicke und ziehe auf dem Bild, um den QR-Code-Bereich manuell auszuwählen."
+      },
+      "step3": {
+        "title": "Hash-Vergleich",
+        "description": "Wir berechnen den Fingerabdruck des Dokuments (ohne QR-Bereich) und vergleichen ihn mit der gesiegelten Version."
+      },
+      "step4": {
+        "title": "Ergebnis",
+        "description": "Erhalte eine Bestätigung, ob das Dokument mit der ursprünglich gesiegelten Version übereinstimmt."
+      },
+      "privacy": "Datenschutz: Die Dokumentverifizierung erfolgt vollständig in deinem Browser. Deine Dateien werden niemals auf unsere Server hochgeladen.",
+      "manualSelection": "Manuelle Auswahl: Klicke und ziehe auf dem Bild, um den QR-Code-Bereich auszuwählen, falls die automatische Erkennung fehlschlägt."
+    },
     "details": {
       "authentic": "Dieses Dokument ist authentisch",
       "sealedBy": "Gesiegelt von {name}",

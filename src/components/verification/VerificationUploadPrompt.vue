@@ -1,0 +1,72 @@
+<script setup lang="ts">
+import { useI18n } from 'vue-i18n'
+import { QrCode, XCircle } from 'lucide-vue-next'
+import DocumentDropzone from '@/components/document/DocumentDropzone.vue'
+import type { DecodedVerificationData } from '@/services/verification-service'
+
+interface Props {
+  hasEncodedData: boolean
+  decodedData: DecodedVerificationData | null
+}
+
+interface Emits {
+  (e: 'file-loaded', file: File): void
+}
+
+defineProps<Props>()
+defineEmits<Emits>()
+
+const { t } = useI18n()
+</script>
+
+<template>
+  <div class="max-w-4xl mx-auto">
+    <div class="bg-white rounded-xl shadow-sm p-8 text-center">
+      <QrCode class="w-16 h-16 text-primary-500 mx-auto mb-6" />
+      <h2 class="text-2xl font-bold mb-4">
+        {{ t('verification.upload.title') }}
+      </h2>
+      <p class="text-gray-600 mb-6 max-w-2xl mx-auto">
+        {{ t('verification.upload.description') }}
+      </p>
+      
+      <div class="max-w-lg mx-auto">
+        <DocumentDropzone @file-loaded="$emit('file-loaded', $event)" />
+      </div>
+      
+      <!-- Show error for invalid URL parameter -->
+      <div 
+        v-if="hasEncodedData && !decodedData?.isValid" 
+        class="mt-6 p-4 bg-red-50 border border-red-200 rounded-lg max-w-2xl mx-auto"
+      >
+        <div class="flex items-start gap-3">
+          <XCircle class="w-5 h-5 text-red-500 mt-0.5" />
+          <div class="text-left">
+            <p class="text-sm text-red-800">
+              <strong>{{ t('verification.upload.invalidLink') }}:</strong> 
+              {{ decodedData?.error || t('verification.upload.invalidLinkDescription') }}
+            </p>
+            <p class="text-xs text-red-700 mt-1">
+              {{ t('verification.upload.canStillUpload') }}
+            </p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="mt-6 p-4 bg-blue-50 rounded-lg max-w-2xl mx-auto">
+        <div class="flex items-start gap-3">
+          <QrCode class="w-5 h-5 text-blue-500 mt-0.5" />
+          <div class="text-left">
+            <p class="text-sm text-blue-800">
+              <strong>{{ t('common.howItWorks') }}:</strong> 
+              {{ t('verification.upload.howItWorks') }}
+            </p>
+            <p class="text-xs text-blue-700 mt-2">
+              {{ t('verification.upload.privacy') }}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
