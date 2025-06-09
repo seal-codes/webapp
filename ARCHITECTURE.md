@@ -334,29 +334,107 @@ In addition to the multi-layered hash approach, seal.codes implements several st
 
 ## Technical Implementation Details
 
-### Document Hash Generation
+### Document Hash Generation with QR Code Exclusion
 
-seal.codes uses a multi-layered hash approach to balance security with resilience to modifications:
+A key challenge in document attestation is that the QR code itself becomes part of the document, which would normally cause the hash to be different from the original document. seal.codes solves this using a deterministic exclusion zone approach:
 
 ```mermaid
-flowchart LR
-    A[Document] --> B1[SHA-256 Algorithm]
-    A --> B2[Perceptual Hash Algorithm]
-    B1 --> C1[Cryptographic Hash]
-    B2 --> C2[Perceptual Hash]
-    C1 --> D[Attestation Package]
-    C2 --> D
+flowchart TD
+    A[Original Document] --> B[Define QR Position]
+    B --> C[Fill QR Area with White]
+    C --> D[Calculate Hashes]
+    D --> E1[Cryptographic Hash]
+    D --> E2[Perceptual Hashes]
+    E1 --> F[Attestation Package]
+    E2 --> F
+    F --> G[Generate QR Code]
+    G --> H[Embed QR in Document]
 ```
 
-1. **Cryptographic Hash (SHA-256)**:
-   - Provides cryptographic certainty for unmodified documents
-   - Changes completely with any modification to the document
-   - Primary verification method for exact matching
+#### Exclusion Zone Process
 
-2. **Perceptual Hash (pHash/dHash)**:
-   - Provides resilience against compression and minor modifications
-   - Remains similar even when the image is compressed or resized
-   - Secondary verification method using similarity thresholds
+1. **QR Code Position**:
+   - Before hashing, determine where the QR code will be placed
+   - Define an "exclusion zone" with exact coordinates and dimensions
+
+2. **Area Preparation**:
+   - Fill the exclusion zone with a solid neutral color (white #FFFFFF)
+   - This ensures the area where the QR code will be placed has no effect on the hash
+
+3. **Hash Calculation**:
+   - Calculate SHA-256 cryptographic hash of the prepared image
+   - Calculate perceptual hashes (pHash, dHash) of the prepared image
+   - All hashes are calculated after the exclusion zone is filled
+
+4. **Verification Process**:
+   - Extract exclusion zone coordinates from attestation
+   - Fill QR code area with same neutral color
+   - Calculate hashes of the resulting image
+   - Compare with stored hashes
+
+#### Example:
+
+```typescript
+// During document signing
+const exclusionZone = {
+  x: 100,        // QR code X position
+  y: 100,        // QR code Y position
+  width: 200,    // QR code width
+  height: 200,   // QR code height
+  fillColor: '#FFFFFF'  // Neutral color
+}
+
+// Fill exclusion zone before hashing
+ctx.fillStyle = exclusionZone.fillColor
+ctx.fillRect(
+  exclusionZone.x,
+  exclusionZone.y,
+  exclusionZone.width,
+  exclusionZone.height
+)
+
+// Calculate hashes of prepared document
+const hashes = await calculateHashes(document)
+
+// Store both hashes and exclusion zone in attestation
+const attestation = {
+  hashes: {
+    cryptographic: hashes.sha256,
+    perceptual: {
+      pHash: hashes.pHash,
+      dHash: hashes.dHash
+    }
+  },
+  exclusionZone: {
+    x: exclusionZone.x,
+    y: exclusionZone.y,
+    width: exclusionZone.width,
+    height: exclusionZone.height
+  }
+}
+```
+
+#### Benefits of this Approach:
+
+1. **Simplicity**: 
+   - Simple to implement and understand
+   - Deterministic results
+   - Easy to debug and verify
+
+2. **Reliability**:
+   - Works consistently for both cryptographic and perceptual hashes
+   - No complex pixel weighting or partial exclusions
+   - Same process for signing and verification
+
+3. **Performance**:
+   - Single pass modification of the image
+   - No need for pixel-by-pixel processing
+   - Efficient memory usage
+
+4. **Verification**:
+   - Clear process for verifiers to follow
+   - Easy to implement in different programming languages
+   - Consistent results across platforms
 
 ### QR Code Capacity and Optimization
 
