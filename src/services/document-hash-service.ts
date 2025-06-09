@@ -3,6 +3,7 @@
  * Handles cryptographic and perceptual hashing while excluding QR code areas
  */
 
+import { PDFDocument } from 'pdf-lib'
 import type { QRCodeExclusionZone } from '@/types/qrcode'
 
 /**
