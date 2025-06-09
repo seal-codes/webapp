@@ -11,7 +11,6 @@ import type { AttestationData } from '@/types/qrcode'
 
 export type VerificationStatus = 
   | 'verified_exact'           // Exact cryptographic match
-  | 'verified_demo'            // Hash prefix matches (demo mode)
   | 'verified_visual'          // Visual content matches (compressed)
   | 'modified'                 // Document has been modified
   | 'error_hash_mismatch'      // Hash doesn't match
@@ -51,17 +50,24 @@ export interface DecodedVerificationData {
  * Uses minimal field names and optimized data types
  */
 interface UltraCompactData {
-  /** Hash (truncated for demo) */
-  h: string;
+  /** Document hashes (cryptographic and perceptual) */
+  h: {
+    /** Cryptographic hash (SHA-256) */
+    c: string;
+    /** Perceptual hash (pHash) */
+    p: string;
+    /** Difference hash (dHash) */
+    d: string;
+  };
   /** Unix timestamp */
   t: number;
   /** Identity (provider:user) */
   i: string;
-  /** Service key (truncated) */
+  /** Service key */
   s: string;
   /** Exclusion zone [x,y,w,h] (optional) */
   e?: number[];
-  /** User URL (optional, truncated) */
+  /** User URL (optional) */
   u?: string;
 }
 
@@ -133,8 +139,12 @@ export class VerificationService {
   private createUltraCompactData(attestationData: AttestationData): UltraCompactData {
     // Create minimal version with aggressive compression
     const compact: UltraCompactData = {
-      // Hash: Use first 12 characters for demo (in production, use full hash)
-      h: attestationData.h.c.substring(0, 12),
+      // Include both cryptographic and perceptual hashes
+      h: {
+        c: attestationData.h.c,    // Cryptographic hash
+        p: attestationData.h.p.p,  // Perceptual hash
+        d: attestationData.h.p.d,  // Difference hash
+      },
       
       // Timestamp: Convert to Unix timestamp (saves ~15 characters vs ISO string)
       t: Math.floor(new Date(attestationData.t).getTime() / 1000),
@@ -182,10 +192,10 @@ export class VerificationService {
     // Reconstruct full attestation data
     const expanded: AttestationData = {
       h: {
-        c: compactData.h + '-truncated', // Mark as truncated for demo
+        c: compactData.h.c,
         p: {
-          p: 'demo-phash', // Placeholder - not needed for basic verification
-          d: 'demo-dhash', // Placeholder - not needed for basic verification
+          p: compactData.h.p,
+          d: compactData.h.d,
         },
       },
       t: new Date(compactData.t * 1000).toISOString(),
@@ -195,7 +205,7 @@ export class VerificationService {
       },
       s: {
         n: 'sc',
-        k: compactData.s + '-truncated',
+        k: compactData.s,
       },
       e: {
         x: compactData.e ? compactData.e[0] : 0,
@@ -305,14 +315,11 @@ export class VerificationService {
         exclusionZone
       )
       
-      // Compare cryptographic hash (handle truncated hashes for demo)
+      // Compare cryptographic hash
       const storedHash = attestationData.h.c
       const calculatedHash = calculatedHashes.cryptographic
       
-      // For demo purposes, if the stored hash is truncated, compare only the prefix
-      const cryptographicMatch = storedHash.includes('truncated') 
-        ? calculatedHash.startsWith(storedHash.replace('-truncated', ''))
-        : calculatedHash === storedHash
+      const cryptographicMatch = calculatedHash === storedHash
       
       // Compare perceptual hashes (with some tolerance for compression)
       const pHashMatch = this.comparePerceptualHashes(
@@ -331,9 +338,7 @@ export class VerificationService {
       
       if (cryptographicMatch) {
         isValid = true
-        status = storedHash.includes('truncated') 
-          ? 'verified_demo'
-          : 'verified_exact'
+        status = 'verified_exact'
       } else if (perceptualMatch) {
         isValid = true
         status = 'verified_visual'
@@ -366,16 +371,29 @@ export class VerificationService {
   }
 
   /**
-   * Compare perceptual hashes with tolerance
+   * Compare perceptual hashes using Hamming distance
    * 
    * @param hash1 - First hash
    * @param hash2 - Second hash
    * @returns Whether hashes are similar enough
    */
   private comparePerceptualHashes(hash1: string, hash2: string): boolean {
-    // TODO: Implement actual perceptual hash comparison with Hamming distance
-    // For now, simple string comparison
-    return hash1 === hash2
+    // If either hash is empty, return false
+    if (!hash1 || !hash2) return false
+    
+    // Calculate Hamming distance (number of differing bits)
+    let distance = 0
+    for (let i = 0; i < hash1.length; i++) {
+      if (hash1[i] !== hash2[i]) {
+        distance++
+      }
+    }
+    
+    // Calculate similarity percentage
+    const similarity = 1 - (distance / hash1.length)
+    
+    // Consider hashes similar if they match at least 90%
+    return similarity >= 0.9
   }
 
   /**
