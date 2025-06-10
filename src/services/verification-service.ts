@@ -81,8 +81,8 @@ interface UltraCompactData {
   i: string;
   /** Service key */
   s: string;
-  /** Exclusion zone [x,y,w,h] (optional) */
-  e?: number[];
+  /** Exclusion zone [x,y,w,h,f] - required for hash verification */
+  e: (number | string)[];
   /** User URL (optional) */
   u?: string;
 }
@@ -172,18 +172,15 @@ export class VerificationService {
       s: attestationData.s.k.substring(0, 6),
     }
 
-    // Only include exclusion zone if it's not at default position (0,0,100,100)
-    if (attestationData.e && 
-        !(attestationData.e.x === 0 && attestationData.e.y === 0 && 
-          attestationData.e.w === 100 && attestationData.e.h === 100)) {
-      // Use array format to save space vs object
-      compact.e = [
-        Math.round(attestationData.e.x),
-        Math.round(attestationData.e.y), 
-        Math.round(attestationData.e.w),
-        Math.round(attestationData.e.h)
-      ]
-    }
+    // Exclusion zone is always required for hash verification
+    // Use array format to save space: [x, y, width, height, fillColor]
+    compact.e = [
+      Math.round(attestationData.e.x),
+      Math.round(attestationData.e.y), 
+      Math.round(attestationData.e.w),
+      Math.round(attestationData.e.h),
+      attestationData.e.f // Fill color is required for hash consistency
+    ]
 
     // Only include user URL if present and limit length
     if (attestationData.u) {
@@ -224,11 +221,11 @@ export class VerificationService {
         k: compactData.s,
       },
       e: {
-        x: compactData.e ? compactData.e[0] : 0,
-        y: compactData.e ? compactData.e[1] : 0,
-        w: compactData.e ? compactData.e[2] : 100,
-        h: compactData.e ? compactData.e[3] : 100,
-        f: 'FFFFFF', // Default white fill
+        x: compactData.e[0] as number,
+        y: compactData.e[1] as number,
+        w: compactData.e[2] as number,
+        h: compactData.e[3] as number,
+        f: compactData.e[4] as string, // Use the original fill color for hash consistency
       },
     }
 
