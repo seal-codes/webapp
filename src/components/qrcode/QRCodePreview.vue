@@ -89,6 +89,7 @@ const generatePlaceholderQR = async (): Promise<string> => {
         t: new Date().toISOString(),
         i: { p: 'g', id: 'preview@example.com' },
         s: { n: 'sc', k: 'preview-key' },
+        e: { x: 0, y: 0, w: 100, h: 100, f: 'FFFFFF' },
       },
       sizeInPixels: qrSizeInPixels.value,
       errorCorrectionLevel: 'H',

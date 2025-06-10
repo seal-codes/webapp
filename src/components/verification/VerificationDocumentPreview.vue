@@ -3,14 +3,15 @@ import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { FileText } from 'lucide-vue-next'
 import BaseMessage from '@/components/common/BaseMessage.vue'
+import ExclusionZoneOverlay from './ExclusionZoneOverlay.vue'
 import type { DecodedVerificationData } from '@/services/verification-service'
+import { getExclusionZone } from '@/services/verification-service'
 
 interface Props {
   uploadedDocument: File
   documentPreviewUrl: string
   decodedData: DecodedVerificationData | null
-  isScanning: boolean
-  scanFailed: boolean
+  canManuallySelect: boolean
 }
 
 interface Emits {
@@ -21,11 +22,20 @@ const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 const { t } = useI18n()
 
+// Computed exclusion zone
+const exclusionZone = computed(() => getExclusionZone(props.decodedData))
+
 // QR Selection state
 const isSelecting = ref(false)
 const selectionStart = ref<{ x: number; y: number } | null>(null)
 const selectionEnd = ref<{ x: number; y: number } | null>(null)
 const imageElement = ref<HTMLImageElement | null>(null)
+const imageLoaded = ref(false)
+
+// Handle image load
+const handleImageLoad = () => {
+  imageLoaded.value = true
+}
 
 /**
  * Calculate the selection box coordinates and dimensions
@@ -161,6 +171,7 @@ defineExpose({ resetSelection })
             :alt="uploadedDocument.name"
             class="max-w-full max-h-96 rounded border object-contain cursor-crosshair"
             @mousedown="handleMouseDown"
+            @load="handleImageLoad"
             draggable="false"
           />
           
@@ -175,10 +186,17 @@ defineExpose({ resetSelection })
               height: selectionBox.height + 'px'
             }"
           />
+
+          <!-- Exclusion Zone Overlay -->
+          <ExclusionZoneOverlay
+            v-if="exclusionZone && imageElement && imageLoaded"
+            :exclusion-zone="exclusionZone"
+            :image-element="imageElement"
+          />
           
           <!-- Instructions Overlay -->
           <div 
-            v-if="(!decodedData?.isValid || scanFailed) && !isScanning"
+            v-if="canManuallySelect"
             class="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center pointer-events-none rounded"
           >
             <div class="text-white text-center bg-black bg-opacity-50 p-4 rounded">
@@ -190,7 +208,7 @@ defineExpose({ resetSelection })
 
         <!-- Manual Selection Hint - Only shown when automatic detection failed -->
         <BaseMessage
-          v-if="(!decodedData?.isValid || scanFailed) && !isScanning"
+          v-if="canManuallySelect"
           type="info"
           :title="t('verification.document.manualSelectionTitle')"
           :message="t('verification.document.manualSelectionDescription')"

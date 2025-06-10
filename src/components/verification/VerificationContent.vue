@@ -30,7 +30,7 @@ interface Emits {
   (e: 'scan-selected-area', selection: { x: number; y: number; width: number; height: number }): void
 }
 
-defineProps<Props>()
+const props = defineProps<Props>()
 
 const { t } = useI18n()
 const documentPreviewRef = ref<InstanceType<typeof VerificationDocumentPreview> | null>(null)
@@ -50,7 +50,7 @@ const handleScanSelectedArea = (selection: { x: number; y: number; width: number
   <div class="space-y-6">
     <!-- Certificate Information (if we have valid attestation data) -->
     <VerificationSealInfo 
-      v-if="hasValidData" 
+      v-if="hasValidData && decodedData" 
       :decoded-data="decodedData"
     />
 

@@ -23,7 +23,12 @@ const providerInfo = computed(() => {
   }
   
   const provider = providers.find((p: Provider) => p.compactId === props.decodedData.attestationData.i.p)
-  return provider || { name: 'Unknown Provider', id: 'unknown' }
+  return provider || { 
+    name: 'Unknown Provider', 
+    id: 'unknown', 
+    compactId: 'u',
+    icon: '' 
+  }
 })
 
 /**

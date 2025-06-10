@@ -7,7 +7,7 @@ import { encode, decode } from 'cbor-x'
 import { documentHashService } from './document-hash-service'
 import { attestationBuilder } from './attestation-builder'
 import { qrScanService } from './qr-scan-service'
-import type { AttestationData } from '@/types/qrcode'
+import type { AttestationData, QRCodeExclusionZone } from '@/types/qrcode'
 
 export type VerificationStatus = 
   | 'verified_exact'           // Exact cryptographic match
@@ -43,6 +43,22 @@ export interface DecodedVerificationData {
   isValid: boolean;
   /** Error code if decoding failed */
   errorCode?: 'invalid_format' | 'decode_failed' | 'invalid_structure';
+}
+
+/**
+ * Helper function to extract exclusion zone from decoded verification data
+ */
+export function getExclusionZone(decodedData: DecodedVerificationData | null): QRCodeExclusionZone | undefined {
+  if (!decodedData?.attestationData?.e) return undefined
+  
+  const e = decodedData.attestationData.e
+  return {
+    x: e.x,
+    y: e.y,
+    width: e.w,
+    height: e.h,
+    fillColor: `#${e.f}`
+  }
 }
 
 /**

@@ -29,7 +29,7 @@ export class QRCodeUICalculator {
     documentDimensions: DocumentDimensions,
     documentType: 'pdf' | 'image',
   ): PixelCalculationResult {
-    // Calculate size based on document type
+    // Calculate size based on document type with minimum size enforcement
     const sizeInPixels = this.calculateSizeInPixels(
       uiSizePercent,
       documentDimensions,
@@ -39,10 +39,11 @@ export class QRCodeUICalculator {
     // Calculate complete seal dimensions
     const completeSealDimensions = this.calculateCompleteSealDimensions(sizeInPixels)
 
-    // Calculate position (center-based positioning)
+    // Calculate position using TOP-LEFT based positioning (not center-based)
+    // This ensures consistent positioning
     const position = {
-      x: (documentDimensions.width * uiPosition.x / 100) - (completeSealDimensions.width / 2),
-      y: (documentDimensions.height * uiPosition.y / 100) - (completeSealDimensions.height / 2),
+      x: Math.round((documentDimensions.width * uiPosition.x / 100) - (completeSealDimensions.width / 2)),
+      y: Math.round((documentDimensions.height * uiPosition.y / 100) - (completeSealDimensions.height / 2)),
     }
 
     // Ensure QR code stays within document bounds
@@ -52,7 +53,7 @@ export class QRCodeUICalculator {
       documentDimensions,
     )
 
-    // Create exclusion zone
+    // Create exclusion zone with exact pixel coordinates
     const exclusionZone: QRCodeExclusionZone = {
       x: boundedPosition.x,
       y: boundedPosition.y,
@@ -83,14 +84,20 @@ export class QRCodeUICalculator {
     documentDimensions: DocumentDimensions,
     documentType: 'pdf' | 'image',
   ): number {
+    let calculatedSize: number
+
     if (documentType === 'image') {
       // For images: use percentage of smallest dimension for pixel-perfect scaling
       const minDimension = Math.min(documentDimensions.width, documentDimensions.height)
-      return Math.round(minDimension * sizePercent / 100)
+      calculatedSize = Math.round(minDimension * sizePercent / 100)
     } else {
       // For PDFs: use percentage of width (PDFs are typically portrait)
-      return Math.round(documentDimensions.width * sizePercent / 100)
+      calculatedSize = Math.round(documentDimensions.width * sizePercent / 100)
     }
+
+    // Enforce minimum size for scannability
+    const MINIMUM_QR_SIZE = 120 // pixels - minimum for reliable scanning
+    return Math.max(calculatedSize, MINIMUM_QR_SIZE)
   }
 
   /**
