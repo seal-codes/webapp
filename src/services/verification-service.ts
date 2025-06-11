@@ -8,6 +8,7 @@ import { documentHashService } from './document-hash-service'
 import { attestationBuilder } from './attestation-builder'
 import { qrScanService } from './qr-scan-service'
 import type { AttestationData, QRCodeExclusionZone } from '@/types/qrcode'
+import { debugVerification } from './debug-verification'
 
 export type VerificationStatus =
   | 'verified_exact'           // Exact cryptographic match
@@ -113,6 +114,17 @@ export class VerificationService {
    */
   async verifyDocument(document: File, attestationData: AttestationData): Promise<VerificationResult> {
     return this.verifyDocumentIntegrity(document, attestationData)
+  }
+
+  /**
+   * Debug verification process step by step (for troubleshooting)
+   * 
+   * @param document - Document to verify
+   * @param attestationData - Attestation data from QR code
+   * @returns Debug information
+   */
+  async debugVerification(document: File, attestationData: AttestationData) {
+    return debugVerification(document, attestationData)
   }
 
   /**
