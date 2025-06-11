@@ -55,7 +55,7 @@ export class QRReaderService {
    */
   async readQRCodeFromImage(
     imageFile: File, 
-    exclusionZone?: { x: number; y: number; width: number; height: number }
+    exclusionZone?: { x: number; y: number; width: number; height: number },
   ): Promise<QRCodeDetectionResult> {
     const processingSteps: string[] = []
     
@@ -136,7 +136,7 @@ export class QRReaderService {
         
         // Only try the fastest scan method for full image
         qrCode = jsQR(imageData.data, imageData.width, imageData.height, {
-          inversionAttempts: 'dontInvert'
+          inversionAttempts: 'dontInvert',
         })
         scannedFullImage = true
         
@@ -162,8 +162,8 @@ export class QRReaderService {
             imageDimensions: { width: imageData.width, height: imageData.height },
             processingSteps,
             detectedAreas,
-            areaDetectionTime
-          }
+            areaDetectionTime,
+          },
         }
       }
       
@@ -200,8 +200,8 @@ export class QRReaderService {
           imageDimensions: { width: imageData.width, height: imageData.height },
           processingSteps,
           detectedAreas,
-          areaDetectionTime
-        }
+          areaDetectionTime,
+        },
       }
     } catch (error) {
       console.error('💥 Error reading QR code:', error)
@@ -215,8 +215,8 @@ export class QRReaderService {
           scannedDetectedAreas: false,
           qrCodesFound: 0,
           imageProcessed: false,
-          processingSteps
-        }
+          processingSteps,
+        },
       }
     }
   }
@@ -230,7 +230,7 @@ export class QRReaderService {
    */
   private async scanImageRegion(
     imageData: ImageData,
-    region: { x: number; y: number; width: number; height: number }
+    region: { x: number; y: number; width: number; height: number },
   ): Promise<any> {
     try {
       console.log('🎯 Scanning region:', region)
@@ -240,7 +240,7 @@ export class QRReaderService {
         x: Math.max(0, Math.floor(region.x)),
         y: Math.max(0, Math.floor(region.y)),
         width: Math.min(imageData.width - Math.max(0, Math.floor(region.x)), Math.floor(region.width)),
-        height: Math.min(imageData.height - Math.max(0, Math.floor(region.y)), Math.floor(region.height))
+        height: Math.min(imageData.height - Math.max(0, Math.floor(region.y)), Math.floor(region.height)),
       }
       
       console.log('📐 Bounded region:', boundedRegion)
@@ -278,7 +278,7 @@ export class QRReaderService {
       ctx.drawImage(
         tempCanvas,
         boundedRegion.x, boundedRegion.y, boundedRegion.width, boundedRegion.height, // Source
-        0, 0, boundedRegion.width, boundedRegion.height // Destination
+        0, 0, boundedRegion.width, boundedRegion.height, // Destination
       )
       
       // Get image data for the region
@@ -289,7 +289,7 @@ export class QRReaderService {
       
       // Approach 1: Direct scan
       let qrCode = jsQR(regionImageData.data, regionImageData.width, regionImageData.height, {
-        inversionAttempts: 'dontInvert'
+        inversionAttempts: 'dontInvert',
       })
       
       if (qrCode) {
@@ -299,7 +299,7 @@ export class QRReaderService {
 
       // Approach 2: With inversion attempts
       qrCode = jsQR(regionImageData.data, regionImageData.width, regionImageData.height, {
-        inversionAttempts: 'attemptBoth'
+        inversionAttempts: 'attemptBoth',
       })
       
       if (qrCode) {
@@ -325,7 +325,7 @@ export class QRReaderService {
    */
   async scanForAttestationData(
     imageFile: File,
-    exclusionZone?: { x: number; y: number; width: number; height: number }
+    exclusionZone?: { x: number; y: number; width: number; height: number },
   ): Promise<{
     found: boolean;
     attestationData?: AttestationData;
@@ -343,7 +343,7 @@ export class QRReaderService {
       return {
         found: false,
         error: result.error || 'No QR code found',
-        debug: result.debug
+        debug: result.debug,
       }
     }
     
@@ -351,7 +351,7 @@ export class QRReaderService {
       return {
         found: false,
         error: `QR code found but it does not contain seal.codes attestation data. Found: ${result.data?.substring(0, 100)}...`,
-        debug: result.debug
+        debug: result.debug,
       }
     }
     
@@ -359,7 +359,7 @@ export class QRReaderService {
       found: true,
       attestationData: result.attestationData,
       qrLocation: result.location,
-      debug: result.debug
+      debug: result.debug,
     }
   }
 
@@ -420,7 +420,6 @@ export class QRReaderService {
    */
   private calculateQRLocation(
     qrCode: any,
-    imageData: ImageData
   ): { x: number; y: number; width: number; height: number } {
     const { location } = qrCode
     
@@ -429,13 +428,13 @@ export class QRReaderService {
       location.topLeftCorner.x,
       location.topRightCorner.x,
       location.bottomLeftCorner.x,
-      location.bottomRightCorner.x
+      location.bottomRightCorner.x,
     ]
     const ys = [
       location.topLeftCorner.y,
       location.topRightCorner.y,
       location.bottomLeftCorner.y,
-      location.bottomRightCorner.y
+      location.bottomRightCorner.y,
     ]
     
     const minX = Math.min(...xs)
@@ -447,7 +446,7 @@ export class QRReaderService {
       x: minX,
       y: minY,
       width: maxX - minX,
-      height: maxY - minY
+      height: maxY - minY,
     }
   }
 
@@ -463,7 +462,7 @@ export class QRReaderService {
       
       // Check if this is a seal.codes verification URL
       // Support both full URLs and just the path
-      const urlPattern = /(?:https?:\/\/[^\/]+)?\/v\/([A-Za-z0-9_-]+)(?:\?.*)?$/
+      const urlPattern = /(?:https?:\/\/[^/]+)?\/v\/([A-Za-z0-9_-]+)(?:\?.*)?$/
       const match = url.match(urlPattern)
       
       if (!match) {

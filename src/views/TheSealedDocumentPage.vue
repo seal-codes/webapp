@@ -53,11 +53,17 @@ const sealInfo = [
         </p>
       </div>
       
-      <div v-if="isLoading" class="flex justify-center items-center py-12">
+      <div
+        v-if="isLoading"
+        class="flex justify-center items-center py-12"
+      >
         <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500" />
       </div>
       
-      <div v-else class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div
+        v-else
+        class="grid grid-cols-1 md:grid-cols-3 gap-8"
+      >
         <!-- Main Column -->
         <div class="md:col-span-2">
           <div class="card mb-8 animate-fade-in">
@@ -72,7 +78,7 @@ const sealInfo = [
                   :src="documentStore.sealedDocumentUrl" 
                   alt="Sealed Document" 
                   class="max-w-full max-h-[500px] rounded shadow-sm" 
-                />
+                >
               </div>
             </div>
             

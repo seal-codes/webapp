@@ -266,7 +266,7 @@ const adjustSize = (delta: number) => {
           alt="QR Code Preview"
           class="w-full h-full rounded"
           draggable="false"
-        />
+        >
         <div 
           v-else 
           class="w-full h-full bg-gray-200 rounded flex items-center justify-center text-gray-500 text-xs"
@@ -291,10 +291,10 @@ const adjustSize = (delta: number) => {
         <!-- Drag indicator -->
         <div class="flex justify-center mt-1">
           <div class="flex gap-0.5">
-            <div class="w-1 h-1 bg-gray-400 rounded-full"></div>
-            <div class="w-1 h-1 bg-gray-400 rounded-full"></div>
-            <div class="w-1 h-1 bg-gray-400 rounded-full"></div>
-            <div class="w-1 h-1 bg-gray-400 rounded-full"></div>
+            <div class="w-1 h-1 bg-gray-400 rounded-full" />
+            <div class="w-1 h-1 bg-gray-400 rounded-full" />
+            <div class="w-1 h-1 bg-gray-400 rounded-full" />
+            <div class="w-1 h-1 bg-gray-400 rounded-full" />
           </div>
         </div>
       </div>

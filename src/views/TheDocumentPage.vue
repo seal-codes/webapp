@@ -49,7 +49,9 @@ const cornerPositions = computed(() => {
   return qrCodeUICalculator.getCornerPositions(qrSize.value)
 })
 
-const setCornerPosition = (corner: 'topLeft' | 'topRight' | 'bottomLeft' | 'bottomRight') => {
+const setCornerPosition = (
+  corner: 'topLeft' | 'topRight' | 'bottomLeft' | 'bottomRight',
+) => {
   const position = cornerPositions.value[corner]
   if (position) {
     qrPosition.value = position
@@ -60,7 +62,7 @@ const chooseNewDocument = () => {
   documentStore.reset()
 }
 
-const updateQrPosition = (position: { x: number, y: number }) => {
+const updateQrPosition = (position: { x: number; y: number }) => {
   qrPosition.value = position
 }
 
@@ -74,10 +76,10 @@ const updateQrSize = (size: number) => {
     <div class="container mx-auto px-4 py-8">
       <div class="mb-6">
         <h1 class="text-3xl font-bold">
-          {{ t('document.title') }}
+          {{ t("document.title") }}
         </h1>
       </div>
-      
+
       <div class="grid md:grid-cols-3 gap-8">
         <!-- Main Content -->
         <div class="md:col-span-2">
@@ -86,12 +88,12 @@ const updateQrSize = (size: number) => {
             <div v-if="!isDocumentLoaded">
               <DocumentDropzone @file-loaded="handleDocumentLoaded" />
             </div>
-            
+
             <!-- Document Preview and Controls Section -->
             <div v-else>
               <div class="mb-4">
-                <DocumentPreview 
-                  :document="documentStore.uploadedDocument" 
+                <DocumentPreview
+                  :document="documentStore.uploadedDocument"
                   :qr-position="qrPosition"
                   :qr-size-percent="qrSize"
                   :has-qr="false"
@@ -102,23 +104,23 @@ const updateQrSize = (size: number) => {
                   @size-updated="updateQrSize"
                 />
               </div>
-              
+
               <!-- Controls Bar -->
               <div class="flex justify-between items-center mb-6">
-                <BaseButton 
+                <BaseButton
                   variant="outline"
                   @click="chooseNewDocument"
                 >
-                  {{ t('document.controls.chooseAnother') }}
+                  {{ t("document.controls.chooseAnother") }}
                 </BaseButton>
-                
+
                 <div class="flex gap-2">
-                  <button 
+                  <button
                     v-for="(position, key) in {
                       topLeft: '↖',
                       topRight: '↗',
                       bottomLeft: '↙',
-                      bottomRight: '↘'
+                      bottomRight: '↘',
                     }"
                     :key="key"
                     class="w-12 h-12 md:w-10 md:h-10 bg-white rounded-lg shadow-sm hover:bg-gray-50 active:bg-gray-100 flex items-center justify-center border border-gray-200 transition-colors touch-manipulation"
@@ -129,13 +131,13 @@ const updateQrSize = (size: number) => {
                   </button>
                 </div>
               </div>
-              
+
               <!-- Social Authentication Section -->
               <div>
                 <h3 class="text-xl font-medium mb-3">
-                  {{ t('document.controls.authenticateWith') }}
+                  {{ t("document.controls.authenticateWith") }}
                 </h3>
-                <SocialAuthSelector 
+                <SocialAuthSelector
                   :is-processing="isProcessing"
                   @provider-selected="handleSocialAuth"
                 />
@@ -143,7 +145,7 @@ const updateQrSize = (size: number) => {
             </div>
           </div>
         </div>
-        
+
         <!-- Sidebar -->
         <div class="md:col-span-1">
           <HowItWorks />

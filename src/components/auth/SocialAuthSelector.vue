@@ -36,7 +36,7 @@ const handleProviderSelect = (providerId: string) => {
         :src="provider.icon" 
         :alt="provider.name"
         class="w-8 h-8 object-contain mb-2"
-      />
+      >
       
       <!-- Provider Name -->
       <span class="text-xs text-gray-600 text-center">{{ provider.name }}</span>

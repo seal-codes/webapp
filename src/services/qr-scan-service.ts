@@ -43,7 +43,7 @@ export class QRScanService {
           exclusionZone.x,
           exclusionZone.y,
           exclusionZone.width,
-          exclusionZone.height
+          exclusionZone.height,
         )
       } else {
         // Get data from the entire image
@@ -54,7 +54,7 @@ export class QRScanService {
       const code = jsQR(
         imageData.data,
         imageData.width,
-        imageData.height
+        imageData.height,
       )
       
       if (code) {
@@ -78,8 +78,8 @@ export class QRScanService {
                 debugInfo: {
                   qrLocation: code.location,
                   rawData: code.data,
-                  encodedData: encodedData
-                }
+                  encodedData: encodedData,
+                },
               }
             }
           }
@@ -93,8 +93,8 @@ export class QRScanService {
               attestationData: decodedData.attestationData,
               debugInfo: {
                 qrLocation: code.location,
-                rawData: code.data
-              }
+                rawData: code.data,
+              },
             }
           }
         }

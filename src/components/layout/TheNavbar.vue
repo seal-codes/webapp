@@ -24,7 +24,11 @@ const navigateTo = (path: string) => {
       <div class="flex justify-between items-center h-16">
         <!-- Logo -->
         <div class="flex items-center">
-          <a href="/" class="flex items-center" @click.prevent="navigateTo('/')">
+          <a
+            href="/"
+            class="flex items-center"
+            @click.prevent="navigateTo('/')"
+          >
             <span class="text-xl font-bold text-secondary-500">seal.codes</span>
           </a>
         </div>

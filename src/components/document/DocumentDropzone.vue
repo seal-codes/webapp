@@ -98,7 +98,7 @@ const validateAndEmitFile = (file: File) => {
       class="hidden"
       accept=".pdf,.jpg,.jpeg,.png"
       @change="handleFileSelect"
-    />
+    >
     
     <div class="flex flex-col items-center">
       <div class="text-gray-400 mb-4">

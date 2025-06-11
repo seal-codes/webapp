@@ -27,7 +27,7 @@ const providerInfo = computed(() => {
     name: 'Unknown Provider', 
     id: 'unknown', 
     compactId: 'u',
-    icon: '' 
+    icon: '', 
   }
 })
 
@@ -94,7 +94,7 @@ const attestationDate = computed(() => {
                 :src="providerInfo.icon" 
                 :alt="providerInfo.name"
                 class="w-4 h-4 object-contain"
-              />
+              >
             </div>
             <span class="text-xs font-medium text-gray-500 uppercase tracking-wide">
               {{ t('verification.seal.authProvider') }}

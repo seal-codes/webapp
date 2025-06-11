@@ -2,8 +2,6 @@
  * Type definitions for Vue I18n integration
  */
 
-import { DefineLocaleMessage, DefineDateTimeFormat, DefineNumberFormat } from 'vue-i18n'
-
 declare module 'vue-i18n' {
   // Define the locale messages schema
   export interface DefineLocaleMessage {
@@ -171,10 +169,4 @@ declare module 'vue-i18n' {
       backHome: string
     }
   }
-
-  // Define date time formats schema
-  export interface DefineDateTimeFormat {}
-
-  // Define number formats schema  
-  export interface DefineNumberFormat {}
 }

@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { setLocale, getCurrentLocale, SUPPORTED_LOCALES, type SupportedLocale } from '@/i18n'
+import { setLocale, getCurrentLocale, type SupportedLocale } from '@/i18n'
 import { ChevronDown } from 'lucide-vue-next'
 
-const { locale } = useI18n()
+useI18n()
 const isOpen = ref(false)
 const dropdownRef = ref<HTMLDivElement>()
 
@@ -13,7 +13,7 @@ const dropdownRef = ref<HTMLDivElement>()
  */
 const languages = {
   en: { name: 'English', flag: '🇺🇸' },
-  de: { name: 'Deutsch', flag: '🇩🇪' }
+  de: { name: 'Deutsch', flag: '🇩🇪' },
 } as const
 
 const currentLanguage = computed(() => {
@@ -55,7 +55,10 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div ref="dropdownRef" class="relative">
+  <div
+    ref="dropdownRef"
+    class="relative"
+  >
     <button
       class="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 hover:text-primary-500 rounded-md transition-colors duration-200"
       @click="toggleDropdown"

@@ -1,18 +1,16 @@
 <script setup lang="ts">
-import { ref } from "vue";
-import { useI18n } from "vue-i18n";
-import { FileText } from "lucide-vue-next";
-import BaseMessage from "@/components/common/BaseMessage.vue";
-import VerificationSealInfo from "./VerificationSealInfo.vue";
-import VerificationDocumentPreview from "./VerificationDocumentPreview.vue";
-import VerificationQRScanner from "./VerificationQRScanner.vue";
-import VerificationActions from "./VerificationActions.vue";
-import VerificationResults from "./VerificationResults.vue";
+import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { FileText } from 'lucide-vue-next'
+import VerificationSealInfo from './VerificationSealInfo.vue'
+import VerificationDocumentPreview from './VerificationDocumentPreview.vue'
+import VerificationActions from './VerificationActions.vue'
+import VerificationResults from './VerificationResults.vue'
 import type {
   DecodedVerificationData,
   VerificationResult,
-} from "@/services/verification-service";
-import type { ScanState, VerificationState } from "@/stores/verificationStore";
+} from '@/services/verification-service'
+import type { ScanState, VerificationState } from '@/stores/verificationStore'
 
 interface Props {
   uploadedDocument: File;
@@ -28,22 +26,22 @@ interface Props {
 }
 
 interface Emits {
-  (e: "verify-document"): void;
-  (e: "reset-verification"): void;
+  (e: 'verify-document'): void;
+  (e: 'reset-verification'): void;
   (
-    e: "scan-selected-area",
+    e: 'scan-selected-area',
     selection: { x: number; y: number; width: number; height: number }
   ): void;
 }
 
-const props = defineProps<Props>();
+defineProps<Props>()
 
-const { t } = useI18n();
+const { t } = useI18n()
 const documentPreviewRef = ref<InstanceType<
   typeof VerificationDocumentPreview
-> | null>(null);
+> | null>(null)
 
-const emit = defineEmits<Emits>();
+const emit = defineEmits<Emits>()
 
 /**
  * Handle scanning of selected area and reset selection
@@ -54,9 +52,9 @@ const handleScanSelectedArea = (selection: {
   width: number;
   height: number;
 }) => {
-  emit("scan-selected-area", selection);
-  documentPreviewRef.value?.resetSelection();
-};
+  emit('scan-selected-area', selection)
+  documentPreviewRef.value?.resetSelection()
+}
 </script>
 
 <template>
@@ -83,7 +81,7 @@ const handleScanSelectedArea = (selection: {
         v-if="hasValidData && decodedData"
         :decoded-data="decodedData"
       />
-      
+
       <!-- QR Scanning Status – deactivated
       <VerificationQRScanner
         :scan-state="scanState"

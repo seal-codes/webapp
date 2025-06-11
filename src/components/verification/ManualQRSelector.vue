@@ -25,7 +25,9 @@ const scanResult = ref('')
 
 // Computed
 const selectionBox = computed(() => {
-  if (!selectionStart.value || !selectionEnd.value) return null
+  if (!selectionStart.value || !selectionEnd.value) {
+    return null
+  }
   
   const start = selectionStart.value
   const end = selectionEnd.value
@@ -34,7 +36,7 @@ const selectionBox = computed(() => {
     x: Math.min(start.x, end.x),
     y: Math.min(start.y, end.y),
     width: Math.abs(end.x - start.x),
-    height: Math.abs(end.y - start.y)
+    height: Math.abs(end.y - start.y),
   }
 })
 
@@ -47,12 +49,13 @@ const startSelection = () => {
 }
 
 const handleMouseDown = (event: MouseEvent) => {
-  if (!isSelecting.value || !imageElement.value || !containerElement.value) return
+  if (!isSelecting.value || !imageElement.value || !containerElement.value) {
+    return
+  }
   
   event.preventDefault()
   
   const rect = imageElement.value.getBoundingClientRect()
-  const containerRect = containerElement.value.getBoundingClientRect()
   
   // Calculate position relative to the image
   const x = event.clientX - rect.left
@@ -67,7 +70,9 @@ const handleMouseDown = (event: MouseEvent) => {
 }
 
 const handleMouseMove = (event: MouseEvent) => {
-  if (!isSelecting.value || !selectionStart.value || !imageElement.value) return
+  if (!isSelecting.value || !selectionStart.value || !imageElement.value) {
+    return
+  }
   
   const rect = imageElement.value.getBoundingClientRect()
   
@@ -78,7 +83,9 @@ const handleMouseMove = (event: MouseEvent) => {
 }
 
 const handleMouseUp = () => {
-  if (!isSelecting.value) return
+  if (!isSelecting.value) {
+    return
+  }
   
   // Remove event listeners
   document.removeEventListener('mousemove', handleMouseMove)
@@ -93,7 +100,9 @@ const handleMouseUp = () => {
 }
 
 const scanSelectedArea = async () => {
-  if (!selectionBox.value || !imageElement.value) return
+  if (!selectionBox.value || !imageElement.value) {
+    return
+  }
   
   isScanning.value = true
   scanResult.value = 'Scanning selected area...'
@@ -112,7 +121,7 @@ const scanSelectedArea = async () => {
       x: Math.round(selectionBox.value.x * scaleX),
       y: Math.round(selectionBox.value.y * scaleY),
       width: Math.round(selectionBox.value.width * scaleX),
-      height: Math.round(selectionBox.value.height * scaleY)
+      height: Math.round(selectionBox.value.height * scaleY),
     }
     
     console.log('🎯 Scanning selected area:', imageSelection)
@@ -124,7 +133,7 @@ const scanSelectedArea = async () => {
       scanResult.value = 'QR code found and decoded successfully!'
       emit('qrFound', {
         attestationData: result.attestationData,
-        location: result.qrLocation
+        location: result.qrLocation,
       })
     } else {
       scanResult.value = result.error || 'No QR code found in selected area'
@@ -188,9 +197,9 @@ onUnmounted(() => {
         alt="Document to scan"
         class="w-full h-auto max-h-96 object-contain cursor-crosshair"
         :class="{ 'cursor-crosshair': isSelecting }"
-        @mousedown="handleMouseDown"
         draggable="false"
-      />
+        @mousedown="handleMouseDown"
+      >
       
       <!-- Selection Box -->
       <div 
@@ -211,7 +220,9 @@ onUnmounted(() => {
       >
         <div class="text-white text-center">
           <MousePointer class="w-8 h-8 mx-auto mb-2" />
-          <p class="text-sm">Click and drag to select the QR code area</p>
+          <p class="text-sm">
+            Click and drag to select the QR code area
+          </p>
         </div>
       </div>
     </div>
@@ -244,7 +255,10 @@ onUnmounted(() => {
     </div>
     
     <!-- Scan Result -->
-    <div v-if="scanResult" class="mb-4">
+    <div
+      v-if="scanResult"
+      class="mb-4"
+    >
       <div 
         class="p-3 rounded-lg text-sm"
         :class="{
@@ -253,7 +267,10 @@ onUnmounted(() => {
           'bg-red-50 text-red-800': !isScanning && !scanResult.includes('successfully')
         }"
       >
-        <div v-if="isScanning" class="flex items-center gap-2">
+        <div
+          v-if="isScanning"
+          class="flex items-center gap-2"
+        >
           <div class="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-blue-500" />
           {{ scanResult }}
         </div>
@@ -265,7 +282,9 @@ onUnmounted(() => {
     
     <!-- Instructions -->
     <div class="bg-gray-50 p-4 rounded-lg">
-      <h4 class="font-medium mb-2">Instructions:</h4>
+      <h4 class="font-medium mb-2">
+        Instructions:
+      </h4>
       <ol class="text-sm text-gray-600 space-y-1">
         <li>1. Click "Select QR Code Area" to start selection mode</li>
         <li>2. Click and drag to draw a rectangle around the QR code</li>

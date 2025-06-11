@@ -25,17 +25,26 @@ const { t } = useI18n()
           </h3>
           <ul class="space-y-3">
             <li>
-              <a href="#" class="text-sm text-gray-600 hover:text-primary-600 transition-colors duration-200">
+              <a
+                href="#"
+                class="text-sm text-gray-600 hover:text-primary-600 transition-colors duration-200"
+              >
                 Document Sealing
               </a>
             </li>
             <li>
-              <a href="#" class="text-sm text-gray-600 hover:text-primary-600 transition-colors duration-200">
+              <a
+                href="#"
+                class="text-sm text-gray-600 hover:text-primary-600 transition-colors duration-200"
+              >
                 QR Code Verification
               </a>
             </li>
             <li>
-              <a href="#" class="text-sm text-gray-600 hover:text-primary-600 transition-colors duration-200">
+              <a
+                href="#"
+                class="text-sm text-gray-600 hover:text-primary-600 transition-colors duration-200"
+              >
                 Privacy Focus
               </a>
             </li>
@@ -49,17 +58,26 @@ const { t } = useI18n()
           </h3>
           <ul class="space-y-3">
             <li>
-              <a href="#" class="text-sm text-gray-600 hover:text-primary-600 transition-colors duration-200">
+              <a
+                href="#"
+                class="text-sm text-gray-600 hover:text-primary-600 transition-colors duration-200"
+              >
                 Documentation
               </a>
             </li>
             <li>
-              <a href="#" class="text-sm text-gray-600 hover:text-primary-600 transition-colors duration-200">
+              <a
+                href="#"
+                class="text-sm text-gray-600 hover:text-primary-600 transition-colors duration-200"
+              >
                 FAQ
               </a>
             </li>
             <li>
-              <a href="#" class="text-sm text-gray-600 hover:text-primary-600 transition-colors duration-200">
+              <a
+                href="#"
+                class="text-sm text-gray-600 hover:text-primary-600 transition-colors duration-200"
+              >
                 Support
               </a>
             </li>

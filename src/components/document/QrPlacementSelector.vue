@@ -23,7 +23,10 @@ watch([xPosition, yPosition], ([newX, newY]) => {
     <!-- X Position Slider -->
     <div>
       <div class="flex justify-between mb-2">
-        <label for="xPosition" class="text-sm font-medium text-gray-700">Horizontal Position</label>
+        <label
+          for="xPosition"
+          class="text-sm font-medium text-gray-700"
+        >Horizontal Position</label>
         <span class="text-sm text-gray-500">{{ xPosition }}%</span>
       </div>
       <input 
@@ -34,7 +37,7 @@ watch([xPosition, yPosition], ([newX, newY]) => {
         max="95"
         step="1"
         class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-      />
+      >
       <div class="flex justify-between text-xs text-gray-400 mt-1">
         <span>Left</span>
         <span>Right</span>
@@ -44,7 +47,10 @@ watch([xPosition, yPosition], ([newX, newY]) => {
     <!-- Y Position Slider -->
     <div>
       <div class="flex justify-between mb-2">
-        <label for="yPosition" class="text-sm font-medium text-gray-700">Vertical Position</label>
+        <label
+          for="yPosition"
+          class="text-sm font-medium text-gray-700"
+        >Vertical Position</label>
         <span class="text-sm text-gray-500">{{ yPosition }}%</span>
       </div>
       <input 
@@ -55,7 +61,7 @@ watch([xPosition, yPosition], ([newX, newY]) => {
         max="95"
         step="1"
         class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-      />
+      >
       <div class="flex justify-between text-xs text-gray-400 mt-1">
         <span>Top</span>
         <span>Bottom</span>

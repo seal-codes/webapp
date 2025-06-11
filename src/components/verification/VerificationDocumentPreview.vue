@@ -41,7 +41,9 @@ const handleImageLoad = () => {
  * Calculate the selection box coordinates and dimensions
  */
 const selectionBox = computed(() => {
-  if (!selectionStart.value || !selectionEnd.value) return null
+  if (!selectionStart.value || !selectionEnd.value) {
+    return null
+  }
   
   const start = selectionStart.value
   const end = selectionEnd.value
@@ -50,7 +52,7 @@ const selectionBox = computed(() => {
     x: Math.min(start.x, end.x),
     y: Math.min(start.y, end.y),
     width: Math.abs(end.x - start.x),
-    height: Math.abs(end.y - start.y)
+    height: Math.abs(end.y - start.y),
   }
 })
 
@@ -58,7 +60,9 @@ const selectionBox = computed(() => {
  * Handle mouse down event to start QR selection
  */
 const handleMouseDown = (event: MouseEvent) => {
-  if (!imageElement.value || !props.uploadedDocument?.type.startsWith('image/')) return
+  if (!imageElement.value || !props.uploadedDocument?.type.startsWith('image/')) {
+    return
+  }
   
   event.preventDefault()
   
@@ -81,7 +85,9 @@ const handleMouseDown = (event: MouseEvent) => {
  * Handle mouse move event during selection
  */
 const handleMouseMove = (event: MouseEvent) => {
-  if (!isSelecting.value || !selectionStart.value || !imageElement.value) return
+  if (!isSelecting.value || !selectionStart.value || !imageElement.value) {
+    return
+  }
   
   const rect = imageElement.value.getBoundingClientRect()
   
@@ -95,7 +101,9 @@ const handleMouseMove = (event: MouseEvent) => {
  * Handle mouse up event to complete selection
  */
 const handleMouseUp = () => {
-  if (!isSelecting.value) return
+  if (!isSelecting.value) {
+    return
+  }
   
   // Remove event listeners
   document.removeEventListener('mousemove', handleMouseMove)
@@ -113,7 +121,9 @@ const handleMouseUp = () => {
  * Emit the scan selected area event with proper coordinates
  */
 const scanSelectedArea = () => {
-  if (!selectionBox.value || !imageElement.value) return
+  if (!selectionBox.value || !imageElement.value) {
+    return
+  }
   
   // Calculate the selection in image coordinates
   const imageRect = imageElement.value.getBoundingClientRect()
@@ -128,7 +138,7 @@ const scanSelectedArea = () => {
     x: Math.round(selectionBox.value.x * scaleX),
     y: Math.round(selectionBox.value.y * scaleY),
     width: Math.round(selectionBox.value.width * scaleX),
-    height: Math.round(selectionBox.value.height * scaleY)
+    height: Math.round(selectionBox.value.height * scaleY),
   }
   
   emit('scan-selected-area', imageSelection)
@@ -157,23 +167,30 @@ defineExpose({ resetSelection })
       <div class="flex items-center gap-3 mb-4">
         <FileText class="w-5 h-5 text-gray-500" />
         <div>
-          <p class="font-medium">{{ uploadedDocument.name }}</p>
-          <p class="text-sm text-gray-600">{{ uploadedDocument.type }}</p>
+          <p class="font-medium">
+            {{ uploadedDocument.name }}
+          </p>
+          <p class="text-sm text-gray-600">
+            {{ uploadedDocument.type }}
+          </p>
         </div>
       </div>
       
       <!-- Image Preview with QR Selection -->
-      <div v-if="uploadedDocument.type.startsWith('image/') && documentPreviewUrl" class="mt-4">
+      <div
+        v-if="uploadedDocument.type.startsWith('image/') && documentPreviewUrl"
+        class="mt-4"
+      >
         <div class="relative inline-block">
           <img 
             ref="imageElement"
             :src="documentPreviewUrl" 
             :alt="uploadedDocument.name"
             class="max-w-full max-h-96 rounded border object-contain cursor-crosshair"
+            draggable="false"
             @mousedown="handleMouseDown"
             @load="handleImageLoad"
-            draggable="false"
-          />
+          >
           
           <!-- Selection Box -->
           <div 
@@ -200,8 +217,12 @@ defineExpose({ resetSelection })
             class="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center pointer-events-none rounded"
           >
             <div class="text-white text-center bg-black bg-opacity-50 p-4 rounded">
-              <p class="text-sm font-medium">{{ t('verification.document.selectQRHint') }}</p>
-              <p class="text-xs mt-1">{{ t('verification.document.selectQRHintAlt') }}</p>
+              <p class="text-sm font-medium">
+                {{ t('verification.document.selectQRHint') }}
+              </p>
+              <p class="text-xs mt-1">
+                {{ t('verification.document.selectQRHintAlt') }}
+              </p>
             </div>
           </div>
         </div>
@@ -217,7 +238,10 @@ defineExpose({ resetSelection })
       </div>
       
       <!-- PDF Preview -->
-      <div v-else-if="uploadedDocument.type === 'application/pdf' && documentPreviewUrl" class="mt-4">
+      <div
+        v-else-if="uploadedDocument.type === 'application/pdf' && documentPreviewUrl"
+        class="mt-4"
+      >
         <iframe 
           :src="documentPreviewUrl" 
           class="w-full h-96 rounded border"

@@ -1,3 +1,4 @@
+ 
 /**
  * QR Code generation service for seal.codes
  * Handles compact attestation data encoding and pixel-perfect generation with dynamic version selection
@@ -20,7 +21,7 @@ const QR_CAPACITIES = {
   'L': [25, 47, 77, 114, 154, 195, 224, 279, 335, 395, 468, 535, 619, 667, 758, 854, 938, 1046, 1153, 1249, 1352, 1460, 1588, 1704, 1853, 1990, 2132, 2223, 2369, 2520, 2677, 2840, 3009, 3183, 3351, 3537, 3729, 3927, 4087, 4296],
   'M': [20, 38, 61, 90, 122, 154, 178, 221, 262, 311, 366, 419, 483, 528, 600, 656, 734, 816, 909, 970, 1035, 1134, 1248, 1326, 1451, 1542, 1637, 1732, 1839, 1994, 2113, 2238, 2369, 2506, 2632, 2780, 2894, 3054, 3220, 3391],
   'Q': [16, 29, 47, 67, 87, 108, 125, 157, 189, 221, 259, 296, 352, 376, 426, 470, 531, 574, 644, 702, 742, 823, 890, 963, 1041, 1094, 1172, 1263, 1322, 1429, 1499, 1618, 1700, 1787, 1867, 1966, 2071, 2181, 2298, 2420],
-  'H': [10, 20, 35, 50, 64, 84, 93, 122, 143, 174, 200, 227, 259, 283, 321, 365, 408, 452, 493, 557, 587, 640, 672, 744, 779, 864, 910, 958, 1016, 1080, 1150, 1226, 1307, 1394, 1431, 1530, 1591, 1658, 1774, 1852]
+  'H': [10, 20, 35, 50, 64, 84, 93, 122, 143, 174, 200, 227, 259, 283, 321, 365, 408, 452, 493, 557, 587, 640, 672, 744, 779, 864, 910, 958, 1016, 1080, 1150, 1226, 1307, 1394, 1431, 1530, 1591, 1658, 1774, 1852],
 }
 
 /**
@@ -40,7 +41,7 @@ export class QRCodeService {
       sizeInPixels,
       margin = 1,
       colors = { dark: '#000000', light: '#FFFFFF' },
-      baseUrl = window.location.origin
+      baseUrl = window.location.origin,
     } = options
 
     try {
@@ -71,7 +72,7 @@ export class QRCodeService {
           height: sizeInPixels,
         },
         attestationData: data,
-        verificationUrl
+        verificationUrl,
       }
     } catch (error) {
       console.error('Failed to generate QR code:', error)
@@ -104,7 +105,7 @@ export class QRCodeService {
         return {
           errorCorrection: level,
           version,
-          capacity
+          capacity,
         }
       }
     }
@@ -114,7 +115,7 @@ export class QRCodeService {
     return {
       errorCorrection: 'L',
       version: 40,
-      capacity: QR_CAPACITIES.L[39]
+      capacity: QR_CAPACITIES.L[39],
     }
   }
 
@@ -157,7 +158,7 @@ export class QRCodeService {
         version: 40,
         capacity: QR_CAPACITIES[errorCorrection][39],
         efficiency: (dataLength / QR_CAPACITIES[errorCorrection][39]) * 100,
-        recommendation: 'Data too long - consider reducing content'
+        recommendation: 'Data too long - consider reducing content',
       }
     }
     
@@ -175,7 +176,7 @@ export class QRCodeService {
       version,
       capacity,
       efficiency,
-      recommendation
+      recommendation,
     }
   }
 
@@ -191,7 +192,7 @@ export class QRCodeService {
       data: options.attestationData,
       sizeInPixels: options.sizeInPixels,
       margin: 1,
-      baseUrl: options.baseUrl
+      baseUrl: options.baseUrl,
     })
   }
 
@@ -204,7 +205,7 @@ export class QRCodeService {
    */
   estimateDataCapacity(
     sizeInPixels: number, 
-    errorCorrectionLevel: 'L' | 'M' | 'Q' | 'H' = 'M'
+    errorCorrectionLevel: 'L' | 'M' | 'Q' | 'H' = 'M',
   ): number {
     // Estimate QR version based on pixel size
     // This is a rough approximation - actual capacity depends on many factors
@@ -237,7 +238,7 @@ export class QRCodeService {
       version: settings.version,
       errorCorrection: settings.errorCorrection,
       capacity: settings.capacity,
-      canFit
+      canFit,
     })
     
     return canFit
@@ -286,7 +287,7 @@ export class QRCodeService {
     return {
       currentSize,
       recommendations,
-      estimatedSavings
+      estimatedSavings,
     }
   }
 
@@ -302,7 +303,7 @@ export class QRCodeService {
   async generateComparisonVersions(
     data: AttestationData, 
     sizeInPixels: number, 
-    baseUrl: string = window.location.origin
+    baseUrl: string = window.location.origin,
   ): Promise<Array<{
     errorCorrection: 'L' | 'M' | 'Q' | 'H';
     version: number;
@@ -330,7 +331,7 @@ export class QRCodeService {
             errorCorrection: level,
             version,
             dataUrl,
-            efficiency
+            efficiency,
           })
         }
       } catch (error) {

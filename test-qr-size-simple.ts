@@ -23,7 +23,7 @@ const QR_CAPACITIES: QRCapacity[] = [
   { version: 25, capacity: 1335, modules: 117 },
   { version: 30, capacity: 1867, modules: 137 },
   { version: 35, capacity: 2473, modules: 157 },
-  { version: 40, capacity: 3159, modules: 177 }
+  { version: 40, capacity: 3159, modules: 177 },
 ]
 
 function analyzeQRComplexity(filePath: string) {
@@ -49,7 +49,7 @@ function analyzeQRComplexity(filePath: string) {
       qrPosition,
       qrSizePercent,
       estimatedDimensions,
-      'image'
+      'image',
     )
 
     console.log(`QR seal dimensions: ${pixelCalculation.completeSealDimensions.width}x${pixelCalculation.completeSealDimensions.height}`)
@@ -58,7 +58,7 @@ function analyzeQRComplexity(filePath: string) {
     const mockHashes: DocumentHashes = {
       cryptographic: 'a1b2c3d4e5f6789012345678901234567890123456789012345678901234567890', // 64 chars (SHA-256)
       pHash: '1100110011001100110011001100110011001100110011001100110011001100', // 64 chars (typical pHash)
-      dHash: '110011001100110011001100110011001100' // 36 chars (typical dHash)
+      dHash: '110011001100110011001100110011001100', // 36 chars (typical dHash)
     }
 
     console.log('\nHash Analysis:')
@@ -116,16 +116,7 @@ function analyzeQRComplexity(filePath: string) {
     const decodedCompact = verificationService.decodeFromQR(compactData)
     if (decodedCompact.isValid) {
       console.log('\nCompact Component Breakdown:')
-      
-      // Create a minimal attestation for each component to measure its size
-      const baseAttestation = {
-        h: { c: '', p: { p: '', d: '' } },
-        t: attestationData.t,
-        i: { p: '', id: '' },
-        s: { n: '', k: '' },
-        e: { x: 0, y: 0, w: 0, h: 0, f: '' }
-      }
-      
+
       // Test each component
       const componentSizes = {
         'Hashes': JSON.stringify(attestationData.h).length,
@@ -133,7 +124,7 @@ function analyzeQRComplexity(filePath: string) {
         'Service': JSON.stringify(attestationData.s).length,
         'Timestamp': JSON.stringify(attestationData.t).length,
         'Exclusion Zone': JSON.stringify(attestationData.e).length,
-        'User URL': attestationData.u ? JSON.stringify(attestationData.u).length : 0
+        'User URL': attestationData.u ? JSON.stringify(attestationData.u).length : 0,
       }
       
       for (const [name, size] of Object.entries(componentSizes)) {
@@ -196,7 +187,7 @@ function analyzeQRComplexity(filePath: string) {
       const sizes = [
         { dpi: 300, name: 'print quality' },
         { dpi: 150, name: 'draft print' },
-        { dpi: 72, name: 'screen display' }
+        { dpi: 72, name: 'screen display' },
       ]
       
       sizes.forEach(({ dpi, name }) => {
@@ -227,7 +218,7 @@ function analyzeQRComplexity(filePath: string) {
       minQrVersion: minVersion?.version || null,
       recommendedQrVersion: recommendedVersion?.version || null,
       qrUtilization: minVersion ? parseFloat(((compactData.length / minVersion.capacity) * 100).toFixed(1)) : null,
-      compressionRatio: parseFloat(compressionRatio)
+      compressionRatio: parseFloat(compressionRatio),
     }
 
   } catch (error) {
@@ -317,7 +308,7 @@ async function main() {
       const avgSize = results.reduce((sum, r) => sum + r.compactSize, 0) / results.length
       const maxVersion = Math.max(...results.filter(r => r.minQrVersion).map(r => r.minQrVersion!))
       
-      console.log(`\nOverall Statistics:`)
+      console.log('\nOverall Statistics:')
       console.log(`- Average QR data size: ${avgSize.toFixed(0)} bytes`)
       console.log(`- Largest QR version needed: ${maxVersion}`)
     }

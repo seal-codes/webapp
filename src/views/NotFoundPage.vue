@@ -23,7 +23,10 @@ const goHome = () => {
       <p class="text-gray-600 mb-8 max-w-md mx-auto">
         {{ t('notFound.subtitle') }}
       </p>
-      <BaseButton variant="primary" @click="goHome">
+      <BaseButton
+        variant="primary"
+        @click="goHome"
+      >
         {{ t('notFound.backHome') }}
       </BaseButton>
     </div>

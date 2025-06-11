@@ -62,7 +62,7 @@ export const useDocumentStore = defineStore('document', () => {
       name: file.name,
       type: documentType.value,
       size: file.size,
-      previewUrl: documentPreviewUrl.value
+      previewUrl: documentPreviewUrl.value,
     })
   }
   
@@ -82,7 +82,7 @@ export const useDocumentStore = defineStore('document', () => {
     console.log('✅ Authentication successful:', {
       provider: authProvider.value,
       userName: userName.value,
-      documentId: documentId.value
+      documentId: documentId.value,
     })
   }
   
@@ -110,7 +110,7 @@ export const useDocumentStore = defineStore('document', () => {
       // Calculate document hashes with exclusion zone
       const documentHashes = await documentHashService.calculateDocumentHashes(
         uploadedDocument.value,
-        pixelCalculation.exclusionZone
+        pixelCalculation.exclusionZone,
       )
       console.log('🔢 Document hashes calculated:', documentHashes)
 
@@ -135,7 +135,7 @@ export const useDocumentStore = defineStore('document', () => {
         qrSizeInPixels: pixelCalculation.sizeInPixels,
         providerId: authProvider.value!,
         userIdentifier: userName.value!,
-        baseUrl: window.location.origin
+        baseUrl: window.location.origin,
       })
       console.log('🎨 QR seal generated:', sealResult.dimensions)
 
@@ -202,7 +202,7 @@ export const useDocumentStore = defineStore('document', () => {
       y: 0,
       width: 100,
       height: 100,
-      fillColor: '#FFFFFF'
+      fillColor: '#FFFFFF',
     }
 
     return attestationBuilder.buildCompactAttestation({

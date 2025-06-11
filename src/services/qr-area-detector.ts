@@ -74,8 +74,8 @@ export class QRAreaDetector {
           imageProcessed: true,
           imageDimensions: { width: imageData.width, height: imageData.height },
           detectionMethods,
-          processingTime
-        }
+          processingTime,
+        },
       }
     } catch (error) {
       console.error('💥 Error in QR area detection:', error)
@@ -86,8 +86,8 @@ export class QRAreaDetector {
           imageProcessed: false,
           imageDimensions: { width: imageData.width, height: imageData.height },
           detectionMethods,
-          processingTime: performance.now() - startTime
-        }
+          processingTime: performance.now() - startTime,
+        },
       }
     }
   }
@@ -106,7 +106,7 @@ export class QRAreaDetector {
     const qrSizes = [
       Math.min(width, height) * 0.15, // Small QR
       Math.min(width, height) * 0.25, // Medium QR
-      Math.min(width, height) * 0.35  // Large QR
+      Math.min(width, height) * 0.35,  // Large QR
     ]
     
     for (const qrSize of qrSizes) {
@@ -118,7 +118,7 @@ export class QRAreaDetector {
         { x: width - qrSize - margin, y: margin, name: 'top-right' },
         { x: margin, y: height - qrSize - margin, name: 'bottom-left' },
         { x: width - qrSize - margin, y: height - qrSize - margin, name: 'bottom-right' },
-        { x: (width - qrSize) / 2, y: (height - qrSize) / 2, name: 'center' }
+        { x: (width - qrSize) / 2, y: (height - qrSize) / 2, name: 'center' },
       ]
       
       for (const location of locations) {
@@ -144,7 +144,7 @@ export class QRAreaDetector {
             width: Math.round(qrSize),
             height: Math.round(qrSize),
             confidence,
-            method: `corner-${location.name}-${Math.round(qrSize)}`
+            method: `corner-${location.name}-${Math.round(qrSize)}`,
           })
         }
       }

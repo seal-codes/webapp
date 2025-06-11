@@ -3,7 +3,6 @@
  * Handles cryptographic and perceptual hashing while excluding QR code areas
  */
 
-import { PDFDocument } from 'pdf-lib'
 import type { QRCodeExclusionZone } from '@/types/qrcode'
 
 /**
@@ -31,7 +30,7 @@ export class DocumentHashService {
    */
   async calculateDocumentHashes(
     document: File,
-    exclusionZone?: QRCodeExclusionZone
+    exclusionZone?: QRCodeExclusionZone,
   ): Promise<DocumentHashes> {
     if (document.type.startsWith('image/')) {
       return this.calculateImageHashes(document, exclusionZone)
@@ -51,7 +50,7 @@ export class DocumentHashService {
    */
   private async calculateImageHashes(
     imageFile: File,
-    exclusionZone?: QRCodeExclusionZone
+    exclusionZone?: QRCodeExclusionZone,
   ): Promise<DocumentHashes> {
     return new Promise((resolve, reject) => {
       const img = new Image()
@@ -102,7 +101,6 @@ export class DocumentHashService {
    */
   private async calculatePdfHashes(
     pdfFile: File,
-    exclusionZone?: QRCodeExclusionZone
   ): Promise<DocumentHashes> {
     // Read the PDF file
     const fileBuffer = await pdfFile.arrayBuffer()
@@ -120,7 +118,7 @@ export class DocumentHashService {
     return {
       cryptographic: cryptoHash,
       pHash: 'pdf-phash-not-implemented',
-      dHash: 'pdf-dhash-not-implemented'
+      dHash: 'pdf-dhash-not-implemented',
     }
   }
 
@@ -133,14 +131,14 @@ export class DocumentHashService {
    */
   private applyExclusionZone(
     ctx: CanvasRenderingContext2D,
-    exclusionZone: QRCodeExclusionZone
+    exclusionZone: QRCodeExclusionZone,
   ): void {
     ctx.fillStyle = exclusionZone.fillColor
     ctx.fillRect(
       exclusionZone.x,
       exclusionZone.y,
       exclusionZone.width,
-      exclusionZone.height
+      exclusionZone.height,
     )
   }
 
@@ -153,7 +151,6 @@ export class DocumentHashService {
    */
   private async calculateHashesFromImageData(
     imageData: ImageData, 
-    exclusionZone?: QRCodeExclusionZone
   ): Promise<DocumentHashes> {
     // Convert ImageData to a format suitable for hashing
     const buffer = await this.imageDataToBuffer(imageData)
@@ -167,7 +164,7 @@ export class DocumentHashService {
     return {
       cryptographic: cryptoHash,
       pHash,
-      dHash
+      dHash,
     }
   }
 
@@ -223,7 +220,7 @@ export class DocumentHashService {
       const gray = Math.round(
         0.299 * imgData.data[i] + 
         0.587 * imgData.data[i + 1] + 
-        0.114 * imgData.data[i + 2]
+        0.114 * imgData.data[i + 2],
       )
       grayValues[i / 4] = gray
       averageValue += gray
@@ -256,7 +253,7 @@ export class DocumentHashService {
 
     return {
       pHash: pHashValue,
-      dHash: dHashValue
+      dHash: dHashValue,
     }
   }
 
@@ -271,14 +268,14 @@ export class DocumentHashService {
   createExclusionZone(
     position: { x: number; y: number },
     sealDimensions: { width: number; height: number },
-    fillColor: string = '#FFFFFF'
+    fillColor: string = '#FFFFFF',
   ): QRCodeExclusionZone {
     return {
       x: position.x,
       y: position.y,
       width: sealDimensions.width,
       height: sealDimensions.height,
-      fillColor
+      fillColor,
     }
   }
 }

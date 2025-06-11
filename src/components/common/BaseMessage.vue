@@ -36,29 +36,29 @@ const colorClasses = computed(() => {
       border: 'border-green-200',
       icon: 'text-green-600',
       title: 'text-green-800',
-      text: 'text-green-700'
+      text: 'text-green-700',
     },
     error: {
       bg: 'bg-red-50',
       border: 'border-red-200',
       icon: 'text-red-600',
       title: 'text-red-800',
-      text: 'text-red-700'
+      text: 'text-red-700',
     },
     warning: {
       bg: 'bg-yellow-50',
       border: 'border-yellow-200',
       icon: 'text-yellow-600',
       title: 'text-yellow-800',
-      text: 'text-yellow-700'
+      text: 'text-yellow-700',
     },
     info: {
       bg: 'bg-blue-50',
       border: 'border-blue-200',
       icon: 'text-blue-600',
       title: 'text-blue-800',
-      text: 'text-blue-700'
-    }
+      text: 'text-blue-700',
+    },
   }
 
   return baseClasses[props.type]

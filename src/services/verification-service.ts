@@ -49,7 +49,9 @@ export interface DecodedVerificationData {
  * Helper function to extract exclusion zone from decoded verification data
  */
 export function getExclusionZone(decodedData: DecodedVerificationData | null): QRCodeExclusionZone | undefined {
-  if (!decodedData?.attestationData?.e) return undefined
+  if (!decodedData?.attestationData?.e) {
+    return undefined
+  }
   
   const e = decodedData.attestationData.e
   return {
@@ -57,7 +59,7 @@ export function getExclusionZone(decodedData: DecodedVerificationData | null): Q
     y: e.y,
     width: e.w,
     height: e.h,
-    fillColor: `#${e.f}`
+    fillColor: `#${e.f}`,
   }
 }
 
@@ -179,7 +181,7 @@ export class VerificationService {
       Math.round(attestationData.e.y), 
       Math.round(attestationData.e.w),
       Math.round(attestationData.e.h),
-      attestationData.e.f // Fill color is required for hash consistency
+      attestationData.e.f, // Fill color is required for hash consistency
     ]
 
     // Only include user URL if present and limit length
@@ -273,20 +275,20 @@ export class VerificationService {
         return {
           attestationData: {} as AttestationData,
           isValid: false,
-          errorCode: 'invalid_structure'
+          errorCode: 'invalid_structure',
         }
       }
       
       return {
         attestationData,
-        isValid: true
+        isValid: true,
       }
     } catch (error) {
       console.error('Failed to decode verification data:', error)
       return {
         attestationData: {} as AttestationData,
         isValid: false,
-        errorCode: 'decode_failed'
+        errorCode: 'decode_failed',
       }
     }
   }
@@ -316,7 +318,7 @@ export class VerificationService {
    */
   async verifyDocumentIntegrity(
     document: File, 
-    attestationData: AttestationData
+    attestationData: AttestationData,
   ): Promise<VerificationResult> {
     try {
       // Extract exclusion zone from attestation data
@@ -325,7 +327,7 @@ export class VerificationService {
       // Calculate hashes for the uploaded document with exclusion zone
       const calculatedHashes = await documentHashService.calculateDocumentHashes(
         document,
-        exclusionZone
+        exclusionZone,
       )
       
       // Compare cryptographic hash
@@ -337,11 +339,11 @@ export class VerificationService {
       // Compare perceptual hashes (with some tolerance for compression)
       const pHashMatch = this.comparePerceptualHashes(
         calculatedHashes.pHash, 
-        attestationData.h.p.p
+        attestationData.h.p.p,
       )
       const dHashMatch = this.comparePerceptualHashes(
         calculatedHashes.dHash, 
-        attestationData.h.p.d
+        attestationData.h.p.d,
       )
       const perceptualMatch = pHashMatch || dHashMatch
       
@@ -366,8 +368,8 @@ export class VerificationService {
         details: {
           cryptographicMatch,
           perceptualMatch,
-          documentType: document.type
-        }
+          documentType: document.type,
+        },
       }
     } catch (error) {
       console.error('Error verifying document:', error)
@@ -377,8 +379,8 @@ export class VerificationService {
         details: {
           cryptographicMatch: false,
           perceptualMatch: false,
-          documentType: document.type
-        }
+          documentType: document.type,
+        },
       }
     }
   }
@@ -392,7 +394,9 @@ export class VerificationService {
    */
   private comparePerceptualHashes(hash1: string, hash2: string): boolean {
     // If either hash is empty, return false
-    if (!hash1 || !hash2) return false
+    if (!hash1 || !hash2) {
+      return false
+    }
     
     // Calculate Hamming distance (number of differing bits)
     let distance = 0
@@ -482,7 +486,7 @@ export class VerificationService {
       cborSize: cborData.length,
       finalSize: finalEncoded.length,
       compressionRatio,
-      recommendations
+      recommendations,
     }
   }
 }

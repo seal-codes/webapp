@@ -28,7 +28,7 @@ export const useVerificationStore = defineStore('verification', () => {
   const canManuallySelect = computed(() => 
     uploadedDocument.value?.type.startsWith('image/') && 
     !hasValidData.value && 
-    !isScanning.value
+    !isScanning.value,
   )
 
   // Actions
@@ -94,11 +94,11 @@ export const useVerificationStore = defineStore('verification', () => {
       // First, try to get exclusion zone if we have attestation data
       const exclusionZone = decodedData.value?.attestationData?.e
         ? {
-            x: decodedData.value.attestationData.e.x,
-            y: decodedData.value.attestationData.e.y,
-            width: decodedData.value.attestationData.e.w,
-            height: decodedData.value.attestationData.e.h
-          }
+          x: decodedData.value.attestationData.e.x,
+          y: decodedData.value.attestationData.e.y,
+          width: decodedData.value.attestationData.e.w,
+          height: decodedData.value.attestationData.e.h,
+        }
         : undefined
       console.log('Exclusion zone:', exclusionZone)
       
@@ -108,7 +108,7 @@ export const useVerificationStore = defineStore('verification', () => {
       if (scanResult.found && scanResult.attestationData) {
         decodedData.value = {
           attestationData: scanResult.attestationData,
-          isValid: true
+          isValid: true,
         }
         scanState.value = 'success'
         console.log('QR code successfully decoded, attestation data available')
@@ -128,7 +128,9 @@ export const useVerificationStore = defineStore('verification', () => {
   }
 
   const scanSelectedArea = async (selection: { x: number; y: number; width: number; height: number }) => {
-    if (!uploadedDocument.value) return
+    if (!uploadedDocument.value) {
+      return
+    }
     
     scanState.value = 'scanning'
     scanError.value = null
@@ -140,7 +142,7 @@ export const useVerificationStore = defineStore('verification', () => {
       if (result.found && result.attestationData) {
         decodedData.value = {
           attestationData: result.attestationData,
-          isValid: true
+          isValid: true,
         }
         scanState.value = 'success'
         
@@ -160,7 +162,9 @@ export const useVerificationStore = defineStore('verification', () => {
   }
 
   const verifyDocument = async () => {
-    if (!uploadedDocument.value || !decodedData.value?.attestationData) return
+    if (!uploadedDocument.value || !decodedData.value?.attestationData) {
+      return
+    }
     
     verificationState.value = 'verifying'
     verificationError.value = null
@@ -168,7 +172,7 @@ export const useVerificationStore = defineStore('verification', () => {
     try {
       const result = await verificationService.verifyDocument(
         uploadedDocument.value,
-        decodedData.value.attestationData
+        decodedData.value.attestationData,
       )
       verificationResult.value = result
       verificationState.value = result.isValid ? 'success' : 'failed'
@@ -215,6 +219,6 @@ export const useVerificationStore = defineStore('verification', () => {
     scanImageForQR,
     scanSelectedArea,
     verifyDocument,
-    setEncodedData
+    setEncodedData,
   }
 })

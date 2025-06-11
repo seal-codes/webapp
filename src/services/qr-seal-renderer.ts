@@ -51,7 +51,7 @@ export class QRSealRenderer {
       sizeInPixels: qrSizeInPixels,
       errorCorrectionLevel: 'H',
       margin: 0, // No margin in QR itself, we'll add padding in the seal
-      baseUrl: baseUrl || window.location.origin
+      baseUrl: baseUrl || window.location.origin,
     })
 
     // Get provider info
@@ -134,7 +134,7 @@ export class QRSealRenderer {
   /**
    * Draw the QR code image onto the canvas
    */
-  // eslint-disable-next-line max-params
+   
   private async drawQRCode(
     ctx: CanvasRenderingContext2D,
     qrDataUrl: string,

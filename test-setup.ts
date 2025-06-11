@@ -6,8 +6,8 @@ import { webcrypto } from 'crypto'
 Object.defineProperty(global, 'crypto', {
   value: {
     subtle: webcrypto.subtle,
-    getRandomValues: webcrypto.getRandomValues.bind(webcrypto)
-  }
+    getRandomValues: webcrypto.getRandomValues.bind(webcrypto),
+  },
 })
 
 // Mock HTMLCanvasElement for testing
@@ -47,7 +47,7 @@ global.HTMLCanvasElement.prototype.getContext = vi.fn().mockImplementation((cont
           data: properData,
           width: width,
           height: height,
-          colorSpace: 'srgb'
+          colorSpace: 'srgb',
         }
       }
       
@@ -64,7 +64,7 @@ global.HTMLCanvasElement.prototype.getContext = vi.fn().mockImplementation((cont
           r: imageData.data[0] || 0,
           g: imageData.data[1] || 100,
           b: imageData.data[2] || 200,
-          a: (imageData.data[3] || 255) / 255
+          a: (imageData.data[3] || 255) / 255,
         }
         ctx.fillStyle = `rgba(${samplePixel.r}, ${samplePixel.g}, ${samplePixel.b}, ${samplePixel.a})`
         ctx.fillRect(dx, dy, Math.min(imageData.width, canvas.width - dx), Math.min(imageData.height, canvas.height - dy))
@@ -96,7 +96,7 @@ global.File.prototype.arrayBuffer = vi.fn().mockImplementation(function() {
 })
 
 // Mock URL.createObjectURL
-global.URL.createObjectURL = vi.fn().mockImplementation((blob) => {
+global.URL.createObjectURL = vi.fn().mockImplementation(() => {
   return 'mock://test-url'
 })
 
@@ -127,11 +127,5 @@ global.Image = class extends originalImage {
     
     // Make this object drawable by canvas
     Object.defineProperty(this, '_canvas', { value: canvas })
-    
-    setTimeout(() => {
-      if (this.onload) {
-        this.onload()
-      }
-    }, 0)
   }
 }

@@ -24,7 +24,10 @@ const { t } = useI18n()
 <template>
   <div class="bg-white rounded-xl shadow-sm p-8">
     <!-- Show decoded attestation data from URL if available -->
-    <div v-if="decodedData?.isValid" class="mb-8">
+    <div
+      v-if="decodedData?.isValid"
+      class="mb-8"
+    >
       <BaseMessage
         type="info"
         :title="t('verification.upload.qrDataFound')"

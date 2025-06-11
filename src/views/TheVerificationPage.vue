@@ -24,7 +24,7 @@ const {
   hasValidData,
   canManuallySelect,
   scanError,
-  verificationError
+  verificationError,
 } = storeToRefs(verificationStore)
 
 // Check for encoded data in URL
@@ -73,12 +73,18 @@ const handleScanSelectedArea = async (selection: { x: number; y: number; width: 
       <VerificationHeader />
 
       <!-- Loading State -->
-      <div v-if="isLoading" class="flex justify-center items-center py-12">
+      <div
+        v-if="isLoading"
+        class="flex justify-center items-center py-12"
+      >
         <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500" />
       </div>
 
       <!-- Main Content Grid -->
-      <div v-else class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div
+        v-else
+        class="grid grid-cols-1 lg:grid-cols-3 gap-8"
+      >
         <!-- Main Content Area -->
         <div class="lg:col-span-2">
           <!-- No document uploaded yet -->

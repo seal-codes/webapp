@@ -59,7 +59,7 @@ export class QRCodeUICalculator {
       y: boundedPosition.y,
       width: completeSealDimensions.width,
       height: completeSealDimensions.height,
-      fillColor: '#FFFFFF' // White background for exclusion
+      fillColor: '#FFFFFF', // White background for exclusion
     }
 
     return {

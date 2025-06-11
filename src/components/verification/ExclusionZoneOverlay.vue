@@ -11,7 +11,9 @@ const props = defineProps<Props>()
 
 // Calculate scaled position and size for the overlay
 const overlayStyle = computed(() => {
-  if (!props.imageElement) return { display: 'none' }
+  if (!props.imageElement) {
+    return { display: 'none' }
+  }
 
   // Calculate scaling factors from natural size to displayed size
   const scaleX = props.imageElement.offsetWidth / props.imageElement.naturalWidth

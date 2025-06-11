@@ -60,7 +60,10 @@ const messageText = computed(() => {
 
 <template>
   <!-- QR Scanning Status -->
-  <div v-if="scanState !== 'idle'" class="mb-6">
+  <div
+    v-if="scanState !== 'idle'"
+    class="mb-6"
+  >
     <BaseMessage
       :type="messageType"
       :title="messageTitle"

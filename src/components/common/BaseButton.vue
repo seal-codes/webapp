@@ -14,7 +14,7 @@ const props = withDefaults(defineProps<Props>(), {
   size: 'md',
   disabled: false,
   loading: false,
-  type: 'button'
+  type: 'button',
 })
 
 const buttonClasses = computed(() => {
@@ -23,20 +23,20 @@ const buttonClasses = computed(() => {
   const sizeClasses = {
     sm: 'px-3 py-1.5 text-sm',
     md: 'px-4 py-2 text-base',
-    lg: 'px-6 py-3 text-lg'
+    lg: 'px-6 py-3 text-lg',
   }
   
   const variantClasses = {
     primary: 'bg-primary-500 hover:bg-primary-600 text-white focus:ring-primary-500',
     secondary: 'bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 focus:ring-gray-400',
     outline: 'bg-transparent hover:bg-gray-50 text-gray-700 border border-gray-300 focus:ring-gray-400',
-    cta: 'bg-secondary-500 hover:bg-secondary-600 text-white focus:ring-secondary-500'
+    cta: 'bg-secondary-500 hover:bg-secondary-600 text-white focus:ring-secondary-500',
   }
   
   return [
     baseClasses,
     sizeClasses[props.size],
-    variantClasses[props.variant]
+    variantClasses[props.variant],
   ].join(' ')
 })
 </script>

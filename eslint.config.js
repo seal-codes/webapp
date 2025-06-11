@@ -4,83 +4,24 @@ import tseslint from 'typescript-eslint'
 import pluginVue from 'eslint-plugin-vue'
 
 export default [
-  // Base configuration for all files
-  {
-    files: ['**/*.{js,mjs,cjs,ts,mts,cts,vue}'],
-    languageOptions: {
-      globals: {
-        ...globals.browser,
-        ...globals.node,
-      },
-    },
-  },
-
-  // JavaScript base rules
+  // add more generic rulesets here, such as:
   js.configs.recommended,
-
-  // TypeScript configuration
   ...tseslint.configs.recommended,
-  {
-    files: ['**/*.{ts,mts,cts,tsx,vue}'],
-    rules: {
-      // TypeScript-specific rules aligned with your coding standards
-      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
-      '@typescript-eslint/explicit-function-return-type': 'off',
-      '@typescript-eslint/explicit-module-boundary-types': 'off',
-      '@typescript-eslint/no-explicit-any': 'warn',
-      '@typescript-eslint/no-var-requires': 'error',
-    },
-  },
-
-  // Vue configuration
   ...pluginVue.configs['flat/recommended'],
+  // Configure Vue files to use TypeScript parser
   {
     files: ['**/*.vue'],
     languageOptions: {
       parserOptions: {
         parser: tseslint.parser,
         extraFileExtensions: ['.vue'],
-        ecmaVersion: 'latest',
         sourceType: 'module',
       },
     },
-    rules: {
-      // Vue-specific rules
-      'vue/multi-word-component-names': 'off', // Allow single-word component names
-      'vue/component-definition-name-casing': ['error', 'PascalCase'],
-      'vue/component-name-in-template-casing': ['error', 'PascalCase'],
-      'vue/prop-name-casing': ['error', 'camelCase'],
-      'vue/attribute-hyphenation': ['error', 'always'],
-      'vue/v-on-event-hyphenation': ['error', 'always'],
-      'vue/max-attributes-per-line': [
-        'error',
-        {
-          singleline: 3,
-          multiline: 1,
-        },
-      ],
-      'vue/html-indent': ['error', 2],
-      'vue/script-indent': ['error', 2, { baseIndent: 0 }],
-      'vue/html-self-closing': [
-        'error',
-        {
-          html: {
-            void: 'always',
-            normal: 'always',
-            component: 'always',
-          },
-          svg: 'always',
-          math: 'always',
-        },
-      ],
-    },
   },
-
-  // General code quality rules
   {
-    files: ['**/*.{js,mjs,cjs,ts,mts,cts,vue}'],
     rules: {
-      // Code style rules aligned with your standards
+      // General rules
       'prefer-const': 'error',
       'no-var': 'error',
       'no-console': 'off',
@@ -102,39 +43,33 @@ export default [
           ignoreTemplateLiterals: true,
         },
       ],
-      'max-params': ['warn', 4],
-      'max-depth': ['warn', 3],
+      'max-params': ['warn', 5],
+      'max-depth': ['warn', 4],
       'complexity': ['warn', 10],
-      'no-magic-numbers': [
-        'warn',
-        {
-          ignore: [-1, 0, 0.5, 1, 2, 3, 4, 8, 10, 15, 16, 18, 20, 25, 30, 35, 36, 100, 1000, 1024],
-          ignoreArrayIndexes: true,
-          ignoreDefaultValues: true,
-          ignoreNumericLiteralTypes: true,
-        },
-      ],
-    },
-  },
-
-  // Configuration files
-  {
-    files: ['*.config.{js,ts}', 'vite.config.ts', 'tailwind.config.js'],
-    rules: {
-      'no-console': 'off',
-    },
-  },
-
-  // Test files (if you add them later)
-  {
-    files: ['**/*.{test,spec}.{js,ts,vue}', '**/__tests__/**/*'],
-    rules: {
       'no-magic-numbers': 'off',
-      '@typescript-eslint/no-explicit-any': 'off',
+      // [
+      //   'warn',
+      //   {
+      //     ignore: [-1, 0, 0.5, 1, 2, 3, 4, 8, 10, 15, 16, 18, 20, 25, 30, 35, 36, 100, 1000, 1024],
+      //     ignoreArrayIndexes: true,
+      //     ignoreDefaultValues: true,
+      //     ignoreNumericLiteralTypes: true,
+      //   },
+      // ],
+      // TypeScript-specific rules
+      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+      '@typescript-eslint/explicit-function-return-type': 'off',
+      '@typescript-eslint/explicit-module-boundary-types': 'off',
+      '@typescript-eslint/no-explicit-any': 'error',
+      '@typescript-eslint/no-var-requires': 'error',
+    },
+    languageOptions: {
+      sourceType: 'module',
+      globals: {
+        ...globals.browser,
+      },
     },
   },
-
-  // Ignore patterns (replaces .eslintignore)
   {
     ignores: [
       'dist/**',
