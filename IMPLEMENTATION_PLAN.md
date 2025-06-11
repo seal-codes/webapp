@@ -14,6 +14,12 @@ This document outlines the implementation plan for seal.codes, a system for crea
 - ✅ QR code size analysis tools with detailed component breakdown
 - ✅ TypeScript interfaces and service architecture
 
+**Current Testing Status:**
+- ⚠️ **Limited Testing**: Only basic unit tests for document hashing service exist
+- ❌ **No Integration Tests**: Missing end-to-end tests for seal → verify workflow
+- ❌ **No Roundtrip Validation**: No tests that verify a sealed document can be properly verified
+- ❌ **No Exclusion Zone Testing**: Missing validation of exclusion zone consistency
+
 **Key Technical Insights:**
 - Fill color in exclusion zones is cryptographically significant and mandatory
 - QR codes achieve 66.9% capacity utilization with reasonable physical dimensions
@@ -56,11 +62,12 @@ This document outlines the implementation plan for seal.codes, a system for crea
   - [x] Implement mock social login UI
   - [x] Create protected routes structure
 
-- [x] **2.4 End-to-End Flow Test**
+- [ ] **2.4 End-to-End Flow Test**
   - [x] Connect all components with mock data
   - [x] Create simple attestation flow
   - [x] Implement basic verification UI
-  - [x] Test complete user journey with mocks
+  - [ ] **MISSING**: Test complete user journey with mocks
+  - [ ] **MISSING**: Create integration test that seals and verifies a document
 
 ## Phase 3: Core Functionality Implementation
 
@@ -126,7 +133,8 @@ This document outlines the implementation plan for seal.codes, a system for crea
 ## Phase 6: Integration Testing & Quality Assurance
 
 - [ ] **6.1 Comprehensive Integration Testing**
-  - [ ] Create integration tests for complete seal and verify workflow
+  - [ ] **CRITICAL**: Create integration tests for complete seal and verify workflow
+  - [ ] **CRITICAL**: Add end-to-end test that takes a file, seals it, and verifies the seal
   - [ ] Add exclusion zone consistency validation tests
   - [ ] Test QR code size analysis and optimization
   - [ ] Validate hash verification with different compression scenarios
