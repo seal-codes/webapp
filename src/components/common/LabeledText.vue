@@ -1,8 +1,10 @@
 <script setup lang="ts">
+import type { Component } from 'vue'
+
 defineProps<{
   label: string;
   value: string;
-  icon?: any;
+  icon?: Component;
   monospace?: boolean;
 }>()
 </script>

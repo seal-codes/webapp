@@ -3,13 +3,17 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { qrReaderService } from '@/services/qr-reader-service'
 import BaseButton from '@/components/common/BaseButton.vue'
 import { Square, MousePointer } from 'lucide-vue-next'
+import type { AttestationData } from '@/types/qrcode'
 
 const props = defineProps<{
   imageFile: File;
 }>()
 
 const emit = defineEmits<{
-  (e: 'qrFound', data: { attestationData: any; location: any }): void;
+  (e: 'qrFound', data: { 
+    attestationData: AttestationData; 
+    location: { x: number; y: number; width: number; height: number } 
+  }): void;
   (e: 'cancel'): void;
 }>()
 

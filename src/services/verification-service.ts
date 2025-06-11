@@ -419,7 +419,7 @@ export class VerificationService {
    * @param data - Data to validate
    * @returns Whether the structure is valid
    */
-  private validateAttestationStructure(data: any): data is AttestationData {
+  private validateAttestationStructure(data: unknown): data is AttestationData {
     return (
       data &&
       typeof data === 'object' &&

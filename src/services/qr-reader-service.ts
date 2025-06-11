@@ -9,6 +9,17 @@ import { qrAreaDetector } from './qr-area-detector'
 import type { AttestationData } from '@/types/qrcode'
 import type { DetectedQRRegion } from './qr-area-detector'
 
+// Type for jsQR result
+interface QRCode {
+  data: string
+  location: {
+    topLeftCorner: { x: number; y: number }
+    topRightCorner: { x: number; y: number }
+    bottomLeftCorner: { x: number; y: number }
+    bottomRightCorner: { x: number; y: number }
+  }
+}
+
 /**
  * QR code detection result
  */
@@ -231,7 +242,7 @@ export class QRReaderService {
   private async scanImageRegion(
     imageData: ImageData,
     region: { x: number; y: number; width: number; height: number },
-  ): Promise<any> {
+  ): Promise<QRCode | null> {
     try {
       console.log('🎯 Scanning region:', region)
       
@@ -331,7 +342,11 @@ export class QRReaderService {
     attestationData?: AttestationData;
     qrLocation?: { x: number; y: number; width: number; height: number };
     error?: string;
-    debug?: any;
+    debug?: {
+      processingSteps: string[];
+      scannedRegions: number;
+      totalRegions: number;
+    };
   }> {
     console.log('🔍 Scanning for attestation data in:', imageFile.name)
     
@@ -419,7 +434,7 @@ export class QRReaderService {
    * @returns QR code location
    */
   private calculateQRLocation(
-    qrCode: any,
+    qrCode: QRCode,
   ): { x: number; y: number; width: number; height: number } {
     const { location } = qrCode
     

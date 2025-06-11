@@ -15,7 +15,11 @@ export const useVerificationStore = defineStore('verification', () => {
   const verificationResult = ref<VerificationResult | null>(null)
   const scanState = ref<ScanState>('idle')
   const verificationState = ref<VerificationState>('idle')
-  const scanDebugInfo = ref<any>(null)
+  const scanDebugInfo = ref<{
+    processingSteps: string[]
+    scannedRegions: number
+    totalRegions: number
+  } | null>(null)
   const hasEncodedData = ref(false)
   const scanError = ref<string | null>(null)
   const verificationError = ref<string | null>(null)

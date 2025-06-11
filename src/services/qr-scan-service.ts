@@ -5,7 +5,11 @@ import { verificationService } from './verification-service'
 interface QRScanResult {
   found: boolean
   attestationData?: AttestationData
-  debugInfo?: any
+  debugInfo?: {
+    processingSteps: string[]
+    scannedRegions: number
+    totalRegions: number
+  }
 }
 
 export class QRScanService {
