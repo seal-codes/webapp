@@ -206,56 +206,78 @@ export class DocumentHashService {
    * Uses smaller hash sizes to fit in QR codes while maintaining reasonable accuracy
    */
   private async calculatePerceptualHashes(imageData: ImageData): Promise<{ pHash: string; dHash: string }> {
-    // Create a temporary canvas for image processing
-    const canvas = document.createElement('canvas')
-    const ctx = canvas.getContext('2d')
-    if (!ctx) {
-      throw new Error('Could not get canvas context')
+    // Create source canvas from the full ImageData
+    const sourceCanvas = document.createElement('canvas')
+    const sourceCtx = sourceCanvas.getContext('2d')
+    if (!sourceCtx) {
+      throw new Error('Could not get source canvas context')
     }
-
-    // For pHash:
-    // 1. Resize to 16x16 (reduced from 32x32 for QR code size optimization)
-    canvas.width = 16
-    canvas.height = 16
-    ctx.putImageData(imageData, 0, 0)
     
-    // 2. Convert to grayscale and calculate average
+    sourceCanvas.width = imageData.width
+    sourceCanvas.height = imageData.height
+    sourceCtx.putImageData(imageData, 0, 0)
+
+    // For pHash: Resize to 16x16 and calculate hash
+    const pHashCanvas = document.createElement('canvas')
+    const pHashCtx = pHashCanvas.getContext('2d')
+    if (!pHashCtx) {
+      throw new Error('Could not get pHash canvas context')
+    }
+    
+    pHashCanvas.width = 16
+    pHashCanvas.height = 16
+    
+    // Properly resize the entire image to 16x16
+    pHashCtx.drawImage(sourceCanvas, 0, 0, 16, 16)
+    
+    // Convert to grayscale and calculate average
+    const pHashData = pHashCtx.getImageData(0, 0, 16, 16)
     const grayValues = new Array(256) // 16x16
     let averageValue = 0
     
-    const imgData = ctx.getImageData(0, 0, 16, 16)
-    for (let i = 0; i < imgData.data.length; i += 4) {
+    for (let i = 0; i < pHashData.data.length; i += 4) {
       // Convert to grayscale using luminosity method
       const gray = Math.round(
-        0.299 * imgData.data[i] + 
-        0.587 * imgData.data[i + 1] + 
-        0.114 * imgData.data[i + 2],
+        0.299 * pHashData.data[i] + 
+        0.587 * pHashData.data[i + 1] + 
+        0.114 * pHashData.data[i + 2],
       )
       grayValues[i / 4] = gray
       averageValue += gray
     }
     averageValue /= 256
 
-    // 3. Compare each pixel to average to generate hash
+    // Compare each pixel to average to generate pHash
     let pHashValue = ''
     for (let i = 0; i < 256; i++) {
       pHashValue += grayValues[i] > averageValue ? '1' : '0'
     }
 
-    // For dHash:
-    // 1. Resize to 7x6 (we'll compare adjacent pixels to get 6x6 = 36 bits)
-    canvas.width = 7
-    canvas.height = 6
-    ctx.putImageData(imageData, 0, 0)
+    // For dHash: Resize to 7x6 and calculate difference hash
+    const dHashCanvas = document.createElement('canvas')
+    const dHashCtx = dHashCanvas.getContext('2d')
+    if (!dHashCtx) {
+      throw new Error('Could not get dHash canvas context')
+    }
     
-    // 2. Calculate differences between adjacent pixels
-    const dHashData = ctx.getImageData(0, 0, 7, 6)
+    dHashCanvas.width = 7
+    dHashCanvas.height = 6
+    
+    // Properly resize the entire image to 7x6
+    dHashCtx.drawImage(sourceCanvas, 0, 0, 7, 6)
+    
+    // Calculate differences between adjacent pixels
+    const dHashData = dHashCtx.getImageData(0, 0, 7, 6)
     let dHashValue = ''
     
     for (let y = 0; y < 6; y++) {
       for (let x = 0; x < 6; x++) {
-        const left = dHashData.data[(y * 7 + x) * 4]
-        const right = dHashData.data[(y * 7 + x + 1) * 4]
+        const leftIndex = (y * 7 + x) * 4
+        const rightIndex = (y * 7 + x + 1) * 4
+        
+        // Use red channel for comparison (could also use grayscale)
+        const left = dHashData.data[leftIndex]
+        const right = dHashData.data[rightIndex]
         dHashValue += left > right ? '1' : '0'
       }
     }

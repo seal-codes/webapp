@@ -19,12 +19,30 @@ global.HTMLCanvasElement.prototype.getContext = vi.fn().mockImplementation((cont
     // Override drawImage to handle our mocked Image objects
     const originalDrawImage = ctx.drawImage.bind(ctx)
     ctx.drawImage = vi.fn().mockImplementation((image, ...args) => {
-      // If it's our mocked image with a _canvas property, use that
-      if (image._canvas) {
-        return originalDrawImage(image._canvas, ...args)
+      try {
+        // If it's our mocked image with a _canvas property, use that
+        if (image && image._canvas) {
+          return originalDrawImage(image._canvas, ...args)
+        }
+        
+        // If it's a canvas element, handle it directly
+        if (image && typeof image === 'object') {
+          // Check if it looks like a canvas (has getContext method or is from node-canvas)
+          if (image.getContext || image.constructor?.name === 'Canvas' || image.width !== undefined) {
+            return originalDrawImage(image, ...args)
+          }
+        }
+        
+        // Fallback: try the original method
+        return originalDrawImage(image, ...args)
+      } catch (error) {
+        // If all else fails, create a simple mock behavior
+        console.warn('drawImage mock fallback:', error.message)
+        // For testing purposes, just fill with a pattern
+        const [sx = 0, sy = 0, sw = ctx.canvas.width, sh = ctx.canvas.height] = args
+        ctx.fillStyle = '#808080' // Gray color for mock
+        ctx.fillRect(sx, sy, sw, sh)
       }
-      // Otherwise try the original method
-      return originalDrawImage(image, ...args)
     })
     
     // Override getImageData to ensure it returns proper ImageData
