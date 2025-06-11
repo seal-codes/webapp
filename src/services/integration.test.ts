@@ -5,6 +5,8 @@
 
 import { describe, it, expect, beforeAll } from 'vitest'
 import { webcrypto } from 'node:crypto'
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
 import { Canvas, createCanvas, loadImage } from 'canvas'
 import { DocumentHashService } from './document-hash-service'
 import { AttestationBuilder } from './attestation-builder'
@@ -125,6 +127,87 @@ describe('Integration Tests', () => {
       expect(qrService).toBeDefined()
       expect(verificationService).toBeDefined()
     })
+  })
+
+  describe('Document Hash Calculation', () => {
+    it('should calculate hashes for a real image file using actual DocumentHashService logic', async () => {
+      console.log('Testing real image hash calculation using DocumentHashService...')
+      
+      // Load the test image from filesystem
+      const imagePath = join(process.cwd(), 'src/test-artifacts/sample-picture.jpeg')
+      const imageBuffer = readFileSync(imagePath)
+      
+      console.log('Loaded image:', imagePath, 'Size:', imageBuffer.length, 'bytes')
+      
+      // Load image using Node.js canvas library
+      const image = await loadImage(imageBuffer)
+      console.log('Image loaded with dimensions:', image.width, 'x', image.height)
+      
+      // Create canvas and draw image (same as DocumentHashService does)
+      const canvas = createCanvas(image.width, image.height)
+      const ctx = canvas.getContext('2d')
+      ctx.drawImage(image, 0, 0)
+      
+      // Define exclusion zone for QR code placement
+      const exclusionZone = {
+        x: 50,
+        y: 50,
+        width: 100,
+        height: 100,
+        fillColor: '#FFFFFF'
+      }
+      
+      // Apply exclusion zone (same logic as DocumentHashService.applyExclusionZone)
+      ctx.fillStyle = exclusionZone.fillColor
+      ctx.fillRect(exclusionZone.x, exclusionZone.y, exclusionZone.width, exclusionZone.height)
+      console.log('Applied exclusion zone:', exclusionZone)
+      
+      // Get image data (same as DocumentHashService does)
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
+      console.log('Image data extracted:', imageData.width, 'x', imageData.height, 'pixels')
+      
+      // Now use the actual DocumentHashService to calculate hashes from this ImageData
+      const hashService = new DocumentHashService()
+      
+      // Access the private methods through type assertion for testing
+      type DocumentHashServiceWithPrivates = DocumentHashService & {
+        calculateHashesFromImageData(imageData: ImageData): Promise<{
+          cryptographic: string;
+          pHash: string;
+          dHash: string;
+        }>
+      }
+      
+      try {
+        // Use the actual service method that the app uses
+        const documentHashes = await (hashService as DocumentHashServiceWithPrivates)
+          .calculateHashesFromImageData(imageData)
+        
+        console.log('Document hashes calculated using actual service:')
+        console.log('- Cryptographic:', documentHashes.cryptographic)
+        console.log('- pHash:', documentHashes.pHash.substring(0, 20) + '...')
+        console.log('- dHash:', documentHashes.dHash.substring(0, 20) + '...')
+        
+        // Validate hash formats (same as the app expects)
+        expect(documentHashes.cryptographic).toBeDefined()
+        expect(documentHashes.cryptographic).toHaveLength(64) // SHA-256 hex
+        expect(documentHashes.cryptographic).toMatch(/^[a-f0-9]{64}$/)
+        
+        expect(documentHashes.pHash).toBeDefined()
+        expect(documentHashes.pHash).toHaveLength(256) // 16x16 = 256 bits
+        expect(documentHashes.pHash).toMatch(/^[01]{256}$/)
+        
+        expect(documentHashes.dHash).toBeDefined()
+        expect(documentHashes.dHash).toHaveLength(36) // 6x6 = 36 bits
+        expect(documentHashes.dHash).toMatch(/^[01]{36}$/)
+        
+        console.log('Real image hash calculation test using actual service completed successfully!')
+        
+      } catch (error) {
+        console.error('Error calculating hashes using actual service:', error)
+        throw error
+      }
+    }, 15000) // 15 second timeout for image processing
   })
 
   describe('End-to-End Seal and Verify Workflow', () => {

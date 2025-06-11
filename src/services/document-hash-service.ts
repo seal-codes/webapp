@@ -172,11 +172,20 @@ export class DocumentHashService {
    * Convert ImageData to ArrayBuffer for hashing
    */
   private async imageDataToBuffer(imageData: ImageData): Promise<ArrayBuffer> {
-    // Create a buffer from the RGBA values
-    const buffer = new ArrayBuffer(imageData.data.length)
-    const view = new Uint8Array(buffer)
-    view.set(imageData.data)
-    return buffer
+    // Handle both browser and Node.js environments
+    if (imageData.data.buffer) {
+      // Node.js canvas or browser with proper TypedArray
+      return imageData.data.buffer.slice(
+        imageData.data.byteOffset || 0,
+        (imageData.data.byteOffset || 0) + imageData.data.byteLength
+      )
+    } else {
+      // Fallback: create a new buffer and copy data
+      const buffer = new ArrayBuffer(imageData.data.length)
+      const view = new Uint8Array(buffer)
+      view.set(imageData.data)
+      return buffer
+    }
   }
 
   /**
