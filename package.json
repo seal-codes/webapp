@@ -12,7 +12,8 @@
     "preview": "vite preview",
     "test": "vitest",
     "test:coverage": "vitest run --coverage",
-    "test:ui": "vitest --ui"
+    "test:ui": "vitest --ui",
+    "analyze:qr": "vite-node test-qr-size-simple.ts"
   },
   "dependencies": {
     "cbor-x": "^1.5.9",
