@@ -25,7 +25,11 @@
   },
   "home": {
     "hero": {
-      "title": "The Digital {seal} for the Modern Age",
+      "title": {
+        "before": "The Digital ",
+        "seal": "Seal",
+        "after": " for the Modern Age"
+      },
       "subtitle": "Add visible marks of authenticity to your documents, just like the royal seals of old.",
       "cta": "It's yours – seal it!"
     },

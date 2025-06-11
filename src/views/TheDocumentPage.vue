@@ -123,7 +123,9 @@ const updateQrSize = (size: number) => {
                       bottomRight: '↘',
                     }"
                     :key="key"
-                    class="w-12 h-12 md:w-10 md:h-10 bg-white rounded-lg shadow-sm hover:bg-gray-50 active:bg-gray-100 flex items-center justify-center border border-gray-200 transition-colors touch-manipulation"
+                    class="w-12 h-12 md:w-10 md:h-10 bg-white rounded-lg shadow-sm 
+                           hover:bg-gray-50 active:bg-gray-100 flex items-center justify-center 
+                           border border-gray-200 transition-colors touch-manipulation"
                     :title="t(`document.preview.corners.${key}`)"
                     @click="setCornerPosition(key as any)"
                   >

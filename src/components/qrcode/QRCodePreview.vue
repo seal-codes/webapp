@@ -308,7 +308,10 @@ const adjustSize = (delta: number) => {
       @touchstart.stop
     >
       <button 
-        class="w-9 h-9 md:w-8 md:h-8 flex items-center justify-center text-gray-600 hover:bg-gray-100 active:bg-gray-200 rounded text-lg font-bold touch-manipulation disabled:opacity-50 disabled:cursor-not-allowed transition-colors" 
+        class="w-9 h-9 md:w-8 md:h-8 flex items-center justify-center text-gray-600 
+               hover:bg-gray-100 active:bg-gray-200 rounded text-lg font-bold 
+               touch-manipulation disabled:opacity-50 disabled:cursor-not-allowed 
+               transition-colors" 
         title="Make smaller"
         :disabled="sizePercent <= 15"
         @click.stop="adjustSize(-3)"
@@ -316,7 +319,9 @@ const adjustSize = (delta: number) => {
         −
       </button>
       <button 
-        class="w-9 h-9 md:w-8 md:h-8 flex items-center justify-center text-gray-600 hover:bg-gray-100 active:bg-gray-200 rounded text-lg font-bold touch-manipulation disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        class="w-9 h-9 md:w-8 md:h-8 flex items-center justify-center 
+              text-gray-600 hover:bg-gray-100 active:bg-gray-200 rounded 
+              text-lg font-bold touch-manipulation disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         title="Make larger"
         :disabled="sizePercent >= 35"
         @click.stop="adjustSize(3)"

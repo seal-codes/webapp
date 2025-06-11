@@ -64,6 +64,7 @@ export class QRReaderService {
    * @param exclusionZone - Optional exclusion zone to scan first
    * @returns Promise resolving to QR code detection result
    */
+  // eslint-disable-next-line complexity
   async readQRCodeFromImage(
     imageFile: File, 
     exclusionZone?: { x: number; y: number; width: number; height: number },

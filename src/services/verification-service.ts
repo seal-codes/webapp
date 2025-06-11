@@ -419,6 +419,8 @@ export class VerificationService {
    * @param data - Data to validate
    * @returns Whether the structure is valid
    */
+  // TODO: zod schema?
+  // eslint-disable-next-line complexity
   private validateAttestationStructure(data: unknown): data is AttestationData {
     return (
       data &&

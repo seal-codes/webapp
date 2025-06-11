@@ -25,7 +25,11 @@
   },
   "home": {
     "hero": {
-      "title": "Das digitale {seal} für das moderne Zeitalter",
+      "title": {
+        "before": "Das digitale ",
+        "seal": "Siegel",
+        "after": " für das moderne Zeitalter"
+      },
       "subtitle": "Füge sichtbare Authentizitätsmerkmale zu deinen Dokumenten hinzu, genau wie die königlichen Siegel vergangener Zeiten.",
       "cta": "Es gehört dir – siegle es!"
     },

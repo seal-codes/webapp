@@ -26,6 +26,7 @@ const QR_CAPACITIES: QRCapacity[] = [
   { version: 40, capacity: 3159, modules: 177 },
 ]
 
+// eslint-disable-next-line complexity
 function analyzeQRComplexity(filePath: string) {
   const fileName = path.basename(filePath)
   console.log(`\n=== Analyzing ${fileName} ===`)

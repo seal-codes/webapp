@@ -17,10 +17,11 @@ const startProcess = () => {
   <div class="min-h-screen bg-white">
     <!-- Hero Section -->
     <main class="container mx-auto px-4 py-16 text-center">
-      <h1
-        class="text-6xl font-bold mb-6"
-        v-html="t('home.hero.title', { seal: '<span class=&quot;text-secondary-500&quot;>Seal</span>' })"
-      />
+      <h1 class="text-6xl font-bold mb-6">
+        {{ t('home.hero.title.before') }}
+        <span class="text-secondary-500">{{ t('home.hero.title.seal') }}</span>
+        {{ t('home.hero.title.after') }}
+      </h1>
       
       <p class="text-xl text-gray-600 mb-12 max-w-2xl mx-auto">
         {{ t('home.hero.subtitle') }}

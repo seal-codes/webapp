@@ -61,48 +61,19 @@ export class QRScanService {
         imageData.height,
       )
       
-      if (code) {
-        console.log('QR code found with data:', code.data)
-        
-        // Check if this is a verification URL
-        if (code.data.includes('/v/')) {
-          // Extract the encoded part from the URL
-          const urlParts = code.data.split('/v/')
-          if (urlParts.length > 1) {
-            const encodedData = urlParts[1]
-            console.log('Extracted encoded data:', encodedData)
-            
-            // Try to decode the QR code data
-            const decodedData = verificationService.decodeFromQR(encodedData)
-            
-            if (decodedData.isValid) {
-              return {
-                found: true,
-                attestationData: decodedData.attestationData,
-                debugInfo: {
-                  qrLocation: code.location,
-                  rawData: code.data,
-                  encodedData: encodedData,
-                },
-              }
-            }
-          }
-        } else {
-          // Try to decode directly (in case it's just the encoded data)
-          const decodedData = verificationService.decodeFromQR(code.data)
-          
-          if (decodedData.isValid) {
-            return {
-              found: true,
-              attestationData: decodedData.attestationData,
-              debugInfo: {
-                qrLocation: code.location,
-                rawData: code.data,
-              },
-            }
-          }
-        }
+      if (!code) {
+        return { found: false }
       }
+      
+      console.log('QR code found with data:', code.data)
+      
+      // Check if this is a verification URL
+      if (code.data.includes('/v/')) {
+        return this.processVerificationURL(code)
+      }
+      
+      // Try to decode directly (in case it's just the encoded data)
+      return this.processDirectData(code)
       
       return { found: false }
     } catch (error) {
@@ -124,6 +95,52 @@ export class QRScanService {
       img.onerror = reject
       img.src = URL.createObjectURL(file)
     })
+  }
+
+  private processVerificationURL(code: { data: string; location: { x: number; y: number; width: number; height: number } }): QRScanResult {
+    // Extract the encoded part from the URL
+    const urlParts = code.data.split('/v/')
+    if (urlParts.length <= 1) {
+      return { found: false }
+    }
+    
+    const encodedData = urlParts[1]
+    console.log('Extracted encoded data:', encodedData)
+    
+    // Try to decode the QR code data
+    const decodedData = verificationService.decodeFromQR(encodedData)
+    
+    if (!decodedData.isValid) {
+      return { found: false }
+    }
+    
+    return {
+      found: true,
+      attestationData: decodedData.attestationData,
+      debugInfo: {
+        qrLocation: code.location,
+        rawData: code.data,
+        encodedData: encodedData,
+      },
+    }
+  }
+
+  private processDirectData(code: { data: string; location: { x: number; y: number; width: number; height: number } }): QRScanResult {
+    // Try to decode directly (in case it's just the encoded data)
+    const decodedData = verificationService.decodeFromQR(code.data)
+    
+    if (!decodedData.isValid) {
+      return { found: false }
+    }
+    
+    return {
+      found: true,
+      attestationData: decodedData.attestationData,
+      debugInfo: {
+        qrLocation: code.location,
+        rawData: code.data,
+      },
+    }
   }
 }
 

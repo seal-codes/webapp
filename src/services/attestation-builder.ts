@@ -99,6 +99,7 @@ export class AttestationBuilder {
    * @param input - Input data to validate
    * @returns True if valid, throws error if invalid
    */
+  // eslint-disable-next-line complexity
   validateInput(input: AttestationInput): boolean {
     // Validate provider exists
     const provider = providers.find((p: Provider) => p.id === input.identity.provider)
