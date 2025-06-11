@@ -1,11 +1,78 @@
 import { vi } from 'vitest'
 import { createCanvas } from 'canvas'
+import { webcrypto } from 'crypto'
+
+// Mock crypto.subtle for testing environment
+Object.defineProperty(global, 'crypto', {
+  value: {
+    subtle: webcrypto.subtle,
+    getRandomValues: webcrypto.getRandomValues.bind(webcrypto)
+  }
+})
 
 // Mock HTMLCanvasElement for testing
 global.HTMLCanvasElement.prototype.getContext = vi.fn().mockImplementation((contextType) => {
   if (contextType === '2d') {
     const canvas = createCanvas(1, 1)
-    return canvas.getContext('2d')
+    const ctx = canvas.getContext('2d')
+    
+    // Override drawImage to handle our mocked Image objects
+    const originalDrawImage = ctx.drawImage.bind(ctx)
+    ctx.drawImage = vi.fn().mockImplementation((image, ...args) => {
+      // If it's our mocked image with a _canvas property, use that
+      if (image._canvas) {
+        return originalDrawImage(image._canvas, ...args)
+      }
+      // Otherwise try the original method
+      return originalDrawImage(image, ...args)
+    })
+    
+    // Override getImageData to ensure it returns proper ImageData
+    const originalGetImageData = ctx.getImageData.bind(ctx)
+    ctx.getImageData = vi.fn().mockImplementation((x, y, width, height) => {
+      const imageData = originalGetImageData(x, y, width, height)
+      
+      // Ensure the data property is a proper Uint8ClampedArray
+      if (!(imageData.data instanceof Uint8ClampedArray)) {
+        const properData = new Uint8ClampedArray(width * height * 4)
+        // Fill with some test data (blue-ish color)
+        for (let i = 0; i < properData.length; i += 4) {
+          properData[i] = 0     // R
+          properData[i + 1] = 100 // G
+          properData[i + 2] = 200 // B
+          properData[i + 3] = 255 // A
+        }
+        
+        return {
+          data: properData,
+          width: width,
+          height: height,
+          colorSpace: 'srgb'
+        }
+      }
+      
+      return imageData
+    })
+    
+    // Override putImageData to handle resizing properly
+    ctx.putImageData = vi.fn().mockImplementation((imageData, dx, dy) => {
+      // For testing purposes, we'll simulate putting the image data
+      // by filling the canvas with a pattern based on the source data
+      if (imageData && imageData.data && imageData.width && imageData.height) {
+        // Fill the canvas with a representative color from the source
+        const samplePixel = {
+          r: imageData.data[0] || 0,
+          g: imageData.data[1] || 100,
+          b: imageData.data[2] || 200,
+          a: (imageData.data[3] || 255) / 255
+        }
+        ctx.fillStyle = `rgba(${samplePixel.r}, ${samplePixel.g}, ${samplePixel.b}, ${samplePixel.a})`
+        ctx.fillRect(dx, dy, Math.min(imageData.width, canvas.width - dx), Math.min(imageData.height, canvas.height - dy))
+      }
+      // Don't call the original method - just return undefined like the real putImageData
+    })
+    
+    return ctx
   }
   return null
 })
@@ -41,11 +108,28 @@ const originalImage = global.Image
 global.Image = class extends originalImage {
   constructor() {
     super()
+    
+    // Create a canvas to serve as the image data
+    const canvas = createCanvas(100, 100)
+    const ctx = canvas.getContext('2d')
+    
+    // Fill with a simple pattern so it's not empty
+    ctx.fillStyle = '#0066CC'
+    ctx.fillRect(0, 0, 100, 100)
+    ctx.fillStyle = '#FFFFFF'
+    ctx.fillRect(10, 10, 80, 80)
+    
+    // Set properties that make this work with canvas.drawImage
+    Object.defineProperty(this, 'naturalWidth', { value: 100, writable: true })
+    Object.defineProperty(this, 'naturalHeight', { value: 100, writable: true })
+    Object.defineProperty(this, 'width', { value: 100, writable: true })
+    Object.defineProperty(this, 'height', { value: 100, writable: true })
+    
+    // Make this object drawable by canvas
+    Object.defineProperty(this, '_canvas', { value: canvas })
+    
     setTimeout(() => {
       if (this.onload) {
-        // Set some dimensions before calling onload
-        Object.defineProperty(this, 'naturalWidth', { value: 100 })
-        Object.defineProperty(this, 'naturalHeight', { value: 100 })
         this.onload()
       }
     }, 0)
