@@ -96,7 +96,7 @@ const validateAndEmitFile = (file: File) => {
       ref="fileInput"
       type="file"
       class="hidden"
-      accept=".pdf,.jpg,.jpeg,.png"
+      accept=".pdf,.jpg,.jpeg,.png,.webp"
       @change="handleFileSelect"
     >
     

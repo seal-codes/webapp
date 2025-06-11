@@ -5,6 +5,7 @@ import { qrCodeUICalculator } from '@/services/qrcode-ui-calculator'
 import { attestationBuilder } from '@/services/attestation-builder'
 import { qrSealRenderer } from '@/services/qr-seal-renderer'
 import { documentHashService } from '@/services/document-hash-service'
+import { formatConversionService, type FormatConversionResult } from '@/services/format-conversion-service'
 import type { QRCodeUIPosition, AttestationData } from '@/types/qrcode'
 
 // Unique ID generation for documents
@@ -23,6 +24,10 @@ export const useDocumentStore = defineStore('document', () => {
   const isAuthenticated = ref(false)
   const authProvider = ref<string | null>(null)
   const userName = ref<string | null>(null)
+  
+  // Format conversion state
+  const formatConversionResult = ref<FormatConversionResult | null>(null)
+  const showFormatConversionNotification = ref(false)
   
   // Getters
   const hasDocument = computed(() => uploadedDocument.value !== null)
@@ -275,6 +280,24 @@ export const useDocumentStore = defineStore('document', () => {
     
     console.log('🖼️ Sealing image document...')
     
+    // Step 1: Convert to optimal format if needed
+    console.log('🔄 Checking format conversion requirements...')
+    const conversionResult = await formatConversionService.convertToOptimalFormat(uploadedDocument.value, false) // Default to WebP
+    
+    // Store conversion result for UI notification
+    formatConversionResult.value = conversionResult
+    if (conversionResult.wasConverted) {
+      showFormatConversionNotification.value = true
+      console.log('✅ Format converted:', {
+        from: conversionResult.originalFormat,
+        to: conversionResult.finalFormat,
+        reason: conversionResult.conversionReason
+      })
+    }
+    
+    // Use the converted file for sealing
+    const fileToSeal = conversionResult.file
+    
     return new Promise<void>((resolve, reject) => {
       const img = new Image()
       const canvas = document.createElement('canvas')
@@ -299,17 +322,25 @@ export const useDocumentStore = defineStore('document', () => {
           // Use the exact position and dimensions of the complete seal
           ctx.drawImage(sealImg, position.x, position.y, width, height)
           
-          // Convert canvas to blob
+          // Convert canvas to blob with optimal format
+          const outputFormat = conversionResult.finalFormat
+          const quality = outputFormat === 'image/webp' ? 1.0 : undefined // Lossless for WebP
+          
           canvas.toBlob((blob) => {
             if (blob) {
               sealedDocumentBlob.value = blob
               sealedDocumentUrl.value = URL.createObjectURL(blob)
               console.log('✅ Image sealing completed')
+              console.log('📊 Final sealed document:', {
+                format: outputFormat,
+                size: blob.size,
+                dimensions: `${canvas.width}x${canvas.height}`
+              })
               resolve()
             } else {
               reject(new Error('Failed to create image blob'))
             }
-          }, uploadedDocument.value?.type)
+          }, outputFormat, quality)
         }
         
         sealImg.onerror = () => reject(new Error('Failed to load seal image'))
@@ -317,7 +348,7 @@ export const useDocumentStore = defineStore('document', () => {
       }
       
       img.onerror = () => reject(new Error('Failed to load original image'))
-      img.src = documentPreviewUrl.value
+      img.src = URL.createObjectURL(fileToSeal)
     })
   }
   
@@ -329,17 +360,36 @@ export const useDocumentStore = defineStore('document', () => {
     const a = document.createElement('a')
     a.href = sealedDocumentUrl.value
     
-    // Get original filename and add a suffix
-    const originalName = uploadedDocument.value.name
-    const dotIndex = originalName.lastIndexOf('.')
+    // Get the filename from the conversion result if available, otherwise use original
+    let baseFileName: string
+    let fileExtension: string
     
-    let downloadName
-    if (dotIndex !== -1) {
-      // Add 'sealed' before the extension
-      downloadName = `${originalName.substring(0, dotIndex)}-sealed${originalName.substring(dotIndex)}`
+    if (formatConversionResult.value?.wasConverted) {
+      // Use the converted file's name and extension
+      const convertedName = formatConversionResult.value.file.name
+      const dotIndex = convertedName.lastIndexOf('.')
+      if (dotIndex !== -1) {
+        baseFileName = convertedName.substring(0, dotIndex)
+        fileExtension = convertedName.substring(dotIndex)
+      } else {
+        baseFileName = convertedName
+        fileExtension = ''
+      }
     } else {
-      downloadName = `${originalName}-sealed`
+      // Use original file name
+      const originalName = uploadedDocument.value.name
+      const dotIndex = originalName.lastIndexOf('.')
+      if (dotIndex !== -1) {
+        baseFileName = originalName.substring(0, dotIndex)
+        fileExtension = originalName.substring(dotIndex)
+      } else {
+        baseFileName = originalName
+        fileExtension = ''
+      }
     }
+    
+    // Add 'sealed' suffix before extension
+    const downloadName = `${baseFileName}-sealed${fileExtension}`
     
     a.download = downloadName
     a.click()
@@ -366,6 +416,8 @@ export const useDocumentStore = defineStore('document', () => {
     isAuthenticated.value = false
     authProvider.value = null
     userName.value = null
+    formatConversionResult.value = null
+    showFormatConversionNotification.value = false
     
     console.log('✅ Document store reset completed')
   }
@@ -380,6 +432,8 @@ export const useDocumentStore = defineStore('document', () => {
     isAuthenticated,
     authProvider,
     userName,
+    formatConversionResult,
+    showFormatConversionNotification,
     
     // Getters
     hasDocument,
@@ -391,6 +445,9 @@ export const useDocumentStore = defineStore('document', () => {
     authenticateWith,
     sealDocument,
     downloadSealedDocument,
+    acknowledgeFormatConversion: () => {
+      showFormatConversionNotification.value = false
+    },
     reset,
   }
 })
