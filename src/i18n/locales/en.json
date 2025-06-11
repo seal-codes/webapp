@@ -178,6 +178,13 @@
       "exactMatch": "Exact match",
       "visualMatch": "Visual match",
       "noMatch": "No match",
+      "details": "Details",
+      "whatThisMeans": "What this means",
+      "technicalDetails": "Technical Details",
+      "verificationStatus": "Verification Status",
+      "visualContent": "Visual Content",
+      "documentType": "Document Type",
+      "confidenceLevel": "Confidence Level",
       "status": {
         "verified_exact": "Document integrity verified - exact match",
         "verified_demo": "Document integrity verified - hash prefix matches (demo mode)",
@@ -186,6 +193,48 @@
         "error_hash_mismatch": "Hash verification failed",
         "error_invalid_format": "Invalid document format",
         "error_processing": "Error occurred during verification"
+      },
+      "confidence": {
+        "high": "High",
+        "medium": "Medium",
+        "none": "None",
+        "error": "Error",
+        "verified_exact": {
+          "title": "Verified Authentic",
+          "subtitle": "Document is exactly as sealed",
+          "description": "This document is completely unchanged since attestation. Perfect cryptographic match confirms authenticity.",
+          "recommendation": "Safe for legal and business use."
+        },
+        "verified_visual": {
+          "title": "Visually Verified",
+          "subtitle": "Content appears authentic but may be compressed",
+          "description": "The document appears authentic but may have been compressed or reformatted since sealing. Visual content matches the original.",
+          "recommendation": "Suitable for most purposes, but note potential format changes."
+        },
+        "modified": {
+          "title": "Document Modified",
+          "subtitle": "Document has been changed since sealing",
+          "description": "This document has been significantly altered since it was sealed. The content no longer matches the original attestation.",
+          "recommendation": "Exercise caution - document integrity cannot be confirmed."
+        },
+        "error_processing": {
+          "title": "Verification Error",
+          "subtitle": "Technical issue prevented verification",
+          "description": "A technical error occurred during verification. This does not indicate the document is invalid.",
+          "recommendation": "Try again or contact support if the problem persists."
+        },
+        "error_invalid_format": {
+          "title": "Invalid Seal",
+          "subtitle": "QR code contains invalid data",
+          "description": "The QR code contains invalid or corrupted attestation data. This may indicate tampering or corruption.",
+          "recommendation": "This seal cannot be trusted - verify the document source."
+        },
+        "default": {
+          "title": "Unknown Status",
+          "subtitle": "Unexpected verification result",
+          "description": "An unexpected verification status was encountered.",
+          "recommendation": "Contact support for assistance."
+        }
       }
     },
     "actions": {

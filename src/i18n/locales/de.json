@@ -178,6 +178,13 @@
       "exactMatch": "Exakte Übereinstimmung",
       "visualMatch": "Visuelle Übereinstimmung",
       "noMatch": "Keine Übereinstimmung",
+      "details": "Details",
+      "whatThisMeans": "Was das bedeutet",
+      "technicalDetails": "Technische Details",
+      "verificationStatus": "Verifizierungsstatus",
+      "visualContent": "Visueller Inhalt",
+      "documentType": "Dokumenttyp",
+      "confidenceLevel": "Vertrauensstufe",
       "status": {
         "verified_exact": "Dokumentintegrität verifiziert - exakte Übereinstimmung",
         "verified_demo": "Dokumentintegrität verifiziert - Hash-Präfix stimmt überein (Demo-Modus)",
@@ -186,6 +193,48 @@
         "error_hash_mismatch": "Hash-Verifizierung fehlgeschlagen",
         "error_invalid_format": "Ungültiges Dokumentformat",
         "error_processing": "Fehler bei der Verifizierung aufgetreten"
+      },
+      "confidence": {
+        "high": "Hoch",
+        "medium": "Mittel",
+        "none": "Keine",
+        "error": "Fehler",
+        "verified_exact": {
+          "title": "Verifiziert Authentisch",
+          "subtitle": "Dokument ist exakt wie versiegelt",
+          "description": "Dieses Dokument ist seit der Beglaubigung völlig unverändert. Die perfekte kryptographische Übereinstimmung bestätigt die Authentizität.",
+          "recommendation": "Sicher für rechtliche und geschäftliche Zwecke."
+        },
+        "verified_visual": {
+          "title": "Visuell Verifiziert",
+          "subtitle": "Inhalt erscheint authentisch, aber möglicherweise komprimiert",
+          "description": "Das Dokument erscheint authentisch, wurde aber möglicherweise seit der Versiegelung komprimiert oder neu formatiert. Der visuelle Inhalt stimmt mit dem Original überein.",
+          "recommendation": "Für die meisten Zwecke geeignet, aber beachten Sie mögliche Formatänderungen."
+        },
+        "modified": {
+          "title": "Dokument Verändert",
+          "subtitle": "Dokument wurde seit der Versiegelung geändert",
+          "description": "Dieses Dokument wurde seit der Versiegelung erheblich verändert. Der Inhalt stimmt nicht mehr mit der ursprünglichen Beglaubigung überein.",
+          "recommendation": "Vorsicht walten lassen - Dokumentintegrität kann nicht bestätigt werden."
+        },
+        "error_processing": {
+          "title": "Verifizierungsfehler",
+          "subtitle": "Technisches Problem verhinderte Verifizierung",
+          "description": "Ein technischer Fehler ist während der Verifizierung aufgetreten. Dies bedeutet nicht, dass das Dokument ungültig ist.",
+          "recommendation": "Versuchen Sie es erneut oder kontaktieren Sie den Support, wenn das Problem weiterhin besteht."
+        },
+        "error_invalid_format": {
+          "title": "Ungültiges Siegel",
+          "subtitle": "QR-Code enthält ungültige Daten",
+          "description": "Der QR-Code enthält ungültige oder beschädigte Beglaubigungsdaten. Dies kann auf Manipulation oder Beschädigung hinweisen.",
+          "recommendation": "Diesem Siegel kann nicht vertraut werden - überprüfen Sie die Dokumentquelle."
+        },
+        "default": {
+          "title": "Unbekannter Status",
+          "subtitle": "Unerwartetes Verifizierungsergebnis",
+          "description": "Ein unerwarteter Verifizierungsstatus wurde festgestellt.",
+          "recommendation": "Kontaktieren Sie den Support für Unterstützung."
+        }
       }
     },
     "actions": {
