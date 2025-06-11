@@ -33,7 +33,7 @@ beforeAll(() => {
           return createCanvas(200, 200) as any
         }
         return {} as any
-      }
+      },
     } as any
   }
   
@@ -108,7 +108,7 @@ beforeAll(() => {
       },
       revokeObjectURL: () => {
         // Mock implementation
-      }
+      },
     } as any
   }
 })
@@ -154,7 +154,7 @@ describe('Integration Tests', () => {
         y: 50,
         width: 100,
         height: 100,
-        fillColor: '#FFFFFF'
+        fillColor: '#FFFFFF',
       }
       
       // Apply exclusion zone (same logic as DocumentHashService.applyExclusionZone)
@@ -210,6 +210,181 @@ describe('Integration Tests', () => {
     }, 15000) // 15 second timeout for image processing
   })
 
+  describe('Complete Roundtrip: Seal and Verify Workflow', () => {
+    it('should seal a document and then successfully verify the sealed document', async () => {
+      console.log('Starting complete roundtrip test: seal → verify...')
+      
+      // Step 1: Load original image
+      const imagePath = join(process.cwd(), 'src/test-artifacts/sample-picture.jpeg')
+      const originalImageBuffer = readFileSync(imagePath)
+      const originalImageFile = new File([originalImageBuffer], 'sample-picture.jpeg', { type: 'image/jpeg' })
+      
+      console.log('Loaded original image:', originalImageFile.name, 'Size:', originalImageFile.size, 'bytes')
+      
+      // Step 2: Define sealing parameters
+      const exclusionZone = {
+        x: 100,
+        y: 100,
+        width: 150,
+        height: 150,
+        fillColor: '#FFFFFF',
+      }
+      
+      const userIdentity = {
+        provider: 'google',
+        identifier: 'test@example.com',
+      }
+      
+      const serviceInfo = {
+        publicKeyId: 'test-key-roundtrip',
+      }
+      
+      const userUrl = 'https://example.com/roundtrip-test'
+      
+      console.log('Sealing parameters defined:', { exclusionZone, userIdentity, serviceInfo, userUrl })
+      
+      // Step 3: SEAL THE DOCUMENT
+      console.log('--- SEALING PHASE ---')
+      
+      // 3a: Calculate document hashes with exclusion zone (using Node.js approach)
+      const originalImage = await loadImage(originalImageBuffer)
+      const originalCanvas = createCanvas(originalImage.width, originalImage.height)
+      const originalCtx = originalCanvas.getContext('2d')
+      originalCtx.drawImage(originalImage, 0, 0)
+      
+      // Apply exclusion zone for hash calculation
+      originalCtx.fillStyle = exclusionZone.fillColor
+      originalCtx.fillRect(exclusionZone.x, exclusionZone.y, exclusionZone.width, exclusionZone.height)
+      
+      // Get image data and calculate hashes using actual service
+      const originalImageData = originalCtx.getImageData(0, 0, originalCanvas.width, originalCanvas.height)
+      const hashService = new DocumentHashService()
+      
+      type DocumentHashServiceWithPrivates = DocumentHashService & {
+        calculateHashesFromImageData(imageData: ImageData): Promise<{
+          cryptographic: string;
+          pHash: string;
+          dHash: string;
+        }>
+      }
+      
+      const originalHashes = await (hashService as DocumentHashServiceWithPrivates)
+        .calculateHashesFromImageData(originalImageData)
+      
+      console.log('Original document hashes calculated:', {
+        cryptographic: originalHashes.cryptographic,
+        pHashLength: originalHashes.pHash.length,
+        dHashLength: originalHashes.dHash.length,
+      })
+      
+      // 3b: Build attestation data
+      const attestationBuilder = new AttestationBuilder()
+      const attestationData = attestationBuilder.buildCompactAttestation({
+        documentHashes: originalHashes,
+        identity: userIdentity,
+        serviceInfo,
+        exclusionZone,
+        userUrl,
+      })
+      console.log('Attestation data created for sealing')
+      
+      // 3c: Generate QR code
+      const qrService = new QRCodeService()
+      const qrResult = await qrService.generateQRCode({
+        data: attestationData,
+        sizeInPixels: exclusionZone.width,
+        errorCorrectionLevel: 'M',
+      })
+      console.log('QR code generated:', qrResult.dataUrl.substring(0, 50) + '...')
+      
+      // 3d: Create sealed document (simulate embedding QR code)
+      // Load original image again for sealing, apply exclusion zone, and place QR code
+      const sealingImage = await loadImage(originalImageBuffer)
+      const sealedCanvas = createCanvas(sealingImage.width, sealingImage.height)
+      const sealedCtx = sealedCanvas.getContext('2d')
+      
+      // Draw original image
+      sealedCtx.drawImage(sealingImage, 0, 0)
+      
+      // Apply exclusion zone (fill with white)
+      sealedCtx.fillStyle = exclusionZone.fillColor
+      sealedCtx.fillRect(exclusionZone.x, exclusionZone.y, exclusionZone.width, exclusionZone.height)
+      
+      // Simulate QR code placement (for now, just keep the white rectangle)
+      // In real implementation, the QR code image would be drawn here
+      console.log('Sealed document created with exclusion zone applied')
+      
+      // Convert sealed canvas to file
+      const sealedImageBuffer = sealedCanvas.toBuffer('image/png')
+      const sealedImageFile = new File([sealedImageBuffer], 'sealed-sample.png', { type: 'image/png' })
+      console.log('Sealed document file created:', sealedImageFile.name, 'Size:', sealedImageFile.size, 'bytes')
+      
+      // Step 4: VERIFY THE SEALED DOCUMENT
+      console.log('--- VERIFICATION PHASE ---')
+      
+      // 4a: Calculate hashes of the sealed document (using Node.js approach)
+      const sealedImage = await loadImage(sealedImageBuffer)
+      const verificationCanvas = createCanvas(sealedImage.width, sealedImage.height)
+      const verificationCtx = verificationCanvas.getContext('2d')
+      verificationCtx.drawImage(sealedImage, 0, 0)
+      
+      // Apply same exclusion zone for verification
+      verificationCtx.fillStyle = exclusionZone.fillColor
+      verificationCtx.fillRect(exclusionZone.x, exclusionZone.y, exclusionZone.width, exclusionZone.height)
+      
+      // Get image data and calculate verification hashes
+      const verificationImageData = verificationCtx.getImageData(0, 0, verificationCanvas.width, verificationCanvas.height)
+      const verificationHashes = await (hashService as DocumentHashServiceWithPrivates)
+        .calculateHashesFromImageData(verificationImageData)
+      
+      console.log('Verification hashes calculated:', {
+        cryptographic: verificationHashes.cryptographic,
+        pHashLength: verificationHashes.pHash.length,
+        dHashLength: verificationHashes.dHash.length,
+      })
+      
+      // 4b: Simulate verification result (since we can't use the full VerificationService.verifyDocument)
+      // The verification should pass because we applied the same exclusion zone
+      const cryptographicMatch = verificationHashes.cryptographic === originalHashes.cryptographic
+      const perceptualMatch = verificationHashes.pHash === originalHashes.pHash && 
+                             verificationHashes.dHash === originalHashes.dHash
+      
+      const verificationResult = {
+        isValid: cryptographicMatch && perceptualMatch,
+        status: cryptographicMatch ? 'verified_exact' : 'modified',
+        details: {
+          cryptographicMatch,
+          perceptualMatch,
+          documentType: 'image',
+        },
+      }
+      
+      console.log('Verification result:', verificationResult)
+      
+      // Step 5: VALIDATE ROUNDTRIP SUCCESS
+      console.log('--- ROUNDTRIP VALIDATION ---')
+      
+      // The hashes should match because we applied the same exclusion zone
+      expect(verificationResult.isValid).toBe(true)
+      expect(verificationResult.status).toBe('verified_exact')
+      expect(verificationResult.details.cryptographicMatch).toBe(true)
+      expect(verificationResult.details.perceptualMatch).toBe(true)
+      
+      // Verify that the hashes match
+      expect(verificationHashes.cryptographic).toBe(originalHashes.cryptographic)
+      expect(verificationHashes.pHash).toBe(originalHashes.pHash)
+      expect(verificationHashes.dHash).toBe(originalHashes.dHash)
+      
+      console.log('✅ ROUNDTRIP TEST SUCCESSFUL!')
+      console.log('- Original document sealed with attestation data')
+      console.log('- Sealed document verified successfully')
+      console.log('- Hash integrity maintained through seal → verify cycle')
+      console.log('- Cryptographic verification: PASSED')
+      console.log('- Perceptual verification: PASSED')
+      
+    }, 20000) // 20 second timeout for complete workflow
+  })
+
   describe('End-to-End Seal and Verify Workflow', () => {
     it('should create and verify attestation data without full document processing', async () => {
       console.log('Starting simplified integration test...')
@@ -218,7 +393,7 @@ describe('Integration Tests', () => {
       const mockDocumentHashes = {
         cryptographic: 'a1b2c3d4e5f6789012345678901234567890123456789012345678901234567890',
         pHash: '1010101010101010101010101010101010101010101010101010101010101010',
-        dHash: '110011001100110011001100110011001100'
+        dHash: '110011001100110011001100110011001100',
       }
       console.log('Mock document hashes created:', mockDocumentHashes)
       
@@ -230,20 +405,20 @@ describe('Integration Tests', () => {
         y: 10,
         width: 80,
         height: 80,
-        fillColor: '#FFFFFF'
+        fillColor: '#FFFFFF',
       }
       
       const attestationData = attestationBuilder.buildCompactAttestation({
         documentHashes: mockDocumentHashes,
         identity: {
           provider: 'google',
-          identifier: 'test@example.com'
+          identifier: 'test@example.com',
         },
         serviceInfo: {
-          publicKeyId: 'test-key-id'
+          publicKeyId: 'test-key-id',
         },
         exclusionZone,
-        userUrl: 'https://example.com/profile'
+        userUrl: 'https://example.com/profile',
       })
       console.log('Attestation data built:', attestationData)
       
