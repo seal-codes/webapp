@@ -8,10 +8,7 @@ import { verificationService } from './verification-service'
 import { qrAreaDetector } from './qr-area-detector'
 import type { AttestationData } from '@/types/qrcode'
 import type { DetectedQRRegion } from './qr-area-detector'
-
-// Lazy import for rxing-wasm to avoid blocking the main bundle
-let rxingWasm: any = null
-let rxingWasmLoading = false
+import { wasmGlobals } from './wasm-preloader'
 
 // Type for unified QR result
 interface QRCode {
@@ -22,6 +19,11 @@ interface QRCode {
     width: number
     height: number
   }
+}
+
+interface QRScanOptions {
+  waitForWasm?: boolean // Whether to wait for WASM if it's loading (default: true)
+  wasmTimeout?: number  // Timeout for WASM loading in ms (default: 3000)
 }
 
 interface QRScanResult {
@@ -35,23 +37,18 @@ interface QRScanResult {
     totalRegions: number
     usedEngine?: 'jsqr' | 'rxing-wasm'
     wasmLoadTime?: number
+    wasmWaitTime?: number
   }
 }
 
 /**
  * Hybrid QR Reader Service with fallback support
- * Provides immediate QR scanning with jsQR while loading rxing-wasm for better performance
+ * Uses the global WASM preloader for optimal performance
  */
 export class HybridQRReaderService {
-  private wasmLoadStartTime: number | null = null
-
   constructor() {
-    // Start loading rxing-wasm in the background (skip in test environment)
-    if (!this.isTestEnvironment()) {
-      this.preloadRxingWasm()
-    } else {
-      console.log('🧪 Test environment detected, skipping WASM preload')
-    }
+    // WASM preloading is now handled globally at app startup
+    console.log('🔧 QR Reader Service initialized with global WASM preloader')
   }
 
   /**
@@ -67,42 +64,24 @@ export class HybridQRReaderService {
   }
 
   /**
-   * Preload rxing-wasm in the background
-   */
-  private async preloadRxingWasm(): Promise<void> {
-    if (rxingWasm || rxingWasmLoading) return
-
-    rxingWasmLoading = true
-    this.wasmLoadStartTime = Date.now()
-
-    try {
-      console.log('🚀 Preloading rxing-wasm in background...')
-      rxingWasm = await import('rxing-wasm')
-      const loadTime = Date.now() - (this.wasmLoadStartTime || 0)
-      console.log(`✅ rxing-wasm loaded successfully in ${loadTime}ms`)
-    } catch (error) {
-      console.warn('⚠️ Failed to load rxing-wasm, will use jsQR fallback:', error)
-      rxingWasm = null
-    } finally {
-      rxingWasmLoading = false
-    }
-  }
-
-  /**
    * Scan an image for QR codes containing attestation data
    * Uses the best available engine (rxing-wasm if loaded, jsQR as fallback)
    * 
    * @param imageFile - The image file to scan
    * @param exclusionZone - Optional exclusion zone to avoid scanning
+   * @param options - Scanning options
    * @returns Promise resolving to scan result
    */
   async scanImageForQR(
     imageFile: File,
-    exclusionZone?: { x: number; y: number; width: number; height: number }
+    exclusionZone?: { x: number; y: number; width: number; height: number },
+    options: QRScanOptions = {}
   ): Promise<QRScanResult> {
+    const { waitForWasm = true, wasmTimeout = 3000 } = options
     const processingSteps: string[] = []
     let scannedRegions = 0
     const startTime = Date.now()
+    let wasmWaitTime = 0
 
     try {
       console.log('🔍 Starting hybrid QR scan...')
@@ -121,10 +100,22 @@ export class HybridQRReaderService {
       const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
       processingSteps.push('Image data extracted')
 
+      // Wait for WASM if it's currently loading (configurable)
+      const isWasmLoading = wasmGlobals.isWasmLoading()
+      if (waitForWasm && isWasmLoading) {
+        console.log(`⏳ WASM is loading, waiting up to ${wasmTimeout}ms for it to complete...`)
+        processingSteps.push('Waiting for WASM to load')
+        const wasmWaitStart = Date.now()
+        await wasmGlobals.waitForWasm(wasmTimeout)
+        wasmWaitTime = Date.now() - wasmWaitStart
+        console.log(`⏳ Waited ${wasmWaitTime}ms for WASM`)
+      }
+
       // Determine which engine to use
-      const useRxing = rxingWasm && !rxingWasmLoading
+      const rxingWasm = wasmGlobals.getRxingWasm()
+      const useRxing = !!rxingWasm
       const engine = useRxing ? 'rxing-wasm' : 'jsqr'
-      console.log(`🔧 Using ${engine} for QR scanning`)
+      console.log(`🔧 Using ${engine} for QR scanning (WASM ready: ${!!rxingWasm})`)
       processingSteps.push(`Using ${engine}`)
 
       let qrCode: QRCode | null = null
@@ -149,7 +140,8 @@ export class HybridQRReaderService {
             scannedRegions,
             totalRegions: scannedRegions,
             usedEngine: engine,
-            wasmLoadTime: this.wasmLoadStartTime ? Date.now() - this.wasmLoadStartTime : undefined,
+            wasmLoadTime: wasmGlobals.getLoadTime(),
+            wasmWaitTime,
           },
         }
       }
@@ -167,7 +159,8 @@ export class HybridQRReaderService {
             scannedRegions,
             totalRegions: scannedRegions,
             usedEngine: engine,
-            wasmLoadTime: this.wasmLoadStartTime ? Date.now() - this.wasmLoadStartTime : undefined,
+            wasmLoadTime: wasmGlobals.getLoadTime(),
+            wasmWaitTime,
           },
         }
       }
@@ -184,7 +177,8 @@ export class HybridQRReaderService {
           scannedRegions,
           totalRegions: scannedRegions,
           usedEngine: engine,
-          wasmLoadTime: this.wasmLoadStartTime ? Date.now() - this.wasmLoadStartTime : undefined,
+          wasmLoadTime: wasmGlobals.getLoadTime(),
+          wasmWaitTime,
         },
       }
     } catch (error) {
@@ -196,8 +190,9 @@ export class HybridQRReaderService {
           processingSteps,
           scannedRegions,
           totalRegions: scannedRegions,
-          usedEngine: rxingWasm ? 'rxing-wasm' : 'jsqr',
-          wasmLoadTime: this.wasmLoadStartTime ? Date.now() - this.wasmLoadStartTime : undefined,
+          usedEngine: wasmGlobals.getRxingWasm() ? 'rxing-wasm' : 'jsqr',
+          wasmLoadTime: wasmGlobals.getLoadTime(),
+          wasmWaitTime,
         },
       }
     }
@@ -213,7 +208,7 @@ export class HybridQRReaderService {
   ): Promise<QRCode | null> {
     processingSteps.push('Full image scan')
 
-    if (engine === 'rxing-wasm' && rxingWasm) {
+    if (engine === 'rxing-wasm') {
       return await this.scanWithRxing(imageData, false) // false = quick scan for full image
     } else {
       return this.scanWithJsQR(imageData, false) // false = quick scan
@@ -244,7 +239,7 @@ export class HybridQRReaderService {
 
     const modifiedImageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
 
-    if (engine === 'rxing-wasm' && rxingWasm) {
+    if (engine === 'rxing-wasm') {
       return await this.scanWithRxing(modifiedImageData, true) // true = try harder
     } else {
       return this.scanWithJsQR(modifiedImageData, true) // true = try harder
@@ -255,6 +250,7 @@ export class HybridQRReaderService {
    * Scan with rxing-wasm
    */
   private async scanWithRxing(imageData: ImageData, tryHarder: boolean): Promise<QRCode | null> {
+    const rxingWasm = wasmGlobals.getRxingWasm()
     if (!rxingWasm) return null
 
     try {
@@ -385,18 +381,11 @@ export class HybridQRReaderService {
   }
 
   /**
-   * Manually trigger WASM loading (useful for testing)
+   * Wait for WASM to finish loading if it's currently loading
    */
-  async loadWasmManually(): Promise<boolean> {
-    if (rxingWasm) return true
-    
-    try {
-      await this.preloadRxingWasm()
-      return !!rxingWasm
-    } catch (error) {
-      console.warn('Manual WASM loading failed:', error)
-      return false
-    }
+  async waitForWasm(): Promise<boolean> {
+    const result = await wasmGlobals.waitForWasm()
+    return !!result
   }
 
   /**
@@ -409,12 +398,15 @@ export class HybridQRReaderService {
     recommendedEngine: 'jsqr' | 'rxing-wasm'
     wasmLoadTime?: number
   } {
+    const rxingWasm = wasmGlobals.getRxingWasm()
+    const isLoading = wasmGlobals.isWasmLoading()
+    
     return {
       rxingWasmAvailable: !!rxingWasm,
-      rxingWasmLoading,
+      rxingWasmLoading: isLoading,
       jsqrAvailable: true, // jsQR is always available
       recommendedEngine: rxingWasm ? 'rxing-wasm' : 'jsqr',
-      wasmLoadTime: this.wasmLoadStartTime ? Date.now() - this.wasmLoadStartTime : undefined,
+      wasmLoadTime: wasmGlobals.getLoadTime(),
     }
   }
 }

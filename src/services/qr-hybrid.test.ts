@@ -6,6 +6,7 @@ import { describe, it, expect, beforeAll } from 'vitest'
 import { webcrypto } from 'node:crypto'
 import { HybridQRReaderService } from './qr-reader-hybrid'
 import { HybridQRScanService } from './qr-scan-hybrid'
+import { wasmPreloader } from './wasm-preloader'
 
 // Setup Node.js environment for browser APIs
 beforeAll(() => {
@@ -114,6 +115,10 @@ describe('Hybrid QR Services', () => {
       expect(engineInfo.recommendedEngine).toMatch(/^(jsqr|rxing-wasm)$/)
       
       console.log('🔧 QR Reader Engine Info:', engineInfo)
+      
+      // Check WASM preloader state
+      const wasmState = wasmPreloader.getWasmState()
+      console.log('🔧 WASM Preloader State:', wasmState)
     })
 
     it('should handle scanning with fallback gracefully', async () => {
@@ -147,6 +152,10 @@ describe('Hybrid QR Services', () => {
       expect(engineInfo.recommendedEngine).toMatch(/^(jsqr|rxing-wasm)$/)
       
       console.log('🔧 QR Scan Engine Info:', engineInfo)
+      
+      // Check WASM preloader state
+      const wasmState = wasmPreloader.getWasmState()
+      console.log('🔧 WASM Preloader State for Scan:', wasmState)
     })
 
     it('should handle scanning with fallback gracefully', async () => {
@@ -198,17 +207,23 @@ describe('Hybrid QR Services', () => {
       expect(initialReaderInfo.rxingWasmLoading).toBe(false) // Should not be loading in test env
       expect(initialScanInfo.rxingWasmLoading).toBe(false) // Should not be loading in test env
       
-      // Test manual WASM loading (will fail in test env, but should handle gracefully)
-      console.log('🧪 Testing manual WASM loading (expected to fail in test environment)...')
-      const readerWasmLoaded = await readerService.loadWasmManually()
-      const scanWasmLoaded = await scanService.loadWasmManually()
+      // Test WASM preloader metrics
+      const wasmMetrics = wasmPreloader.getMetrics()
+      console.log('📊 WASM Preloader Metrics:', wasmMetrics)
       
-      console.log('  Reader WASM loaded:', readerWasmLoaded)
-      console.log('  Scanner WASM loaded:', scanWasmLoaded)
+      expect(wasmMetrics.startupLoadingEnabled).toBe(false) // Should be disabled in test env
+      expect(wasmMetrics.recommendedEngine).toBe('jsqr')
       
-      // Should handle failure gracefully
-      expect(typeof readerWasmLoaded).toBe('boolean')
-      expect(typeof scanWasmLoaded).toBe('boolean')
+      // Test waiting for WASM (should return immediately in test env)
+      const readerWasmReady = await readerService.waitForWasm()
+      const scanWasmReady = await scanService.waitForWasm()
+      
+      console.log('  Reader WASM ready:', readerWasmReady)
+      console.log('  Scanner WASM ready:', scanWasmReady)
+      
+      // Should handle gracefully
+      expect(typeof readerWasmReady).toBe('boolean')
+      expect(typeof scanWasmReady).toBe('boolean')
     }, 5000) // Reduced timeout since we're not actually loading WASM
   })
 })

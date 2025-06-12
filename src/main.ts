@@ -6,6 +6,10 @@ import App from './App.vue'
 import routes from './router'
 import { i18n } from './i18n'
 
+// Start WASM preloading immediately at app startup
+import { wasmPreloader } from './services/wasm-preloader'
+console.log('🚀 App startup: WASM preloader initialized')
+
 // Create the router instance
 const router = createRouter({
   history: createWebHistory(),

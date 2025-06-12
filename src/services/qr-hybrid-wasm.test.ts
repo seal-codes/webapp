@@ -142,9 +142,13 @@ describe('Hybrid QR Services with WASM Mock', () => {
       // Import services after mocking WASM and environment
       const readerModule = await import('./qr-reader-hybrid')
       const scanModule = await import('./qr-scan-hybrid')
+      const wasmModule = await import('./wasm-preloader')
       
       HybridQRReaderService = readerModule.HybridQRReaderService
       HybridQRScanService = scanModule.HybridQRScanService
+      
+      // Force reload the WASM preloader to use our mock
+      await wasmModule.wasmPreloader.forceReload()
     } finally {
       // Restore environment
       if (originalEnv) process.env.NODE_ENV = originalEnv
@@ -160,16 +164,15 @@ describe('Hybrid QR Services with WASM Mock', () => {
       // Wait for WASM to load
       await new Promise(resolve => setTimeout(resolve, 100))
       
-      // Manually trigger WASM loading to ensure it's loaded
-      const wasmLoaded = await service.loadWasmManually()
-      console.log('🔧 WASM loaded:', wasmLoaded)
+      // Wait for WASM using the service method
+      const wasmReady = await service.waitForWasm()
+      console.log('🔧 WASM ready:', wasmReady)
       
       const engineInfo = service.getEngineInfo()
       console.log('🔧 Engine info with WASM mock:', engineInfo)
       
       // With our mock, WASM should be available
       expect(engineInfo.jsqrAvailable).toBe(true)
-      // Note: The actual availability depends on the mock working correctly
       
       if (engineInfo.rxingWasmAvailable) {
         expect(engineInfo.recommendedEngine).toBe('rxing-wasm')
@@ -183,8 +186,8 @@ describe('Hybrid QR Services with WASM Mock', () => {
     it('should use rxing-wasm for scanning when available', async () => {
       const service = new HybridQRReaderService()
       
-      // Ensure WASM is loaded
-      await service.loadWasmManually()
+      // Ensure WASM is ready
+      await service.waitForWasm()
       
       // Verify that the service is configured to use rxing-wasm
       const engineInfo = service.getEngineInfo()
@@ -216,9 +219,9 @@ describe('Hybrid QR Services with WASM Mock', () => {
       // Wait for WASM to load
       await new Promise(resolve => setTimeout(resolve, 100))
       
-      // Manually trigger WASM loading to ensure it's loaded
-      const wasmLoaded = await service.loadWasmManually()
-      console.log('🔧 WASM loaded for scan service:', wasmLoaded)
+      // Wait for WASM using the service method
+      const wasmReady = await service.waitForWasm()
+      console.log('🔧 WASM ready for scan service:', wasmReady)
       
       const engineInfo = service.getEngineInfo()
       console.log('🔧 Scan engine info with WASM mock:', engineInfo)
@@ -238,8 +241,8 @@ describe('Hybrid QR Services with WASM Mock', () => {
     it('should use rxing-wasm for scanning when available', async () => {
       const service = new HybridQRScanService()
       
-      // Ensure WASM is loaded
-      await service.loadWasmManually()
+      // Ensure WASM is ready
+      await service.waitForWasm()
       
       // Verify that the service is configured to use rxing-wasm
       const engineInfo = service.getEngineInfo()
@@ -269,10 +272,10 @@ describe('Hybrid QR Services with WASM Mock', () => {
       const readerService = new HybridQRReaderService()
       const scanService = new HybridQRScanService()
       
-      // Load WASM manually
+      // Wait for WASM
       await Promise.all([
-        readerService.loadWasmManually(),
-        scanService.loadWasmManually()
+        readerService.waitForWasm(),
+        scanService.waitForWasm()
       ])
       
       const readerInfo = readerService.getEngineInfo()
