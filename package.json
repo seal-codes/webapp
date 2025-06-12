@@ -18,11 +18,11 @@
   },
   "dependencies": {
     "cbor-x": "^1.5.9",
-    "jsqr": "^1.4.0",
     "lucide-vue-next": "^0.513.0",
     "pdf-lib": "^1.17.1",
     "pinia": "^2.1.7",
     "qrcode": "^1.5.3",
+    "rxing-wasm": "0.3.6",
     "vue": "^3.4.38",
     "vue-i18n": "^11.1.5",
     "vue-router": "^4.2.5"
@@ -44,6 +44,7 @@
     "typescript": "^5.5.3",
     "typescript-eslint": "8.33.1",
     "vite": "^5.4.2",
+    "vite-plugin-wasm": "3.4.1",
     "vitest": "3.2.3",
     "vue-tsc": "^2.1.4"
   }

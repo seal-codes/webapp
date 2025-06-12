@@ -1,22 +1,29 @@
 /**
  * QR Code reading service for extracting attestation data from images
- * Uses jsQR library with manual selection fallback for better QR code detection
+ * Uses rxing-wasm library with manual selection fallback for better QR code detection
  */
 
-import jsQR from 'jsqr'
+import { 
+  decode_barcode, 
+  decode_barcode_with_hints,
+  convert_imagedata_to_luma, 
+  DecodeHintDictionary, 
+  DecodeHintTypes,
+  type BarcodeResult 
+} from 'rxing-wasm'
 import { verificationService } from './verification-service'
 import { qrAreaDetector } from './qr-area-detector'
 import type { AttestationData } from '@/types/qrcode'
 import type { DetectedQRRegion } from './qr-area-detector'
 
-// Type for jsQR result
+// Type for rxing-wasm result (simplified interface)
 interface QRCode {
   data: string
   location: {
-    topLeftCorner: { x: number; y: number }
-    topRightCorner: { x: number; y: number }
-    bottomLeftCorner: { x: number; y: number }
-    bottomRightCorner: { x: number; y: number }
+    x: number
+    y: number
+    width: number
+    height: number
   }
 }
 
@@ -146,10 +153,8 @@ export class QRReaderService {
         console.log('🔍 Step 3: Quick full image scan...')
         processingSteps.push('Quick full image scan')
         
-        // Only try the fastest scan method for full image
-        qrCode = jsQR(imageData.data, imageData.width, imageData.height, {
-          inversionAttempts: 'dontInvert',
-        })
+        // Try scanning the full image with rxing-wasm
+        qrCode = await this.scanImageData(imageData, false) // false = don't try harder for speed
         scannedFullImage = true
         
         if (qrCode) {
@@ -183,7 +188,7 @@ export class QRReaderService {
       processingSteps.push('QR data extracted')
       
       // Calculate QR code location
-      const location = this.calculateQRLocation(qrCode, imageData)
+      const location = this.calculateQRLocation(qrCode)
       console.log('📍 QR code location:', location)
       processingSteps.push('Location calculated')
       
@@ -230,6 +235,63 @@ export class QRReaderService {
           processingSteps,
         },
       }
+    }
+  }
+
+  /**
+   * Scan ImageData for QR codes using rxing-wasm
+   * 
+   * @param imageData - Image data to scan
+   * @param tryHarder - Whether to use more intensive scanning
+   * @returns QR code result or null
+   */
+  private async scanImageData(imageData: ImageData, tryHarder: boolean = true): Promise<QRCode | null> {
+    try {
+      // Convert ImageData to luma format for rxing-wasm
+      const luma8Data = convert_imagedata_to_luma(imageData)
+      
+      // Create hints for better QR detection
+      const hints = new DecodeHintDictionary()
+      hints.set_hint(DecodeHintTypes.PossibleFormats, "qrcode")
+      
+      if (tryHarder) {
+        hints.set_hint(DecodeHintTypes.TryHarder, "true")
+        hints.set_hint(DecodeHintTypes.AlsoInverted, "true")
+        
+        const result = decode_barcode_with_hints(luma8Data, imageData.width, imageData.height, hints)
+        
+        if (result) {
+          return {
+            data: result.text(),
+            location: {
+              x: 0, // rxing-wasm doesn't provide exact corner coordinates
+              y: 0,
+              width: imageData.width,
+              height: imageData.height
+            }
+          }
+        }
+      } else {
+        // Quick scan without hints
+        const result = decode_barcode(luma8Data, imageData.width, imageData.height, false)
+        
+        if (result) {
+          return {
+            data: result.text(),
+            location: {
+              x: 0, // rxing-wasm doesn't provide exact corner coordinates
+              y: 0,
+              width: imageData.width,
+              height: imageData.height
+            }
+          }
+        }
+      }
+      
+      return null
+    } catch (error) {
+      console.log('rxing-wasm scan failed:', error)
+      return null
     }
   }
 
@@ -296,26 +358,20 @@ export class QRReaderService {
       // Get image data for the region
       const regionImageData = ctx.getImageData(0, 0, boundedRegion.width, boundedRegion.height)
       
-      // Try multiple scan approaches but limit them for performance
-      console.log('🔍 Scanning region with limited approaches...')
+      // Scan the region with rxing-wasm
+      console.log('🔍 Scanning region with rxing-wasm...')
       
-      // Approach 1: Direct scan
-      let qrCode = jsQR(regionImageData.data, regionImageData.width, regionImageData.height, {
-        inversionAttempts: 'dontInvert',
-      })
+      const qrCode = await this.scanImageData(regionImageData, true) // Use tryHarder for regions
       
       if (qrCode) {
-        console.log('✅ Found with direct scan')
-        return qrCode
-      }
-
-      // Approach 2: With inversion attempts
-      qrCode = jsQR(regionImageData.data, regionImageData.width, regionImageData.height, {
-        inversionAttempts: 'attemptBoth',
-      })
-      
-      if (qrCode) {
-        console.log('✅ Found with inversion attempts')
+        console.log('✅ Found QR code in region')
+        // Adjust location to be relative to full image
+        qrCode.location = {
+          x: boundedRegion.x,
+          y: boundedRegion.y,
+          width: boundedRegion.width,
+          height: boundedRegion.height
+        }
         return qrCode
       }
 
@@ -359,7 +415,11 @@ export class QRReaderService {
       return {
         found: false,
         error: result.error || 'No QR code found',
-        debug: result.debug,
+        debug: {
+          processingSteps: result.debug?.processingSteps || [],
+          scannedRegions: result.debug?.detectedAreas?.length || 0,
+          totalRegions: result.debug?.detectedAreas?.length || 0,
+        },
       }
     }
     
@@ -367,7 +427,11 @@ export class QRReaderService {
       return {
         found: false,
         error: `QR code found but it does not contain seal.codes attestation data. Found: ${result.data?.substring(0, 100)}...`,
-        debug: result.debug,
+        debug: {
+          processingSteps: result.debug?.processingSteps || [],
+          scannedRegions: result.debug?.detectedAreas?.length || 1,
+          totalRegions: result.debug?.detectedAreas?.length || 1,
+        },
       }
     }
     
@@ -375,7 +439,11 @@ export class QRReaderService {
       found: true,
       attestationData: result.attestationData,
       qrLocation: result.location,
-      debug: result.debug,
+      debug: {
+        processingSteps: result.debug?.processingSteps || [],
+        scannedRegions: result.debug?.detectedAreas?.length || 1,
+        totalRegions: result.debug?.detectedAreas?.length || 1,
+      },
     }
   }
 
@@ -428,42 +496,20 @@ export class QRReaderService {
   }
 
   /**
-   * Calculate QR code location from jsQR result
+   * Calculate QR code location from rxing-wasm result
+   * Note: rxing-wasm doesn't provide exact corner coordinates like jsQR,
+   * so we return the region that was scanned or estimate based on image size
    * 
-   * @param qrCode - jsQR detection result
+   * @param qrCode - rxing-wasm detection result
    * @param imageData - Original image data
    * @returns QR code location
    */
   private calculateQRLocation(
     qrCode: QRCode,
   ): { x: number; y: number; width: number; height: number } {
-    const { location } = qrCode
-    
-    // Calculate bounding box from corner points
-    const xs = [
-      location.topLeftCorner.x,
-      location.topRightCorner.x,
-      location.bottomLeftCorner.x,
-      location.bottomRightCorner.x,
-    ]
-    const ys = [
-      location.topLeftCorner.y,
-      location.topRightCorner.y,
-      location.bottomLeftCorner.y,
-      location.bottomRightCorner.y,
-    ]
-    
-    const minX = Math.min(...xs)
-    const maxX = Math.max(...xs)
-    const minY = Math.min(...ys)
-    const maxY = Math.max(...ys)
-    
-    return {
-      x: minX,
-      y: minY,
-      width: maxX - minX,
-      height: maxY - minY,
-    }
+    // rxing-wasm doesn't provide exact corner coordinates like jsQR
+    // Return the location that was already set during scanning
+    return qrCode.location
   }
 
   /**
@@ -498,7 +544,7 @@ export class QRReaderService {
         return decodedResult.attestationData
       }
       
-      console.log('❌ Decoded data is not valid:', decodedResult.error)
+      console.log('❌ Decoded data is not valid:', decodedResult.errorCode)
       return undefined
     } catch (error) {
       console.warn('💥 Failed to extract attestation data from URL:', error)

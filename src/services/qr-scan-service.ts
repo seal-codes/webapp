@@ -1,4 +1,4 @@
-import jsQR from 'jsqr'
+import { decode_barcode_with_hints, convert_imagedata_to_luma, DecodeHintDictionary, DecodeHintTypes } from 'rxing-wasm'
 import type { AttestationData } from '@/types/qrcode'
 import { verificationService } from './verification-service'
 
@@ -54,12 +54,32 @@ export class QRScanService {
         imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
       }
       
-      // Scan for QR code
-      const code = jsQR(
-        imageData.data,
-        imageData.width,
-        imageData.height,
-      )
+      // Scan for QR code using rxing-wasm
+      const luma8Data = convert_imagedata_to_luma(imageData)
+      
+      // Create hints for better QR detection
+      const hints = new DecodeHintDictionary()
+      hints.set_hint(DecodeHintTypes.TryHarder, "true")
+      hints.set_hint(DecodeHintTypes.PossibleFormats, "qrcode")
+      hints.set_hint(DecodeHintTypes.AlsoInverted, "true")
+      
+      let code = null
+      try {
+        const result = decode_barcode_with_hints(luma8Data, imageData.width, imageData.height, hints)
+        if (result) {
+          code = {
+            data: result.text(), // Call the text() function
+            location: {
+              x: 0, // rxing-wasm doesn't provide exact location info like jsQR
+              y: 0,
+              width: imageData.width,
+              height: imageData.height
+            }
+          }
+        }
+      } catch (error) {
+        console.log('No QR code found with rxing-wasm:', error)
+      }
       
       if (!code) {
         return { found: false }
@@ -118,9 +138,9 @@ export class QRScanService {
       found: true,
       attestationData: decodedData.attestationData,
       debugInfo: {
-        qrLocation: code.location,
-        rawData: code.data,
-        encodedData: encodedData,
+        processingSteps: ['QR code found', 'URL extracted', 'Data decoded'],
+        scannedRegions: 1,
+        totalRegions: 1,
       },
     }
   }
@@ -137,8 +157,9 @@ export class QRScanService {
       found: true,
       attestationData: decodedData.attestationData,
       debugInfo: {
-        qrLocation: code.location,
-        rawData: code.data,
+        processingSteps: ['QR code found', 'Direct data decoded'],
+        scannedRegions: 1,
+        totalRegions: 1,
       },
     }
   }
