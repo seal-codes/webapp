@@ -129,9 +129,9 @@ const scanSelectedArea = async () => {
     
     console.log('🎯 Scanning selected area:', imageSelection)
     
-    // Scan the selected area using lazy-loaded service
-    const { qrReaderService } = await import('@/services/qr-reader-service')
-    const result = await qrReaderService.scanForAttestationData(props.imageFile, imageSelection)
+    // Scan the selected area using hybrid service (jsQR fallback while rxing-wasm loads)
+    const { hybridQRReaderService } = await import('@/services/qr-reader-hybrid')
+    const result = await hybridQRReaderService.scanImageForQR(props.imageFile, imageSelection)
     
     if (result.found && result.attestationData && result.qrLocation) {
       scanResult.value = 'QR code found and decoded successfully!'

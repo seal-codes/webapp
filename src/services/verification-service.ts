@@ -101,9 +101,9 @@ export class VerificationService {
    * @returns Promise resolving to scan result
    */
   async scanImageForQR(imageFile: File, exclusionZone?: { x: number; y: number; width: number; height: number }) {
-    // Lazy load the QR scanning service to avoid WASM dependency during build
-    const { qrScanService } = await import('./qr-scan-service')
-    return qrScanService.scanImageForQR(imageFile, exclusionZone)
+    // Use hybrid QR reader with fallback support (jsQR while rxing-wasm loads)
+    const { hybridQRReaderService } = await import('./qr-reader-hybrid')
+    return hybridQRReaderService.scanImageForQR(imageFile, exclusionZone)
   }
 
   /**
