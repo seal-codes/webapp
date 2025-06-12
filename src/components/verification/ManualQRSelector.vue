@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { qrReaderService } from '@/services/qr-reader-service'
 import BaseButton from '@/components/common/BaseButton.vue'
 import { Square, MousePointer } from 'lucide-vue-next'
 import type { AttestationData } from '@/types/qrcode'
@@ -130,7 +129,8 @@ const scanSelectedArea = async () => {
     
     console.log('🎯 Scanning selected area:', imageSelection)
     
-    // Scan the selected area
+    // Scan the selected area using lazy-loaded service
+    const { qrReaderService } = await import('@/services/qr-reader-service')
     const result = await qrReaderService.scanForAttestationData(props.imageFile, imageSelection)
     
     if (result.found && result.attestationData && result.qrLocation) {

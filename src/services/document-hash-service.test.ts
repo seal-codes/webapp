@@ -5,17 +5,22 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { DocumentHashService } from './document-hash-service'
 
-// Type assertion to access private methods in tests
-type DocumentHashServiceWithPrivates = DocumentHashService & {
-  calculateSHA256(buffer: ArrayBuffer): Promise<string>
-  calculatePerceptualHashes(imageData: ImageData): Promise<{ pHash: string; dHash: string }>
+// Subclass to expose protected methods for testing
+class TestDocumentHashService extends DocumentHashService {
+  async calculateSHA256ForTesting(data: ArrayBuffer): Promise<string> {
+    return this.calculateSHA256(data)
+  }
+
+  async calculatePerceptualHashesForTesting(imageData: ImageData): Promise<{ pHash: string; dHash: string }> {
+    return this.calculatePerceptualHashes(imageData)
+  }
 }
 
 describe('DocumentHashService', () => {
-  let service: DocumentHashService
+  let service: TestDocumentHashService
 
   beforeEach(() => {
-    service = new DocumentHashService()
+    service = new TestDocumentHashService()
   })
 
   describe('calculateDocumentHashes', () => {
@@ -65,12 +70,12 @@ describe('DocumentHashService', () => {
       const testData = new TextEncoder().encode('test data')
       const buffer = testData.buffer
 
-      // Access the private method through type assertion for testing
-      const service1 = new DocumentHashService()
-      const service2 = new DocumentHashService()
+      // Access the protected method through subclass for testing
+      const service1 = new TestDocumentHashService()
+      const service2 = new TestDocumentHashService()
 
-      const hash1 = await (service1 as DocumentHashServiceWithPrivates).calculateSHA256(buffer)
-      const hash2 = await (service2 as DocumentHashServiceWithPrivates).calculateSHA256(buffer)
+      const hash1 = await service1.calculateSHA256ForTesting(buffer)
+      const hash2 = await service2.calculateSHA256ForTesting(buffer)
 
       expect(hash1).toBe(hash2)
       expect(hash1).toHaveLength(64) // SHA-256 produces 64 character hex string
@@ -81,8 +86,8 @@ describe('DocumentHashService', () => {
       const data1 = new TextEncoder().encode('test data 1')
       const data2 = new TextEncoder().encode('test data 2')
 
-      const hash1 = await (service as DocumentHashServiceWithPrivates).calculateSHA256(data1.buffer)
-      const hash2 = await (service as DocumentHashServiceWithPrivates).calculateSHA256(data2.buffer)
+      const hash1 = await service.calculateSHA256ForTesting(data1.buffer)
+      const hash2 = await service.calculateSHA256ForTesting(data2.buffer)
 
       expect(hash1).not.toBe(hash2)
     })
@@ -99,7 +104,7 @@ describe('DocumentHashService', () => {
       ctx.fillRect(0, 0, 100, 100)
       const imageData = ctx.getImageData(0, 0, 100, 100)
 
-      const result = await (service as DocumentHashServiceWithPrivates).calculatePerceptualHashes(imageData)
+      const result = await service.calculatePerceptualHashesForTesting(imageData)
 
       expect(result.pHash).toHaveLength(256) // 16x16 = 256 bits
       expect(result.dHash).toHaveLength(36)  // 6x6 = 36 bits

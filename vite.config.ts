@@ -11,4 +11,7 @@ export default defineConfig({
       '@': resolve(__dirname, 'src'),
     },
   },
+  build: {
+    target: 'esnext', // Support top-level await
+  },
 })

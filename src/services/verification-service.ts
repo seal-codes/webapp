@@ -6,7 +6,6 @@
 import { encode, decode } from 'cbor-x'
 import { documentHashService } from './document-hash-service'
 import { attestationBuilder } from './attestation-builder'
-import { qrScanService } from './qr-scan-service'
 import type { AttestationData, QRCodeExclusionZone } from '@/types/qrcode'
 import { debugVerification } from './debug-verification'
 
@@ -102,6 +101,8 @@ export class VerificationService {
    * @returns Promise resolving to scan result
    */
   async scanImageForQR(imageFile: File, exclusionZone?: { x: number; y: number; width: number; height: number }) {
+    // Lazy load the QR scanning service to avoid WASM dependency during build
+    const { qrScanService } = await import('./qr-scan-service')
     return qrScanService.scanImageForQR(imageFile, exclusionZone)
   }
 
