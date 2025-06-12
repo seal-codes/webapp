@@ -158,7 +158,7 @@ export class FormatConversionService {
    * Get technical reason for conversion
    */
   private getConversionReason(originalFormat: string, targetFormat: string): string {
-    const formatNames = {
+    const formatNames: Record<string, string> = {
       'image/jpeg': 'JPEG',
       'image/jpg': 'JPEG',
       'image/png': 'PNG',
@@ -178,7 +178,7 @@ export class FormatConversionService {
    * Get format display name for UI
    */
   getFormatDisplayName(mimeType: string): string {
-    const formatNames = {
+    const formatNames: Record<string, string> = {
       'image/jpeg': 'JPEG',
       'image/jpg': 'JPEG',
       'image/png': 'PNG', 

@@ -58,7 +58,7 @@ const { t } = useI18n()
       v-if="hasEncodedData && !decodedData?.isValid"
       type="error"
       :title="t('verification.upload.invalidLink')"
-      :message="decodedData?.error || t('verification.upload.invalidLinkDescription')"
+      :message="decodedData?.errorCode || t('verification.upload.invalidLinkDescription')"
       :details="t('verification.upload.canStillUpload')"
       class="mt-6"
     />

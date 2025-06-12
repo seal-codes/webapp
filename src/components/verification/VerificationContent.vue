@@ -14,7 +14,7 @@ import type { ScanState, VerificationState } from '@/stores/verificationStore'
 
 interface Props {
   uploadedDocument: File;
-  documentPreviewUrl: string;
+  documentPreviewUrl: string | null;
   decodedData: DecodedVerificationData | null;
   verificationResult: VerificationResult | null;
   scanState: ScanState;

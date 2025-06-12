@@ -24,7 +24,7 @@
     "qrcode": "^1.5.3",
     "rxing-wasm": "0.3.6",
     "vue": "^3.4.38",
-    "vue-i18n": "^11.1.5",
+    "vue-i18n": "11.1.5",
     "vue-router": "^4.2.5"
   },
   "devDependencies": {

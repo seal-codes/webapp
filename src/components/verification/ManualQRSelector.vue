@@ -133,7 +133,7 @@ const scanSelectedArea = async () => {
     // Scan the selected area
     const result = await qrReaderService.scanForAttestationData(props.imageFile, imageSelection)
     
-    if (result.found && result.attestationData) {
+    if (result.found && result.attestationData && result.qrLocation) {
       scanResult.value = 'QR code found and decoded successfully!'
       emit('qrFound', {
         attestationData: result.attestationData,

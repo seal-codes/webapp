@@ -30,7 +30,7 @@ export const useVerificationStore = defineStore('verification', () => {
   const isVerifying = computed(() => verificationState.value === 'verifying')
   const scanFailed = computed(() => scanState.value === 'failed' || scanState.value === 'error')
   const canManuallySelect = computed(() => 
-    uploadedDocument.value?.type.startsWith('image/') && 
+    !!uploadedDocument.value?.type.startsWith('image/') && 
     !hasValidData.value && 
     !isScanning.value,
   )
@@ -119,7 +119,7 @@ export const useVerificationStore = defineStore('verification', () => {
         console.log('Decoded attestation data from QR:', scanResult.attestationData)
         
         // Store debug info
-        scanDebugInfo.value = scanResult.debugInfo
+        scanDebugInfo.value = scanResult.debugInfo || null
       } else {
         console.log('No QR code found in automatic scan')
         scanState.value = 'failed'
@@ -151,7 +151,7 @@ export const useVerificationStore = defineStore('verification', () => {
         scanState.value = 'success'
         
         // Store debug info
-        scanDebugInfo.value = result.debugInfo
+        scanDebugInfo.value = result.debugInfo || null
         
         // Proceed with verification
         await verifyDocument()

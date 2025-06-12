@@ -35,7 +35,7 @@ export class DocumentHashService {
     if (document.type.startsWith('image/')) {
       return this.calculateImageHashes(document, exclusionZone)
     } else if (document.type === 'application/pdf') {
-      return this.calculatePdfHashes(document, exclusionZone)
+      return this.calculatePdfHashes(document)
     } else {
       throw new Error('Unsupported document type')
     }
@@ -149,8 +149,9 @@ export class DocumentHashService {
    * @param exclusionZone - Area to exclude from perceptual hash calculation
    * @returns Promise resolving to calculated hashes
    */
-  private async calculateHashesFromImageData(
-    imageData: ImageData, 
+  protected async calculateHashesFromImageData(
+    imageData: ImageData,
+    exclusionZone?: QRCodeExclusionZone,
   ): Promise<DocumentHashes> {
     // Convert ImageData to a format suitable for hashing
     const buffer = await this.imageDataToBuffer(imageData)
@@ -191,7 +192,7 @@ export class DocumentHashService {
   /**
    * Calculate SHA-256 hash of data
    */
-  private async calculateSHA256(data: ArrayBuffer): Promise<string> {
+  protected async calculateSHA256(data: ArrayBuffer): Promise<string> {
     // Use the Web Crypto API to calculate SHA-256
     const hashBuffer = await crypto.subtle.digest('SHA-256', data)
     
@@ -205,7 +206,7 @@ export class DocumentHashService {
    * Calculate perceptual hashes (pHash and dHash) - optimized for QR code size
    * Uses smaller hash sizes to fit in QR codes while maintaining reasonable accuracy
    */
-  private async calculatePerceptualHashes(imageData: ImageData): Promise<{ pHash: string; dHash: string }> {
+  protected async calculatePerceptualHashes(imageData: ImageData): Promise<{ pHash: string; dHash: string }> {
     // Create source canvas from the full ImageData
     const sourceCanvas = document.createElement('canvas')
     const sourceCtx = sourceCanvas.getContext('2d')

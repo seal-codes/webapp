@@ -1,3 +1,5 @@
+/* eslint-disable complexity */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Debug tool to trace verification issues step by step
  */
@@ -121,11 +123,13 @@ export async function debugVerification(document: File, attestationData: any) {
     
   } catch (error) {
     console.error('❌ DEBUG: Error during verification:', error)
-    console.error('Stack trace:', error.stack)
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    const errorStack = error instanceof Error ? error.stack : undefined
+    console.error('Stack trace:', errorStack)
     return {
       success: false,
-      error: error.message,
-      stack: error.stack
+      error: errorMessage,
+      stack: errorStack,
     }
   }
 }

@@ -9,7 +9,7 @@ import { getExclusionZone } from '@/services/verification-service'
 
 interface Props {
   uploadedDocument: File
-  documentPreviewUrl: string
+  documentPreviewUrl: string | null
   decodedData: DecodedVerificationData | null
   canManuallySelect: boolean
 }
