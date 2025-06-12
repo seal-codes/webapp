@@ -14,7 +14,9 @@
     "previous": "Previous",
     "retry": "Retry",
     "howItWorks": "How it works",
-    "privacy": "Privacy"
+    "privacy": "Privacy",
+    "larger": "{percent}% larger",
+    "smaller": "{percent}% smaller"
   },
   "navigation": {
     "home": "Home",
@@ -278,6 +280,58 @@
       "documentModified": "Document has been modified since sealing",
       "sealExpired": "Seal has expired"
     }
+  },
+  "formatConversion": {
+    "title": "Format Converted: {originalFormat} → {finalFormat}",
+    "subtitle": "Your document has been converted to an optimal format for exact verification",
+    "details": "Details",
+    "sections": {
+      "formatChange": {
+        "title": "Format Conversion",
+        "original": "Original",
+        "converted": "Converted"
+      },
+      "sizeImpact": {
+        "title": "File Size Impact",
+        "original": "Original",
+        "sealed": "Sealed",
+        "change": "Change"
+      },
+      "benefits": {
+        "title": "Benefits",
+        "exactVerification": "Exact verification (instead of visual-only)",
+        "pixelPerfect": "Pixel-perfect integrity validation",
+        "cryptographicHash": "Cryptographic hash matching"
+      },
+      "importantInfo": {
+        "title": "Important Information",
+        "message": "Your {originalFormat} image has been converted to {finalFormat} format for optimal verification. {formatSpecific}The sealed document will be {sizeDescription} than the original.\n\n📋 Important: The sealed document is now in {finalFormat} format. If you need to use this document elsewhere, note that it's no longer in the original {originalFormat} format."
+      },
+      "technicalDetails": {
+        "title": "Technical Details",
+        "originalFormat": "Original Format",
+        "finalFormat": "Final Format",
+        "conversionMethod": "Conversion Method",
+        "conversionMethodValue": "Canvas API with lossless settings",
+        "quality": "Quality",
+        "qualityValue": "Lossless (no quality degradation)",
+        "verificationType": "Verification Type",
+        "verificationTypeValue": "Exact cryptographic matching"
+      }
+    },
+    "formatSpecific": {
+      "jpeg": "This ensures exact verification instead of visual-only verification. "
+    },
+    "formats": {
+      "image/jpeg": "JPEG",
+      "image/jpg": "JPEG",
+      "image/png": "PNG",
+      "image/webp": "WebP Lossless",
+      "image/gif": "GIF",
+      "image/bmp": "BMP",
+      "image/tiff": "TIFF"
+    },
+    "acknowledge": "I Understand"
   },
   "errors": {
     "fileTooBig": "File is too large. Maximum size is 10MB.",

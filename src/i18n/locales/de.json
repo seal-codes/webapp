@@ -14,7 +14,9 @@
     "previous": "Vorherige",
     "retry": "Wiederholen",
     "howItWorks": "So funktioniert's",
-    "privacy": "Datenschutz"
+    "privacy": "Datenschutz",
+    "larger": "{percent}% größer",
+    "smaller": "{percent}% kleiner"
   },
   "navigation": {
     "home": "Startseite",
@@ -288,6 +290,58 @@
     "sealingFailed": "Dokumentsiegelung fehlgeschlagen. Bitte versuche es erneut.",
     "networkError": "Netzwerkfehler. Bitte überprüfe deine Verbindung und versuche es erneut.",
     "unexpectedError": "Ein unerwarteter Fehler ist aufgetreten. Bitte versuche es erneut."
+  },
+  "formatConversion": {
+    "title": "Format konvertiert: {originalFormat} → {finalFormat}",
+    "subtitle": "Dein Dokument wurde in ein optimales Format für exakte Verifizierung konvertiert",
+    "details": "Details",
+    "sections": {
+      "formatChange": {
+        "title": "Format-Konvertierung",
+        "original": "Original",
+        "converted": "Konvertiert"
+      },
+      "sizeImpact": {
+        "title": "Auswirkung auf Dateigröße",
+        "original": "Original",
+        "sealed": "Gesiegelt",
+        "change": "Änderung"
+      },
+      "benefits": {
+        "title": "Vorteile",
+        "exactVerification": "Exakte Verifizierung (anstatt nur visuell)",
+        "pixelPerfect": "Pixelgenaue Integritätsprüfung",
+        "cryptographicHash": "Kryptographische Hash-Übereinstimmung"
+      },
+      "importantInfo": {
+        "title": "Wichtige Information",
+        "message": "Dein {originalFormat}-Bild wurde für optimale Verifizierung in das {finalFormat}-Format konvertiert. {formatSpecific}Das gesiegelte Dokument wird {sizeDescription} als das Original sein.\n\n📋 Wichtig: Das gesiegelte Dokument liegt nun im {finalFormat}-Format vor. Falls du dieses Dokument anderweitig verwenden möchtest, beachte, dass es nicht mehr im ursprünglichen {originalFormat}-Format vorliegt."
+      },
+      "technicalDetails": {
+        "title": "Technische Details",
+        "originalFormat": "Ursprüngliches Format",
+        "finalFormat": "Endgültiges Format",
+        "conversionMethod": "Konvertierungsmethode",
+        "conversionMethodValue": "Canvas API mit verlustfreien Einstellungen",
+        "quality": "Qualität",
+        "qualityValue": "Verlustfrei (keine Qualitätsverschlechterung)",
+        "verificationType": "Verifizierungstyp",
+        "verificationTypeValue": "Exakte kryptographische Übereinstimmung"
+      }
+    },
+    "formatSpecific": {
+      "jpeg": "Dies gewährleistet exakte Verifizierung anstatt nur visueller Verifizierung. "
+    },
+    "formats": {
+      "image/jpeg": "JPEG",
+      "image/jpg": "JPEG",
+      "image/png": "PNG",
+      "image/webp": "WebP Verlustfrei",
+      "image/gif": "GIF",
+      "image/bmp": "BMP",
+      "image/tiff": "TIFF"
+    },
+    "acknowledge": "Verstanden"
   },
   "footer": {
     "copyright": "© 2024 seal.codes. Alle Rechte vorbehalten.",
