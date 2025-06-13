@@ -9,7 +9,6 @@ import {
   convert_imagedata_to_luma, 
   DecodeHintDictionary, 
   DecodeHintTypes,
-  type BarcodeResult 
 } from 'rxing-wasm'
 import { verificationService } from './verification-service'
 import { qrAreaDetector } from './qr-area-detector'
@@ -252,11 +251,11 @@ export class QRReaderService {
       
       // Create hints for better QR detection
       const hints = new DecodeHintDictionary()
-      hints.set_hint(DecodeHintTypes.PossibleFormats, "qrcode")
+      hints.set_hint(DecodeHintTypes.PossibleFormats, 'qrcode')
       
       if (tryHarder) {
-        hints.set_hint(DecodeHintTypes.TryHarder, "true")
-        hints.set_hint(DecodeHintTypes.AlsoInverted, "true")
+        hints.set_hint(DecodeHintTypes.TryHarder, 'true')
+        hints.set_hint(DecodeHintTypes.AlsoInverted, 'true')
         
         const result = decode_barcode_with_hints(luma8Data, imageData.width, imageData.height, hints)
         
@@ -267,8 +266,8 @@ export class QRReaderService {
               x: 0, // rxing-wasm doesn't provide exact corner coordinates
               y: 0,
               width: imageData.width,
-              height: imageData.height
-            }
+              height: imageData.height,
+            },
           }
         }
       } else {
@@ -282,8 +281,8 @@ export class QRReaderService {
               x: 0, // rxing-wasm doesn't provide exact corner coordinates
               y: 0,
               width: imageData.width,
-              height: imageData.height
-            }
+              height: imageData.height,
+            },
           }
         }
       }
@@ -370,7 +369,7 @@ export class QRReaderService {
           x: boundedRegion.x,
           y: boundedRegion.y,
           width: boundedRegion.width,
-          height: boundedRegion.height
+          height: boundedRegion.height,
         }
         return qrCode
       }

@@ -7,6 +7,7 @@ import routes from './router'
 import { i18n } from './i18n'
 
 // Start WASM preloading immediately at app startup
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { wasmPreloader } from './services/wasm-preloader'
 console.log('🚀 App startup: WASM preloader initialized')
 

@@ -17,7 +17,7 @@ const router = useRouter()
 const { t } = useI18n()
 const documentStore = useDocumentStore()
 const authStore = useAuthStore()
-const { success, error, info } = useToast()
+const { error } = useToast()
 
 const isDocumentLoaded = computed(() => documentStore.hasDocument)
 const isProcessing = ref(false)
@@ -25,12 +25,12 @@ const isProcessing = ref(false)
 // Use QR position and size from the store
 const qrPosition = computed({
   get: () => documentStore.qrPosition,
-  set: (value: QRCodeUIPosition) => documentStore.updateQRPosition(value)
+  set: (value: QRCodeUIPosition) => documentStore.updateQRPosition(value),
 })
 
 const qrSize = computed({
   get: () => documentStore.qrSizePercent,
-  set: (value: number) => documentStore.updateQRSize(value)
+  set: (value: number) => documentStore.updateQRSize(value),
 })
 
 const handleDocumentLoaded = async (file: File) => {
@@ -156,7 +156,7 @@ watch(
       }
     }
   },
-  { immediate: false } // Don't run immediately, only on changes
+  { immediate: false }, // Don't run immediately, only on changes
 )
 
 // Watch for successful authentication and trigger post-auth flow
@@ -183,7 +183,7 @@ watch(
       }
     }
   },
-  { immediate: true }
+  { immediate: true },
 )
 </script>
 
@@ -234,13 +234,26 @@ watch(
               <!-- Authentication Section - Always Visible -->
               <div class="border-t pt-6">
                 <!-- Already Authenticated -->
-                <div v-if="authStore.isAuthenticated" class="space-y-4">
+                <div
+                  v-if="authStore.isAuthenticated"
+                  class="space-y-4"
+                >
                   <!-- Authentication Status -->
                   <div class="p-4 bg-green-50 border border-green-200 rounded-lg">
                     <div class="flex items-center gap-3">
                       <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
-                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        <svg
+                          class="w-5 h-5 text-white"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M5 13l4 4L19 7"
+                          />
                         </svg>
                       </div>
                       <div>
@@ -255,9 +268,12 @@ watch(
                   </div>
 
                   <!-- Step-based Progress Indicators -->
-                  <div v-if="documentStore.currentStep === 'auth-completed'" class="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                  <div
+                    v-if="documentStore.currentStep === 'auth-completed'"
+                    class="p-4 bg-blue-50 border border-blue-200 rounded-lg"
+                  >
                     <div class="flex items-center gap-3">
-                      <div class="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-blue-500"></div>
+                      <div class="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-blue-500" />
                       <div>
                         <p class="font-medium text-blue-800">
                           {{ t('document.steps.authCompleted') }}
@@ -269,9 +285,12 @@ watch(
                     </div>
                   </div>
 
-                  <div v-else-if="documentStore.currentStep === 'sealing'" class="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                  <div
+                    v-else-if="documentStore.currentStep === 'sealing'"
+                    class="p-4 bg-blue-50 border border-blue-200 rounded-lg"
+                  >
                     <div class="flex items-center gap-3">
-                      <div class="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-blue-500"></div>
+                      <div class="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-blue-500" />
                       <div>
                         <p class="font-medium text-blue-800">
                           {{ t('document.steps.sealing') }}
@@ -284,7 +303,10 @@ watch(
                   </div>
 
                   <!-- Manual Seal Document Button (only show if ready and not processing) -->
-                  <div v-else-if="documentStore.currentStep === 'document-loaded'" class="text-center">
+                  <div
+                    v-else-if="documentStore.currentStep === 'document-loaded'"
+                    class="text-center"
+                  >
                     <BaseButton
                       variant="cta"
                       size="lg"
@@ -300,7 +322,10 @@ watch(
                   </div>
 
                   <!-- Option to Sign Out and Use Different Provider -->
-                  <div v-if="!['auth-completed', 'sealing'].includes(documentStore.currentStep)" class="text-center pt-4 border-t">
+                  <div
+                    v-if="!['auth-completed', 'sealing'].includes(documentStore.currentStep)"
+                    class="text-center pt-4 border-t"
+                  >
                     <p class="text-sm text-gray-600 mb-3">
                       {{ t('document.auth.differentAccount') }}
                     </p>
@@ -317,9 +342,12 @@ watch(
                 <!-- Not Authenticated -->
                 <div v-else>
                   <!-- Show authenticating progress if in that step -->
-                  <div v-if="documentStore.currentStep === 'authenticating'" class="p-4 bg-blue-50 border border-blue-200 rounded-lg mb-4">
+                  <div
+                    v-if="documentStore.currentStep === 'authenticating'"
+                    class="p-4 bg-blue-50 border border-blue-200 rounded-lg mb-4"
+                  >
                     <div class="flex items-center gap-3">
-                      <div class="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-blue-500"></div>
+                      <div class="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-blue-500" />
                       <div>
                         <p class="font-medium text-blue-800">
                           {{ t('document.steps.authenticating') }}

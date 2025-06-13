@@ -80,7 +80,7 @@ export class DocumentHashService {
           const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
           
           // Calculate hashes (pass exclusion zone for perceptual hash awareness)
-          const hashes = await this.calculateHashesFromImageData(imageData, exclusionZone)
+          const hashes = await this.calculateHashesFromImageData(imageData)
           resolve(hashes)
         } catch (error) {
           reject(error)
@@ -151,7 +151,6 @@ export class DocumentHashService {
    */
   protected async calculateHashesFromImageData(
     imageData: ImageData,
-    exclusionZone?: QRCodeExclusionZone,
   ): Promise<DocumentHashes> {
     // Convert ImageData to a format suitable for hashing
     const buffer = await this.imageDataToBuffer(imageData)
@@ -178,7 +177,7 @@ export class DocumentHashService {
       // Node.js canvas or browser with proper TypedArray
       return imageData.data.buffer.slice(
         imageData.data.byteOffset || 0,
-        (imageData.data.byteOffset || 0) + imageData.data.byteLength
+        (imageData.data.byteOffset || 0) + imageData.data.byteLength,
       )
     } else {
       // Fallback: create a new buffer and copy data

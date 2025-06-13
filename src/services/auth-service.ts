@@ -6,7 +6,7 @@
 import { supabase } from './supabase-client'
 import type { User, Session, AuthError } from '@supabase/supabase-js'
 import type { Provider } from '@supabase/supabase-js'
-import { OAuthProviderError, type ErrorResult } from '@/types/errors'
+import { OAuthProviderError } from '@/types/errors'
 
 export interface AuthUser {
   id: string
@@ -47,8 +47,8 @@ export class AuthService {
           redirectTo,
           // Add query parameter to indicate this is a sealing flow
           queryParams: {
-            flow: 'seal-document'
-          }
+            flow: 'seal-document',
+          },
         },
       })
 
@@ -116,8 +116,8 @@ export class AuthService {
           redirectTo,
           // Add query parameter to indicate this is a sealing flow
           queryParams: {
-            flow: 'seal-document'
-          }
+            flow: 'seal-document',
+          },
         },
       })
 
@@ -238,8 +238,8 @@ export class AuthService {
         error: { 
           message: error instanceof Error ? error.message : 'Unknown error',
           name: 'UnknownError',
-          status: 500
-        } as AuthError 
+          status: 500,
+        } as AuthError, 
       }
     }
   }
@@ -261,7 +261,7 @@ export class AuthService {
         } else {
           callback(null)
         }
-      }
+      },
     )
 
     // Return unsubscribe function

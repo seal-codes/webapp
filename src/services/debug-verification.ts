@@ -118,7 +118,7 @@ export async function debugVerification(document: File, attestationData: any) {
         cryptographic: cryptographicMatch,
         pHash: pHashMatch,
         dHash: dHashMatch,
-      }
+      },
     }
     
   } catch (error) {

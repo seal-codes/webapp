@@ -2,7 +2,7 @@
  * Test for WASM waiting functionality
  */
 
-import { describe, it, expect, beforeAll, vi } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { webcrypto } from 'node:crypto'
 
 // Mock crypto for Node.js environment
@@ -22,10 +22,12 @@ Object.defineProperty(globalThis, 'Image', {
     constructor() {
       // Simulate async image loading
       setTimeout(() => {
-        if (this.onload) this.onload()
+        if (this.onload) {
+          this.onload()
+        }
       }, 10)
     }
-  }
+  },
 })
 
 Object.defineProperty(globalThis, 'HTMLCanvasElement', {
@@ -39,14 +41,14 @@ Object.defineProperty(globalThis, 'HTMLCanvasElement', {
         getImageData: vi.fn(() => ({
           data: new Uint8ClampedArray(100 * 100 * 4),
           width: 100,
-          height: 100
+          height: 100,
         })),
         putImageData: vi.fn(),
         fillRect: vi.fn(),
-        fillStyle: '#000000'
+        fillStyle: '#000000',
       }
     }
-  }
+  },
 })
 
 Object.defineProperty(globalThis, 'document', {
@@ -56,8 +58,8 @@ Object.defineProperty(globalThis, 'document', {
         return new (globalThis as any).HTMLCanvasElement()
       }
       return {}
-    }
-  }
+    },
+  },
 })
 
 describe('WASM Waiting Functionality', () => {
@@ -72,7 +74,7 @@ describe('WASM Waiting Functionality', () => {
     console.log('Initial WASM state:', {
       isLoaded: initialState.isLoaded,
       isLoading: initialState.isLoading,
-      startupEnabled: wasmPreloader.getMetrics().startupLoadingEnabled
+      startupEnabled: wasmPreloader.getMetrics().startupLoadingEnabled,
     })
     
     // In test environment, WASM loading should be disabled
@@ -128,7 +130,7 @@ describe('WASM Waiting Functionality', () => {
     // Test with waitForWasm disabled (should be fast)
     const fastStart = Date.now()
     const fastResult = await service.scanImageForQR(mockFile, undefined, { 
-      waitForWasm: false 
+      waitForWasm: false, 
     })
     const fastTime = Date.now() - fastStart
     
@@ -136,14 +138,14 @@ describe('WASM Waiting Functionality', () => {
     console.log('Fast scan result:', {
       found: fastResult.found,
       engine: fastResult.debugInfo?.usedEngine,
-      wasmWaitTime: fastResult.debugInfo?.wasmWaitTime
+      wasmWaitTime: fastResult.debugInfo?.wasmWaitTime,
     })
     
     // Test with waitForWasm enabled but short timeout
     const waitStart = Date.now()
     const waitResult = await service.scanImageForQR(mockFile, undefined, { 
       waitForWasm: true,
-      wasmTimeout: 100
+      wasmTimeout: 100,
     })
     const waitTime = Date.now() - waitStart
     
@@ -151,7 +153,7 @@ describe('WASM Waiting Functionality', () => {
     console.log('Wait scan result:', {
       found: waitResult.found,
       engine: waitResult.debugInfo?.usedEngine,
-      wasmWaitTime: waitResult.debugInfo?.wasmWaitTime
+      wasmWaitTime: waitResult.debugInfo?.wasmWaitTime,
     })
     
     // Both should work but with different timing characteristics

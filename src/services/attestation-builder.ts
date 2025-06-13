@@ -6,7 +6,7 @@
 import { providers } from '@/types/auth'
 import type { AttestationData, QRCodeExclusionZone } from '@/types/qrcode'
 import type { Provider } from '@/types/auth'
-import type { SignedAttestationPackage, AttestationPackage, SigningResponse } from './signing-service'
+import type { AttestationPackage, SigningResponse } from './signing-service'
 
 /**
  * Input data for building attestation
@@ -108,7 +108,7 @@ export class AttestationBuilder {
    */
   combineWithServerSignature(
     clientPackage: AttestationPackage,
-    serverResponse: SigningResponse
+    serverResponse: SigningResponse,
   ): AttestationData {
     const provider = providers.find((p: Provider) => p.id === clientPackage.identity.provider)
     

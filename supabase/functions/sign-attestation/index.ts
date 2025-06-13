@@ -1,4 +1,4 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const corsHeaders = {
@@ -56,8 +56,8 @@ serve(async (req) => {
       JSON.stringify({ error: 'Method not allowed' }),
       { 
         status: 405, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      }
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      },
     )
   }
 
@@ -72,7 +72,7 @@ serve(async (req) => {
     console.log('📋 Environment check:', {
       hasSupabaseUrl: !!supabaseUrl,
       hasServiceKey: !!supabaseServiceKey,
-      hasAnonKey: !!supabaseAnonKey
+      hasAnonKey: !!supabaseAnonKey,
     })
     
     if (!supabaseUrl || !supabaseServiceKey || !supabaseAnonKey) {
@@ -81,8 +81,8 @@ serve(async (req) => {
         JSON.stringify({ error: 'Server configuration error: Missing Supabase configuration' }),
         { 
           status: 500, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        }
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        },
       )
     }
     
@@ -100,8 +100,8 @@ serve(async (req) => {
         JSON.stringify({ error: 'Missing authorization header' }),
         { 
           status: 401, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        }
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        },
       )
     }
 
@@ -109,7 +109,7 @@ serve(async (req) => {
     
     // Verify the user's session using anon key client
     const { data: { user }, error: authError } = await supabaseAuth.auth.getUser(
-      authHeader.replace('Bearer ', '')
+      authHeader.replace('Bearer ', ''),
     )
 
     if (authError || !user) {
@@ -118,8 +118,8 @@ serve(async (req) => {
         JSON.stringify({ error: 'Invalid authentication token' }),
         { 
           status: 401, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        }
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        },
       )
     }
 
@@ -131,7 +131,7 @@ serve(async (req) => {
       provider: attestationPackage.identity.provider,
       identifier: attestationPackage.identity.identifier,
       hasHashes: !!attestationPackage.hashes,
-      hasExclusionZone: !!attestationPackage.exclusionZone
+      hasExclusionZone: !!attestationPackage.exclusionZone,
     })
 
     // Validate that the identity in the package matches the authenticated user
@@ -142,19 +142,19 @@ serve(async (req) => {
       userEmail,
       userProvider,
       packageEmail: attestationPackage.identity.identifier,
-      packageProvider: attestationPackage.identity.provider
+      packageProvider: attestationPackage.identity.provider,
     })
 
     if (attestationPackage.identity.identifier !== userEmail) {
       console.error('❌ Identity mismatch: email')
       return new Response(
         JSON.stringify({ 
-          error: 'Identity mismatch: attestation package identity does not match authenticated user' 
+          error: 'Identity mismatch: attestation package identity does not match authenticated user', 
         }),
         { 
           status: 403, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        }
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        },
       )
     }
 
@@ -162,12 +162,12 @@ serve(async (req) => {
       console.error('❌ Identity mismatch: provider')
       return new Response(
         JSON.stringify({ 
-          error: 'Provider mismatch: attestation package provider does not match authenticated user' 
+          error: 'Provider mismatch: attestation package provider does not match authenticated user', 
         }),
         { 
           status: 403, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        }
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        },
       )
     }
 
@@ -184,12 +184,12 @@ serve(async (req) => {
       return new Response(
         JSON.stringify({ 
           error: 'Server configuration error: No active signing key available',
-          details: keyError?.message || 'No active keys found'
+          details: keyError?.message || 'No active keys found',
         }),
         { 
           status: 500, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        }
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        },
       )
     }
 
@@ -198,7 +198,7 @@ serve(async (req) => {
       keyId: signingKey.key_id,
       algorithm: signingKey.algorithm,
       hasPrivateKey: !!signingKey.private_key,
-      hasPublicKey: !!signingKey.public_key
+      hasPublicKey: !!signingKey.public_key,
     })
 
     // Add server timestamp and public key ID
@@ -208,8 +208,8 @@ serve(async (req) => {
       ...attestationPackage,
       timestamp,
       serviceInfo: {
-        publicKeyId: signingKey.key_id
-      }
+        publicKeyId: signingKey.key_id,
+      },
     }
 
     console.log('📝 Package prepared for signing with timestamp:', timestamp)
@@ -239,14 +239,14 @@ serve(async (req) => {
           name: 'Ed25519',
         },
         false,
-        ['sign']
+        ['sign'],
       )
 
       // Sign the data
       const signatureBytes = await crypto.subtle.sign(
         'Ed25519',
         privateKey,
-        dataBytes
+        dataBytes,
       )
 
       // Convert signature to base64
@@ -265,7 +265,7 @@ serve(async (req) => {
         timestamp,
         signature,
         publicKey: publicKeyData, // Base64 encoded public key
-        publicKeyId: signingKey.key_id
+        publicKeyId: signingKey.key_id,
       }
 
       console.log('🎉 Signing completed successfully')
@@ -273,8 +273,8 @@ serve(async (req) => {
       return new Response(
         JSON.stringify(response),
         { 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        }
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        },
       )
 
     } catch (cryptoError) {
@@ -290,7 +290,7 @@ serve(async (req) => {
         timestamp,
         signature: mockSignature,
         publicKey: mockPublicKey,
-        publicKeyId: signingKey.key_id
+        publicKeyId: signingKey.key_id,
       }
 
       console.log('✅ Mock signature generated as fallback')
@@ -298,8 +298,8 @@ serve(async (req) => {
       return new Response(
         JSON.stringify(response),
         { 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        }
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        },
       )
     }
 
@@ -310,19 +310,19 @@ serve(async (req) => {
     const errorDetails = {
       message: error instanceof Error ? error.message : 'Unknown error',
       stack: error instanceof Error ? error.stack : undefined,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     }
     
     return new Response(
       JSON.stringify({ 
         error: 'Internal server error',
         details: errorDetails.message,
-        timestamp: errorDetails.timestamp
+        timestamp: errorDetails.timestamp,
       }),
       { 
         status: 500, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      }
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      },
     )
   }
 })

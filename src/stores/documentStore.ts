@@ -1,6 +1,5 @@
 import { defineStore } from 'pinia'
 import { ref, computed, watch } from 'vue'
-import { useLocalStorage } from '@vueuse/core'
 import { PDFDocument } from 'pdf-lib'
 import { qrCodeUICalculator } from '@/services/qrcode-ui-calculator'
 import { attestationBuilder } from '@/services/attestation-builder'
@@ -68,7 +67,7 @@ const deserializeFile = (serializedFile: any): File => {
       throw new Error('Invalid serialized file structure')
     }
     
-    const { name, type, size, lastModified, data } = serializedFile
+    const { name, type, lastModified, data } = serializedFile
     
     if (!name || !type || !data) {
       throw new Error('Missing required file properties')
@@ -283,8 +282,6 @@ export const useDocumentStore = defineStore('document', () => {
   })
   
   // Processing state
-  const isSealing = ref(false)
-  const sealingError = ref<string | null>(null)
   const needsDocumentReupload = ref(false)
   
   // Format conversion state

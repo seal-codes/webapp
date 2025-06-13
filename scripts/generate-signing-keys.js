@@ -18,7 +18,7 @@ async function generateEd25519KeyPair() {
         name: 'Ed25519',
       },
       true, // extractable
-      ['sign', 'verify']
+      ['sign', 'verify'],
     )
 
     // Export private key

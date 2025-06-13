@@ -107,9 +107,9 @@ onMounted(() => {
         </p>
       </div>
       <button
-        @click="handleClose"
         class="flex-shrink-0 ml-2 p-1 rounded-md hover:bg-black hover:bg-opacity-10 transition-colors"
         :class="colorClasses.icon"
+        @click="handleClose"
       >
         <X class="w-4 h-4" />
       </button>
