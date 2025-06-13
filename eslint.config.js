@@ -71,6 +71,25 @@ export default [
     },
   },
   {
+    // Test files configuration - more lenient rules
+    files: [
+      '**/*.test.ts',
+      '**/*.test.js',
+      '**/*.spec.ts',
+      '**/*.spec.js',
+      '**/test-*.ts',
+      '**/test-*.js',
+      'test-setup.ts',
+      '**/tests/**/*.ts',
+      '**/tests/**/*.js',
+    ],
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'warn', // Allow any in tests but warn
+      'complexity': 'off', // Allow complex test functions
+      'max-params': 'off', // Allow many parameters in test functions
+    },
+  },
+  {
     ignores: [
       'dist/**',
       'node_modules/**',

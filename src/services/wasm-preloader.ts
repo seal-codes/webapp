@@ -85,7 +85,7 @@ export class WasmPreloader {
   /**
    * Load the WASM module
    */
-  private async loadWasmModule(): Promise<any> {
+  private async loadWasmModule(): Promise<RxingWasmModule> {
     return await import('rxing-wasm')
   }
 
@@ -96,7 +96,7 @@ export class WasmPreloader {
     isLoaded: boolean
     isLoading: boolean
     loadTime?: number
-    module?: any
+    module?: RxingWasmModule | null
     } {
     return {
       isLoaded: !!rxingWasm,
@@ -112,7 +112,7 @@ export class WasmPreloader {
    * 
    * @param timeoutMs - Maximum time to wait in milliseconds (default: 5000)
    */
-  async waitForWasm(timeoutMs: number = 5000): Promise<any> {
+  async waitForWasm(timeoutMs: number = 5000): Promise<RxingWasmModule> {
     if (rxingWasm) {
       return rxingWasm // Already loaded
     }
@@ -182,7 +182,7 @@ export const wasmGlobals = {
   /**
    * Get the loaded WASM module (null if not loaded)
    */
-  getRxingWasm(): any {
+  getRxingWasm(): RxingWasmModule | null {
     return rxingWasm
   },
 
@@ -198,7 +198,7 @@ export const wasmGlobals = {
    * 
    * @param timeoutMs - Maximum time to wait in milliseconds (default: 5000)
    */
-  async waitForWasm(timeoutMs: number = 5000): Promise<any> {
+  async waitForWasm(timeoutMs: number = 5000): Promise<RxingWasmModule | null> {
     if (rxingWasm) {
       return rxingWasm
     }
@@ -231,7 +231,7 @@ export const wasmGlobals = {
   /**
    * Set WASM module (used by hybrid services for compatibility)
    */
-  setRxingWasm(module: any): void {
+  setRxingWasm(module: RxingWasmModule | null): void {
     rxingWasm = module
   },
 

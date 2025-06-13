@@ -73,7 +73,7 @@ const deserializeFile = (serializedFile: unknown): File => {
     throw new Error('Invalid serialized file structure')
   }
 
-  const { name, type, lastModified, data } = serializedFile as any
+  const { name, type, lastModified, data } = serializedFile as Record<string, unknown>
 
   if (!name || !type || !data || typeof data !== 'string') {
     throw new Error('Invalid file data')
