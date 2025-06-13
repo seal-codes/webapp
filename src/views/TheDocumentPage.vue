@@ -51,14 +51,11 @@ const handleDocumentLoaded = async (file: File) => {
 
 const handleAuthenticateAndSeal = async (provider: string) => {
   if (!documentStore.hasDocument) {
-    error(t('Please load a document first'))
     return
   }
 
   isProcessing.value = true
   try {
-    info(t('Redirecting to authentication...'))
-    
     // This will save the current state and redirect to OAuth
     await documentStore.authenticateWith(provider)
     
@@ -84,18 +81,16 @@ const handleAuthenticateAndSeal = async (provider: string) => {
 
 const handleManualSeal = async () => {
   if (!documentStore.hasDocument || !authStore.isAuthenticated) {
-    error(t('Document and authentication required'))
     return
   }
 
   isProcessing.value = true
   try {
-    info(t('Sealing your document...'))
-    
     const documentId = await documentStore.sealDocument()
     
-    success(t('Document sealed successfully!'))
-    router.push(`/sealed/${documentId}`)
+    if (documentId) {
+      router.push(`/sealed/${documentId}`)
+    }
     
   } catch (err) {
     console.error('Manual sealing error:', err)
@@ -122,24 +117,57 @@ const updateQrSize = (size: number) => {
   documentStore.updateQRSize(size)
 }
 
-// Watch for successful authentication and handle post-auth flow
+// Watch for step changes to handle automatic sealing
+watch(
+  () => documentStore.currentStep,
+  async (newStep, oldStep) => {
+    console.log('📊 Document step changed:', oldStep, '→', newStep)
+    
+    if (newStep === 'auth-completed') {
+      // Authentication just completed, automatically seal the document
+      console.log('🔄 Auto-sealing document after authentication...')
+      
+      try {
+        // Call sealDocument directly instead of going through handlePostAuthFlow
+        const documentId = await documentStore.sealDocument()
+        
+        if (documentId) {
+          router.push(`/sealed/${documentId}`)
+        }
+        
+      } catch (err) {
+        console.error('Auto-sealing error:', err)
+        if (err instanceof CodedError) {
+          error(t(`errors.${err.code}`))
+        } else {
+          error('Failed to seal document automatically')
+        }
+      }
+    }
+  },
+  { immediate: false } // Don't run immediately, only on changes
+)
+
+// Watch for successful authentication and trigger post-auth flow
 watch(
   () => authStore.isAuthenticated,
   async (isAuthenticated) => {
     if (isAuthenticated) {
-      console.log('🎉 User authenticated, checking for post-auth flow...')
-      try {
-        const documentId = await documentStore.handlePostAuthFlow()
-        if (documentId) {
-          success(t('Document sealed successfully!'))
-          router.push(`/sealed/${documentId}`)
-        }
-      } catch (err) {
-        console.error('Post-auth flow error:', err)
-        if (err instanceof CodedError) {
-          error(t(`errors.${err.code}`))
-        } else {
-          error(t('errors.document_seal_failed'))
+      console.log('🎉 User authenticated, checking current step:', documentStore.currentStep)
+      
+      // If we're in authenticating state, trigger post-auth flow
+      if (documentStore.currentStep === 'authenticating') {
+        console.log('🔄 Triggering post-auth flow from auth watcher...')
+        try {
+          await documentStore.handlePostAuthFlow()
+          // The step watcher will handle the actual sealing
+        } catch (err) {
+          console.error('Post-auth flow error:', err)
+          if (err instanceof CodedError) {
+            error(t(`errors.${err.code}`))
+          } else {
+            error('Post-authentication flow failed')
+          }
         }
       }
     }
@@ -206,17 +234,46 @@ watch(
                       </div>
                       <div>
                         <p class="font-medium text-green-800">
-                          Authenticated as {{ authStore.userName }}
+                          {{ t('document.auth.authenticated', { name: authStore.userName }) }}
                         </p>
                         <p class="text-sm text-green-600">
-                          via {{ authStore.authProvider }}
+                          {{ t('document.auth.via', { provider: authStore.authProvider }) }}
                         </p>
                       </div>
                     </div>
                   </div>
 
-                  <!-- Seal Document Button -->
-                  <div class="text-center">
+                  <!-- Step-based Progress Indicators -->
+                  <div v-if="documentStore.currentStep === 'auth-completed'" class="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <div class="flex items-center gap-3">
+                      <div class="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-blue-500"></div>
+                      <div>
+                        <p class="font-medium text-blue-800">
+                          {{ t('document.steps.authCompleted') }}
+                        </p>
+                        <p class="text-sm text-blue-600">
+                          {{ t('document.steps.sealingDetails') }}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div v-else-if="documentStore.currentStep === 'sealing'" class="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <div class="flex items-center gap-3">
+                      <div class="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-blue-500"></div>
+                      <div>
+                        <p class="font-medium text-blue-800">
+                          {{ t('document.steps.sealing') }}
+                        </p>
+                        <p class="text-sm text-blue-600">
+                          {{ t('document.steps.sealingDetails') }}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Manual Seal Document Button (only show if ready and not processing) -->
+                  <div v-else-if="documentStore.currentStep === 'document-loaded'" class="text-center">
                     <BaseButton
                       variant="cta"
                       size="lg"
@@ -224,38 +281,53 @@ watch(
                       :disabled="isProcessing"
                       @click="handleManualSeal"
                     >
-                      🔒 Seal This Document
+                      {{ t('document.auth.sealButton') }}
                     </BaseButton>
                     <p class="text-sm text-gray-600 mt-2">
-                      This will create a permanent seal with your current authentication
+                      {{ t('document.auth.sealDescription') }}
                     </p>
                   </div>
 
                   <!-- Option to Sign Out and Use Different Provider -->
-                  <div class="text-center pt-4 border-t">
+                  <div v-if="!['auth-completed', 'sealing'].includes(documentStore.currentStep)" class="text-center pt-4 border-t">
                     <p class="text-sm text-gray-600 mb-3">
-                      Want to use a different account?
+                      {{ t('document.auth.differentAccount') }}
                     </p>
                     <BaseButton
                       variant="outline"
                       size="sm"
                       @click="authStore.signOut"
                     >
-                      Sign Out & Choose Different Account
+                      {{ t('document.auth.signOut') }}
                     </BaseButton>
                   </div>
                 </div>
 
                 <!-- Not Authenticated -->
                 <div v-else>
+                  <!-- Show authenticating progress if in that step -->
+                  <div v-if="documentStore.currentStep === 'authenticating'" class="p-4 bg-blue-50 border border-blue-200 rounded-lg mb-4">
+                    <div class="flex items-center gap-3">
+                      <div class="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-blue-500"></div>
+                      <div>
+                        <p class="font-medium text-blue-800">
+                          {{ t('document.steps.authenticating') }}
+                        </p>
+                        <p class="text-sm text-blue-600">
+                          Please complete authentication in the new window
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
                   <h3 class="text-xl font-medium mb-3">
                     {{ t("document.controls.authenticateWith") }}
                   </h3>
                   <p class="text-gray-600 mb-4">
-                    Choose how you want to authenticate your identity for this seal:
+                    {{ t('document.auth.chooseProvider') }}
                   </p>
                   <SocialAuthSelector
-                    :is-processing="isProcessing"
+                    :is-processing="isProcessing || documentStore.currentStep === 'authenticating'"
                     @provider-selected="handleAuthenticateAndSeal"
                   />
                 </div>

@@ -10,10 +10,10 @@ const authStore = useAuthStore()
 const documentStore = useDocumentStore()
 
 onMounted(async () => {
-  // Initialize authentication state (check for existing session)
+  // Initialize authentication state first (check for existing session)
   await authStore.initializeAuth()
   
-  // Initialize document store (restore from localStorage if available)
+  // Then initialize document store (which can now check auth state)
   await documentStore.initialize()
 })
 </script>
