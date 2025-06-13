@@ -115,7 +115,7 @@ onMounted(async () => {
           :src="provider.icon_url"
           :alt="provider.name"
           class="w-8 h-8 object-contain mb-2"
-          @error="$event.target.style.display = 'none'"
+          @error="($event.target as HTMLElement).style.display = 'none'"
         >
         <div
           v-else
