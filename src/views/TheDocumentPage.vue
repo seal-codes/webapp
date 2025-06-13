@@ -214,8 +214,8 @@ watch(
                   :qr-size-percent="qrSize"
                   :has-qr="false"
                   :attestation-data="documentStore.currentAttestationData"
-                  :auth-provider="documentStore.authProvider || undefined"
-                  :user-name="documentStore.userName || undefined"
+                  :auth-provider="authStore.authProvider || undefined"
+                  :user-name="authStore.userName || undefined"
                   @position-updated="updateQrPosition"
                   @size-updated="updateQrSize"
                 />

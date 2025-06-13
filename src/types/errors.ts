@@ -14,6 +14,9 @@ export type DocumentErrorCode =
   | 'document_processing_failed'
   | 'unsupported_format'
   | 'file_too_large'
+  | 'document_required'
+  | 'invalid_step'
+  | 'document_mismatch'
 
 export type ErrorCode = AuthErrorCode | DocumentErrorCode
 
