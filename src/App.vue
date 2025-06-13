@@ -1,10 +1,20 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
+import { useAuthStore } from '@/stores/authStore'
+import { useDocumentStore } from '@/stores/documentStore'
 import TheNavbar from './components/layout/TheNavbar.vue'
 import TheFooter from './components/layout/TheFooter.vue'
+import ToastContainer from './components/common/ToastContainer.vue'
 
-onMounted(() => {
-  // Initialize any global app logic here
+const authStore = useAuthStore()
+const documentStore = useDocumentStore()
+
+onMounted(async () => {
+  // Initialize authentication state (check for existing session)
+  await authStore.initializeAuth()
+  
+  // Initialize document store (restore from localStorage if available)
+  await documentStore.initialize()
 })
 </script>
 
@@ -25,5 +35,8 @@ onMounted(() => {
     </main>
     
     <TheFooter />
+    
+    <!-- Global Toast Container -->
+    <ToastContainer />
   </div>
 </template>

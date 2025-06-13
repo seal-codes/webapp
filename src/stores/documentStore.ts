@@ -1,29 +1,244 @@
 import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
+import { useLocalStorage } from '@vueuse/core'
 import { PDFDocument } from 'pdf-lib'
 import { qrCodeUICalculator } from '@/services/qrcode-ui-calculator'
 import { attestationBuilder } from '@/services/attestation-builder'
 import { qrSealRenderer } from '@/services/qr-seal-renderer'
 import { documentHashService } from '@/services/document-hash-service'
 import { formatConversionService, type FormatConversionResult } from '@/services/format-conversion-service'
+import { signingService } from '@/services/signing-service'
+import { CodedError } from '@/types/errors'
 import type { QRCodeUIPosition, AttestationData } from '@/types/qrcode'
+import { useAuthStore } from './authStore'
 
 // Unique ID generation for documents
 const generateUniqueId = () => {
   return Date.now().toString(36) + Math.random().toString(36).substring(2)
 }
 
+// Helper function to convert File to serializable format
+const serializeFile = async (file: File): Promise<any> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => {
+      try {
+        const result = reader.result as string
+        
+        // Validate that we got a data URL
+        if (!result || !result.startsWith('data:')) {
+          throw new Error('Invalid data URL from FileReader')
+        }
+        
+        // Split the data URL to get just the base64 part
+        const parts = result.split(',')
+        if (parts.length !== 2) {
+          throw new Error('Invalid data URL format')
+        }
+        
+        const base64Data = parts[1]
+        
+        // Validate base64 data
+        if (!base64Data || base64Data.length === 0) {
+          throw new Error('Empty base64 data')
+        }
+        
+        resolve({
+          name: file.name,
+          type: file.type,
+          size: file.size,
+          lastModified: file.lastModified,
+          data: base64Data,
+          timestamp: Date.now(),
+        })
+      } catch (error) {
+        reject(error)
+      }
+    }
+    reader.onerror = () => reject(new Error('FileReader error'))
+    reader.readAsDataURL(file)
+  })
+}
+
+// Helper function to deserialize File from localStorage
+const deserializeFile = (serializedFile: any): File => {
+  try {
+    // Validate serialized file structure
+    if (!serializedFile || typeof serializedFile !== 'object') {
+      throw new Error('Invalid serialized file structure')
+    }
+    
+    const { name, type, size, lastModified, data } = serializedFile
+    
+    if (!name || !type || !data) {
+      throw new Error('Missing required file properties')
+    }
+    
+    // Validate base64 data before attempting to decode
+    if (typeof data !== 'string' || data.length === 0) {
+      throw new Error('Invalid base64 data')
+    }
+    
+    // Test if the base64 string is valid by attempting to decode a small part
+    try {
+      atob(data.substring(0, Math.min(100, data.length)))
+    } catch (error) {
+      throw new Error('Invalid base64 encoding')
+    }
+    
+    // Convert base64 back to binary data
+    const binaryString = atob(data)
+    const bytes = new Uint8Array(binaryString.length)
+    for (let i = 0; i < binaryString.length; i++) {
+      bytes[i] = binaryString.charCodeAt(i)
+    }
+    
+    return new File([bytes], name, {
+      type,
+      lastModified: lastModified || Date.now(),
+    })
+  } catch (error) {
+    console.error('Error deserializing file:', error)
+    throw new Error(`Failed to deserialize file: ${error instanceof Error ? error.message : 'Unknown error'}`)
+  }
+}
+
 export const useDocumentStore = defineStore('document', () => {
-  // State
+  // Get auth store for authentication state
+  const authStore = useAuthStore()
+  
+  // Persistent state using manual localStorage management
+  const persistedDocumentData = ref<any>(null)
+  const persistedQRPosition = ref<QRCodeUIPosition>({ x: 85, y: 15 })
+  const persistedQRSize = ref<number>(20)
+  const persistedOAuthState = ref<any>(null)
+  
+  // Load initial values from localStorage
+  const loadFromLocalStorage = () => {
+    // Clean up any corrupted data first
+    const docData = localStorage.getItem('seal-codes-document')
+    if (docData === '[object Object]') {
+      console.log('🧹 Cleaning up corrupted document data')
+      localStorage.removeItem('seal-codes-document')
+    }
+    
+    const oauthData = localStorage.getItem('seal-codes-oauth-state')
+    if (oauthData === '[object Object]') {
+      console.log('🧹 Cleaning up corrupted OAuth state data')
+      localStorage.removeItem('seal-codes-oauth-state')
+    }
+    
+    try {
+      const cleanDocData = localStorage.getItem('seal-codes-document')
+      if (cleanDocData && cleanDocData !== 'null') {
+        persistedDocumentData.value = JSON.parse(cleanDocData)
+        console.log('📥 Loaded document data from localStorage')
+      }
+    } catch (error) {
+      console.warn('Failed to load document data from localStorage:', error)
+      localStorage.removeItem('seal-codes-document')
+    }
+    
+    try {
+      const qrPos = localStorage.getItem('seal-codes-qr-position')
+      if (qrPos && qrPos !== 'null') {
+        persistedQRPosition.value = JSON.parse(qrPos)
+      }
+    } catch (error) {
+      console.warn('Failed to load QR position from localStorage:', error)
+    }
+    
+    try {
+      const qrSize = localStorage.getItem('seal-codes-qr-size')
+      if (qrSize && qrSize !== 'null') {
+        persistedQRSize.value = JSON.parse(qrSize)
+      }
+    } catch (error) {
+      console.warn('Failed to load QR size from localStorage:', error)
+    }
+    
+    try {
+      const cleanOauthData = localStorage.getItem('seal-codes-oauth-state')
+      if (cleanOauthData && cleanOauthData !== 'null') {
+        persistedOAuthState.value = JSON.parse(cleanOauthData)
+        console.log('📥 Loaded OAuth state from localStorage')
+      }
+    } catch (error) {
+      console.warn('Failed to load OAuth state from localStorage:', error)
+      localStorage.removeItem('seal-codes-oauth-state')
+    }
+  }
+  
+  // Save to localStorage when values change
+  watch(persistedDocumentData, (newValue) => {
+    try {
+      if (newValue === null) {
+        localStorage.removeItem('seal-codes-document')
+      } else {
+        localStorage.setItem('seal-codes-document', JSON.stringify(newValue))
+      }
+    } catch (error) {
+      console.error('Failed to save document data to localStorage:', error)
+    }
+  })
+  
+  watch(persistedQRPosition, (newValue) => {
+    try {
+      localStorage.setItem('seal-codes-qr-position', JSON.stringify(newValue))
+    } catch (error) {
+      console.error('Failed to save QR position to localStorage:', error)
+    }
+  })
+  
+  watch(persistedQRSize, (newValue) => {
+    try {
+      localStorage.setItem('seal-codes-qr-size', JSON.stringify(newValue))
+    } catch (error) {
+      console.error('Failed to save QR size to localStorage:', error)
+    }
+  })
+  
+  watch(persistedOAuthState, (newValue) => {
+    try {
+      if (newValue === null) {
+        localStorage.removeItem('seal-codes-oauth-state')
+      } else {
+        localStorage.setItem('seal-codes-oauth-state', JSON.stringify(newValue))
+      }
+    } catch (error) {
+      console.error('Failed to save OAuth state to localStorage:', error)
+    }
+  })
+  
+  // Reactive state
   const uploadedDocument = ref<File | null>(null)
   const documentType = ref<'pdf' | 'image' | null>(null)
   const documentId = ref<string>('')
   const documentPreviewUrl = ref<string>('')
   const sealedDocumentUrl = ref<string>('')
   const sealedDocumentBlob = ref<Blob | null>(null)
-  const isAuthenticated = ref(false)
-  const authProvider = ref<string | null>(null)
-  const userName = ref<string | null>(null)
+  
+  // QR positioning state (synced with localStorage)
+  const qrPosition = computed({
+    get: () => persistedQRPosition.value,
+    set: (value: QRCodeUIPosition) => {
+      persistedQRPosition.value = value
+      console.log('📍 QR position updated:', value)
+    }
+  })
+  
+  const qrSizePercent = computed({
+    get: () => persistedQRSize.value,
+    set: (value: number) => {
+      persistedQRSize.value = value
+      console.log('📏 QR size updated:', value)
+    }
+  })
+  
+  // Processing state
+  const isSealing = ref(false)
+  const sealingError = ref<string | null>(null)
+  const needsDocumentReupload = ref(false)
   
   // Format conversion state
   const formatConversionResult = ref<FormatConversionResult | null>(null)
@@ -32,8 +247,9 @@ export const useDocumentStore = defineStore('document', () => {
   // Getters
   const hasDocument = computed(() => uploadedDocument.value !== null)
   const fileName = computed(() => uploadedDocument.value?.name || '')
+  
   const currentAttestationData = computed((): AttestationData | undefined => {
-    if (!isAuthenticated.value || !authProvider.value || !userName.value) {
+    if (!authStore.isAuthenticated || !authStore.authProvider || !authStore.userEmail) {
       return undefined
     }
     
@@ -45,58 +261,253 @@ export const useDocumentStore = defineStore('document', () => {
     }
   })
   
+  // Watch for document changes and persist to localStorage
+  watch(uploadedDocument, async (newDoc, oldDoc) => {
+    console.log('👀 Document watcher triggered:', {
+      newDoc: newDoc ? `${newDoc.name} (${newDoc.size} bytes)` : 'null',
+      oldDoc: oldDoc ? `${oldDoc.name} (${oldDoc.size} bytes)` : 'null'
+    })
+    
+    if (newDoc) {
+      try {
+        console.log('💾 Watcher: Persisting document to localStorage...', newDoc.name, newDoc.size)
+        
+        // Check file size before serialization (localStorage has ~5-10MB limit)
+        const maxStorageSize = 5 * 1024 * 1024 // 5MB limit for localStorage
+        if (newDoc.size > maxStorageSize) {
+          console.warn('⚠️ Watcher: Document too large for localStorage, skipping persistence')
+          return
+        }
+        
+        const serialized = await serializeFile(newDoc)
+        persistedDocumentData.value = serialized
+        console.log('✅ Watcher: Document persisted successfully')
+        
+        // Verify it was actually stored
+        const stored = localStorage.getItem('seal-codes-document')
+        console.log('🔍 Watcher verification - localStorage contains document data:', !!stored)
+      } catch (error) {
+        console.error('❌ Watcher: Failed to persist document:', error)
+        // Don't throw error, just log it - persistence is optional
+      }
+    } else {
+      console.log('🗑️ Watcher: Clearing persisted document data')
+      persistedDocumentData.value = null
+    }
+  }, { immediate: false })
+  
+  // Restore document from localStorage on store initialization
+  const restoreDocumentFromStorage = async () => {
+    if (persistedDocumentData.value && !uploadedDocument.value) {
+      try {
+        console.log('📥 Restoring document from localStorage...')
+        
+        // Check if data is not too old (24 hours max)
+        const maxAge = 24 * 60 * 60 * 1000 // 24 hours
+        const age = Date.now() - (persistedDocumentData.value.timestamp || 0)
+        
+        if (age > maxAge) {
+          console.log('📅 Stored document data is too old, removing...')
+          persistedDocumentData.value = null
+          return
+        }
+        
+        console.log('🔄 Deserializing document from localStorage...')
+        const restoredFile = deserializeFile(persistedDocumentData.value)
+        
+        // Set document without triggering persistence again
+        uploadedDocument.value = restoredFile
+        
+        // Determine document type
+        if (restoredFile.type === 'application/pdf') {
+          documentType.value = 'pdf'
+        } else if (restoredFile.type.startsWith('image/')) {
+          documentType.value = 'image'
+        }
+        
+        // Create a new preview URL
+        documentPreviewUrl.value = URL.createObjectURL(restoredFile)
+        
+        console.log('✅ Document restored successfully:', {
+          name: restoredFile.name,
+          type: documentType.value,
+          size: restoredFile.size,
+        })
+      } catch (error) {
+        console.error('❌ Failed to restore document from storage:', error)
+        
+        // Clear corrupted data
+        persistedDocumentData.value = null
+        
+        // Don't throw error, just log it - restoration is optional
+        console.log('🧹 Cleared corrupted document data from localStorage')
+      }
+    }
+  }
+  
   // Actions
   const setDocument = async (file: File) => {
     console.log('📄 Setting document in store:', file.name, file.type)
     
-    uploadedDocument.value = file
-    
-    // Determine document type
-    if (file.type === 'application/pdf') {
-      documentType.value = 'pdf'
-    } else if (file.type.startsWith('image/')) {
-      documentType.value = 'image'
-    } else {
-      throw new Error('Unsupported file type')
+    try {
+      // Clear any re-upload flags
+      needsDocumentReupload.value = false
+      
+      // Determine document type
+      if (file.type === 'application/pdf') {
+        documentType.value = 'pdf'
+      } else if (file.type.startsWith('image/')) {
+        documentType.value = 'image'
+      } else {
+        throw new CodedError('unsupported_format', 'Unsupported file type')
+      }
+      
+      // Check file size (10MB limit)
+      const maxSize = 10 * 1024 * 1024
+      if (file.size > maxSize) {
+        throw new CodedError('file_too_large', 'File is too large')
+      }
+      
+      // Set the document (this will trigger localStorage persistence via watcher)
+      uploadedDocument.value = file
+      
+      // Create a preview URL
+      documentPreviewUrl.value = URL.createObjectURL(file)
+      
+      console.log('✅ Document set successfully:', {
+        name: file.name,
+        type: documentType.value,
+        size: file.size,
+        previewUrl: documentPreviewUrl.value,
+      })
+    } catch (error) {
+      if (error instanceof CodedError) {
+        throw error
+      }
+      throw new CodedError('document_load_failed', 'Failed to load document')
+    }
+  }
+  
+  const updateQRPosition = (position: QRCodeUIPosition) => {
+    qrPosition.value = position
+  }
+  
+  const updateQRSize = (size: number) => {
+    qrSizePercent.value = size
+  }
+  
+  /**
+   * Save OAuth state before authentication
+   */
+  const saveOAuthState = () => {
+    if (hasDocument.value && uploadedDocument.value) {
+      const state = {
+        shouldSeal: true,
+        timestamp: Date.now(),
+        documentName: uploadedDocument.value.name,
+        documentSize: uploadedDocument.value.size,
+        documentType: documentType.value,
+      }
+      persistedOAuthState.value = state
+      console.log('💾 Saved OAuth state:', state)
+    }
+  }
+  
+  /**
+   * Authenticate with provider and redirect
+   */
+  const authenticateWith = async (provider: string) => {
+    if (!hasDocument.value || !uploadedDocument.value) {
+      throw new CodedError('document_required', 'Please load a document first')
     }
     
-    // Create a preview URL
-    documentPreviewUrl.value = URL.createObjectURL(file)
+    console.log('🔐 Starting authentication with provider:', provider)
     
-    console.log('✅ Document set successfully:', {
-      name: file.name,
-      type: documentType.value,
-      size: file.size,
-      previewUrl: documentPreviewUrl.value,
-    })
+    try {
+      // Save OAuth state before redirect
+      saveOAuthState()
+      
+      // Authenticate with provider (this will redirect)
+      await authStore.authenticateWithProvider(provider)
+      
+    } catch (error) {
+      console.error('❌ Authentication failed:', error)
+      // Clear OAuth state on error
+      persistedOAuthState.value = null
+      throw error
+    }
   }
   
-  const authenticateWith = async (provider: string) => {
-    console.log('🔐 Authenticating with provider:', provider)
+  /**
+   * Handle post-authentication flow
+   */
+  const handlePostAuthFlow = async (): Promise<string | null> => {
+    console.log('🎉 Handling post-authentication flow...')
     
-    // Simulate authentication with a 1 second delay
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    try {
+      // Check if we have saved OAuth state
+      const oauthState = persistedOAuthState.value
+      
+      if (oauthState && oauthState.shouldSeal) {
+        console.log('🔒 Post-OAuth document sealing required')
+        
+        // Restore document if not already loaded
+        if (!hasDocument.value) {
+          await restoreDocumentFromStorage()
+        }
+        
+        // Check if we have the document
+        if (!hasDocument.value) {
+          console.log('⚠️ Document lost during OAuth flow - localStorage persistence may have failed')
+          needsDocumentReupload.value = true
+          persistedOAuthState.value = null
+          return null
+        }
+        
+        // Verify document matches what we expected (if we have the metadata)
+        if (oauthState.documentName && oauthState.documentSize) {
+          if (uploadedDocument.value?.name !== oauthState.documentName || 
+              uploadedDocument.value?.size !== oauthState.documentSize) {
+            console.log('❌ Document mismatch after OAuth flow')
+            throw new CodedError('document_mismatch', 'Document changed during authentication')
+          }
+        }
+        
+        console.log('✅ Document verified, proceeding with sealing...')
+        
+        // Clear OAuth state before sealing
+        persistedOAuthState.value = null
+        
+        // Small delay to ensure UI is ready
+        await new Promise(resolve => setTimeout(resolve, 500))
+        
+        // Trigger document sealing
+        const documentId = await sealDocument()
+        
+        console.log('🎯 Post-OAuth sealing completed successfully, document ID:', documentId)
+        return documentId
+      } else {
+        console.log('ℹ️ No pending seal operation found')
+      }
+      
+    } catch (error) {
+      console.error('❌ Error handling post-auth flow:', error)
+      persistedOAuthState.value = null
+      throw error
+    }
     
-    isAuthenticated.value = true
-    authProvider.value = provider
-    userName.value = `User (${provider})`
-    
-    // Generate a unique document ID
-    documentId.value = generateUniqueId()
-    
-    console.log('✅ Authentication successful:', {
-      provider: authProvider.value,
-      userName: userName.value,
-      documentId: documentId.value,
-    })
+    return null
   }
   
-  const sealDocument = async (position: QRCodeUIPosition, sizePercent: number = 20) => {
-    if (!uploadedDocument.value || !isAuthenticated.value) {
-      throw new Error('Document or authentication missing')
+  const sealDocument = async () => {
+    if (!uploadedDocument.value || !authStore.isAuthenticated || !authStore.currentUser) {
+      throw new CodedError('document_seal_failed', 'Document or authentication missing')
     }
 
     console.log('🔒 Starting document sealing process...')
+    
+    isSealing.value = true
+    sealingError.value = null
 
     try {
       // Get document dimensions for pixel calculation
@@ -105,8 +516,8 @@ export const useDocumentStore = defineStore('document', () => {
       
       // Calculate exact pixel positioning using our UI calculator
       const pixelCalculation = qrCodeUICalculator.calculateEmbeddingPixels(
-        position,
-        sizePercent,
+        qrPosition.value,
+        qrSizePercent.value,
         documentDimensions,
         documentType.value as 'pdf' | 'image',
       )
@@ -119,30 +530,40 @@ export const useDocumentStore = defineStore('document', () => {
       )
       console.log('🔢 Document hashes calculated:', documentHashes)
 
-      // Build compact attestation data with exclusion zone
-      const attestationData = attestationBuilder.buildCompactAttestation({
+      // Build attestation package for server signing
+      const attestationPackage = attestationBuilder.buildAttestationPackage({
         documentHashes,
         identity: {
-          provider: authProvider.value!,
-          identifier: userName.value!,
-        },
-        serviceInfo: {
-          publicKeyId: 'placeholder-key-id',
+          provider: authStore.currentUser.provider,
+          identifier: authStore.currentUser.email,
         },
         exclusionZone: pixelCalculation.exclusionZone,
       })
-      console.log('📋 Attestation data built:', attestationData)
+      console.log('📋 Attestation package built for signing:', attestationPackage)
 
-      // Generate complete QR seal (including borders, identity, etc.)
-      // Pass the base URL for verification links
+      // Send to server for signing
+      const signingResponse = await signingService.signAttestation(attestationPackage)
+      console.log('✅ Server signing completed:', signingResponse)
+
+      // Combine client package with server signature to create final attestation data
+      const finalAttestationData = attestationBuilder.combineWithServerSignature(
+        attestationPackage,
+        signingResponse
+      )
+      console.log('🔗 Final attestation data created:', finalAttestationData)
+
+      // Generate complete QR seal
       const sealResult = await qrSealRenderer.generateSeal({
-        attestationData,
+        attestationData: finalAttestationData,
         qrSizeInPixels: pixelCalculation.sizeInPixels,
-        providerId: authProvider.value!,
-        userIdentifier: userName.value!,
+        providerId: authStore.currentUser.provider,
+        userIdentifier: authStore.currentUser.displayName,
         baseUrl: window.location.origin,
       })
       console.log('🎨 QR seal generated:', sealResult.dimensions)
+
+      // Generate a unique document ID
+      documentId.value = generateUniqueId()
 
       // Embed the complete seal
       if (documentType.value === 'pdf') {
@@ -165,21 +586,30 @@ export const useDocumentStore = defineStore('document', () => {
       return documentId.value
     } catch (error) {
       console.error('❌ Error sealing document:', error)
-      throw new Error('Failed to seal document')
+      
+      sealingError.value = error instanceof Error ? error.message : 'Failed to seal document'
+      
+      if (error instanceof CodedError) {
+        throw error
+      }
+      
+      throw new CodedError('document_seal_failed', 'Failed to seal document')
+    } finally {
+      isSealing.value = false
     }
   }
   
   // Helper function to get document dimensions
   const getDocumentDimensions = async (): Promise<{ width: number; height: number }> => {
     if (!uploadedDocument.value) {
-      throw new Error('No document available')
+      throw new CodedError('document_processing_failed', 'No document available')
     }
 
     if (documentType.value === 'image') {
       return new Promise((resolve, reject) => {
         const img = new Image()
         img.onload = () => resolve({ width: img.naturalWidth, height: img.naturalHeight })
-        img.onerror = () => reject(new Error('Failed to load image dimensions'))
+        img.onerror = () => reject(new CodedError('document_processing_failed', 'Failed to load image dimensions'))
         img.src = documentPreviewUrl.value
       })
     } else if (documentType.value === 'pdf') {
@@ -191,12 +621,12 @@ export const useDocumentStore = defineStore('document', () => {
       return { width, height }
     }
 
-    throw new Error('Unsupported document type')
+    throw new CodedError('unsupported_format', 'Unsupported document type')
   }
 
   // Helper function to build attestation data
   const buildAttestationData = (): AttestationData => {
-    if (!authProvider.value || !userName.value) {
+    if (!authStore.authProvider || !authStore.userEmail) {
       throw new Error('Authentication data missing')
     }
 
@@ -217,8 +647,8 @@ export const useDocumentStore = defineStore('document', () => {
         dHash: 'placeholder-dhash',
       },
       identity: {
-        provider: authProvider.value,
-        identifier: userName.value,
+        provider: authStore.authProvider,
+        identifier: authStore.userEmail,
       },
       serviceInfo: {
         publicKeyId: 'placeholder-key-id',
@@ -304,7 +734,7 @@ export const useDocumentStore = defineStore('document', () => {
       const ctx = canvas.getContext('2d')
       
       if (!ctx) {
-        reject(new Error('Could not get canvas context'))
+        reject(new CodedError('document_processing_failed', 'Could not get canvas context'))
         return
       }
       
@@ -338,16 +768,16 @@ export const useDocumentStore = defineStore('document', () => {
               })
               resolve()
             } else {
-              reject(new Error('Failed to create image blob'))
+              reject(new CodedError('document_processing_failed', 'Failed to create image blob'))
             }
           }, outputFormat, quality)
         }
         
-        sealImg.onerror = () => reject(new Error('Failed to load seal image'))
+        sealImg.onerror = () => reject(new CodedError('document_processing_failed', 'Failed to load seal image'))
         sealImg.src = sealDataUrl
       }
       
-      img.onerror = () => reject(new Error('Failed to load original image'))
+      img.onerror = () => reject(new CodedError('document_processing_failed', 'Failed to load original image'))
       img.src = URL.createObjectURL(fileToSeal)
     })
   }
@@ -406,20 +836,59 @@ export const useDocumentStore = defineStore('document', () => {
       URL.revokeObjectURL(sealedDocumentUrl.value)
     }
     
-    // Reset state
+    // Reset state (but keep authentication in auth store)
     uploadedDocument.value = null
     documentType.value = null
     documentId.value = ''
     documentPreviewUrl.value = ''
     sealedDocumentUrl.value = ''
     sealedDocumentBlob.value = null
-    isAuthenticated.value = false
-    authProvider.value = null
-    userName.value = null
     formatConversionResult.value = null
     showFormatConversionNotification.value = false
+    needsDocumentReupload.value = false
+    
+    // Reset QR positioning to defaults
+    persistedQRPosition.value = { x: 85, y: 15 }
+    persistedQRSize.value = 20
+    
+    // Reset processing state
+    isSealing.value = false
+    sealingError.value = null
+    
+    // Clear persisted data
+    persistedDocumentData.value = null
+    persistedOAuthState.value = null
     
     console.log('✅ Document store reset completed')
+  }
+  
+  // Initialize store
+  const initialize = async () => {
+    console.log('🚀 Initializing document store...')
+    
+    // Load initial values from localStorage
+    loadFromLocalStorage()
+    
+    // Debug: Check what's currently in localStorage
+    console.log('🔍 Current localStorage state:')
+    console.log('  - seal-codes-document:', !!localStorage.getItem('seal-codes-document'))
+    console.log('  - seal-codes-qr-position:', localStorage.getItem('seal-codes-qr-position'))
+    console.log('  - seal-codes-qr-size:', localStorage.getItem('seal-codes-qr-size'))
+    console.log('  - seal-codes-oauth-state:', !!localStorage.getItem('seal-codes-oauth-state'))
+    
+    try {
+      // Try to restore document from localStorage on startup
+      await restoreDocumentFromStorage()
+    } catch (error) {
+      console.error('❌ Error during document store initialization:', error)
+      
+      // Clear all persisted data if there's an initialization error
+      console.log('🧹 Clearing all persisted data due to initialization error')
+      persistedDocumentData.value = null
+      persistedOAuthState.value = null
+    }
+    
+    console.log('✅ Document store initialized')
   }
   
   return { 
@@ -429,11 +898,13 @@ export const useDocumentStore = defineStore('document', () => {
     documentId,
     documentPreviewUrl,
     sealedDocumentUrl,
-    isAuthenticated,
-    authProvider,
-    userName,
     formatConversionResult,
     showFormatConversionNotification,
+    qrPosition,
+    qrSizePercent,
+    isSealing,
+    sealingError,
+    needsDocumentReupload,
     
     // Getters
     hasDocument,
@@ -442,12 +913,16 @@ export const useDocumentStore = defineStore('document', () => {
     
     // Actions
     setDocument,
+    updateQRPosition,
+    updateQRSize,
     authenticateWith,
+    handlePostAuthFlow,
     sealDocument,
     downloadSealedDocument,
     acknowledgeFormatConversion: () => {
       showFormatConversionNotification.value = false
     },
     reset,
+    initialize,
   }
 })

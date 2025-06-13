@@ -65,6 +65,10 @@ export interface AttestationData {
     /** Fill color (hex without #) */
     f: string;
   };
+  /** Cryptographic signature (added by server) */
+  sig?: string;
+  /** Public key for verification (added by server) */
+  pk?: string;
   /** Optional user-provided URL */
   u?: string;
 }

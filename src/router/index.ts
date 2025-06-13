@@ -5,6 +5,7 @@ import TheHomePage from '../views/TheHomePage.vue'
 import TheDocumentPage from '../views/TheDocumentPage.vue'
 import TheSealedDocumentPage from '../views/TheSealedDocumentPage.vue'
 import TheVerificationPage from '../views/TheVerificationPage.vue'
+import AuthCallbackPage from '../views/AuthCallbackPage.vue'
 import NotFoundPage from '../views/NotFoundPage.vue'
 
 const routes: RouteRecordRaw[] = [
@@ -22,6 +23,14 @@ const routes: RouteRecordRaw[] = [
     component: TheDocumentPage,
     meta: {
       title: 'Load Your Document - seal.codes',
+    },
+  },
+  {
+    path: '/auth/callback',
+    name: 'auth-callback',
+    component: AuthCallbackPage,
+    meta: {
+      title: 'Completing Authentication - seal.codes',
     },
   },
   {

@@ -6,6 +6,7 @@
 import { providers } from '@/types/auth'
 import type { AttestationData, QRCodeExclusionZone } from '@/types/qrcode'
 import type { Provider } from '@/types/auth'
+import type { SignedAttestationPackage, AttestationPackage, SigningResponse } from './signing-service'
 
 /**
  * Input data for building attestation
@@ -74,6 +75,75 @@ export class AttestationBuilder {
         f: input.exclusionZone.fillColor.replace('#', ''), // Remove # for compactness
       },
       ...(input.userUrl && { u: input.userUrl }),
+    }
+  }
+
+  /**
+   * Build attestation package for server signing (without timestamp and service info)
+   * 
+   * @param input - Full attestation input data
+   * @returns Attestation package ready for server signing
+   */
+  buildAttestationPackage(input: Omit<AttestationInput, 'serviceInfo'>): AttestationPackage {
+    return {
+      hashes: input.documentHashes,
+      identity: input.identity,
+      exclusionZone: {
+        x: input.exclusionZone.x,
+        y: input.exclusionZone.y,
+        width: input.exclusionZone.width,
+        height: input.exclusionZone.height,
+        fillColor: input.exclusionZone.fillColor,
+      },
+      ...(input.userUrl && { userUrl: input.userUrl }),
+    }
+  }
+
+  /**
+   * Combine server signature with client attestation package
+   * 
+   * @param clientPackage - Original attestation package from client
+   * @param serverResponse - Signature response from server
+   * @returns Complete signed attestation data for QR encoding
+   */
+  combineWithServerSignature(
+    clientPackage: AttestationPackage,
+    serverResponse: SigningResponse
+  ): AttestationData {
+    const provider = providers.find((p: Provider) => p.id === clientPackage.identity.provider)
+    
+    if (!provider) {
+      throw new Error(`Unknown provider: ${clientPackage.identity.provider}`)
+    }
+
+    return {
+      h: {
+        c: clientPackage.hashes.cryptographic,
+        p: {
+          p: clientPackage.hashes.pHash,
+          d: clientPackage.hashes.dHash,
+        },
+      },
+      t: serverResponse.timestamp, // Use server timestamp
+      i: {
+        p: provider.compactId,
+        id: clientPackage.identity.identifier,
+      },
+      s: {
+        n: 'sc', // seal.codes shortened
+        k: serverResponse.publicKeyId, // Use server public key ID
+      },
+      e: {
+        x: clientPackage.exclusionZone.x,
+        y: clientPackage.exclusionZone.y,
+        w: clientPackage.exclusionZone.width,
+        h: clientPackage.exclusionZone.height,
+        f: clientPackage.exclusionZone.fillColor.replace('#', ''), // Remove # for compactness
+      },
+      // Add signature and public key for verification
+      sig: serverResponse.signature,
+      pk: serverResponse.publicKey,
+      ...(clientPackage.userUrl && { u: clientPackage.userUrl }),
     }
   }
 
