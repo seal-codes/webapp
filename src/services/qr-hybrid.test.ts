@@ -1,11 +1,10 @@
 /**
- * Test for hybrid QR services to ensure fallback functionality works
+ * Test for hybrid QR reader service to ensure fallback functionality works
  */
 
 import { describe, it, expect, beforeAll } from 'vitest'
 import { webcrypto } from 'node:crypto'
 import { HybridQRReaderService } from './qr-reader-hybrid'
-import { HybridQRScanService } from './qr-scan-hybrid'
 import { wasmPreloader } from './wasm-preloader'
 
 // Setup Node.js environment for browser APIs
@@ -141,71 +140,24 @@ describe('Hybrid QR Services', () => {
     })
   })
 
-  describe('HybridQRScanService', () => {
-    it('should instantiate and provide engine info', () => {
-      const service = new HybridQRScanService()
-      expect(service).toBeDefined()
-      
-      const engineInfo = service.getEngineInfo()
-      expect(engineInfo).toBeDefined()
-      expect(engineInfo.jsqrAvailable).toBe(true)
-      expect(engineInfo.recommendedEngine).toMatch(/^(jsqr|rxing-wasm)$/)
-      
-      console.log('🔧 QR Scan Engine Info:', engineInfo)
-      
-      // Check WASM preloader state
-      const wasmState = wasmPreloader.getWasmState()
-      console.log('🔧 WASM Preloader State for Scan:', wasmState)
-    })
-
-    it('should handle scanning with fallback gracefully', async () => {
-      const service = new HybridQRScanService()
-      
-      // Test that the service is properly configured for test environment
-      const engineInfo = service.getEngineInfo()
-      expect(engineInfo.jsqrAvailable).toBe(true)
-      expect(engineInfo.recommendedEngine).toBe('jsqr')
-      expect(engineInfo.rxingWasmLoading).toBe(false) // Should not be loading in test env
-      
-      console.log('📊 QR Scan Test Configuration:', {
-        engine: engineInfo.recommendedEngine,
-        jsqrAvailable: engineInfo.jsqrAvailable,
-        rxingAvailable: engineInfo.rxingWasmAvailable,
-      })
-      
-      // Note: We skip actual scanning in tests due to complex mock requirements
-      // The important part is that the fallback system is properly configured
-    })
-  })
-
-  describe('Engine Comparison', () => {
+  describe('Engine Behavior', () => {
     it('should show proper fallback behavior in test environment', async () => {
       const readerService = new HybridQRReaderService()
-      const scanService = new HybridQRScanService()
       
       // In test environment, WASM should not be loaded automatically
       const initialReaderInfo = readerService.getEngineInfo()
-      const initialScanInfo = scanService.getEngineInfo()
       
-      console.log('📈 Test Environment Engine States:')
+      console.log('📈 Test Environment Engine State:')
       console.log('  Reader:', {
         rxingAvailable: initialReaderInfo.rxingWasmAvailable,
         loading: initialReaderInfo.rxingWasmLoading,
         recommended: initialReaderInfo.recommendedEngine,
       })
-      console.log('  Scanner:', {
-        rxingAvailable: initialScanInfo.rxingWasmAvailable,
-        loading: initialScanInfo.rxingWasmLoading,
-        recommended: initialScanInfo.recommendedEngine,
-      })
       
       // In test environment, should use jsQR and not be loading WASM
       expect(initialReaderInfo.jsqrAvailable).toBe(true)
-      expect(initialScanInfo.jsqrAvailable).toBe(true)
       expect(initialReaderInfo.recommendedEngine).toBe('jsqr')
-      expect(initialScanInfo.recommendedEngine).toBe('jsqr')
       expect(initialReaderInfo.rxingWasmLoading).toBe(false) // Should not be loading in test env
-      expect(initialScanInfo.rxingWasmLoading).toBe(false) // Should not be loading in test env
       
       // Test WASM preloader metrics
       const wasmMetrics = wasmPreloader.getMetrics()
@@ -216,14 +168,11 @@ describe('Hybrid QR Services', () => {
       
       // Test waiting for WASM (should return immediately in test env)
       const readerWasmReady = await readerService.waitForWasm()
-      const scanWasmReady = await scanService.waitForWasm()
       
       console.log('  Reader WASM ready:', readerWasmReady)
-      console.log('  Scanner WASM ready:', scanWasmReady)
       
       // Should handle gracefully
       expect(typeof readerWasmReady).toBe('boolean')
-      expect(typeof scanWasmReady).toBe('boolean')
     }, 5000) // Reduced timeout since we're not actually loading WASM
   })
 })

@@ -122,10 +122,9 @@ beforeAll(() => {
   }
 })
 
-describe('Hybrid QR Services with WASM Mock', () => {
+describe('Hybrid QR Reader Service with WASM Mock', () => {
   // We need to import after mocking
   let HybridQRReaderService: any
-  let HybridQRScanService: any
 
   beforeAll(async () => {
     // Force non-test environment to enable WASM loading
@@ -141,11 +140,9 @@ describe('Hybrid QR Services with WASM Mock', () => {
     try {
       // Import services after mocking WASM and environment
       const readerModule = await import('./qr-reader-hybrid')
-      const scanModule = await import('./qr-scan-hybrid')
       const wasmModule = await import('./wasm-preloader')
       
       HybridQRReaderService = readerModule.HybridQRReaderService
-      HybridQRScanService = scanModule.HybridQRScanService
       
       // Force reload the WASM preloader to use our mock
       await wasmModule.wasmPreloader.forceReload()
@@ -218,96 +215,29 @@ describe('Hybrid QR Services with WASM Mock', () => {
     })
   })
 
-  describe('HybridQRScanService with WASM', () => {
-    it('should load WASM and use rxing-wasm when available', async () => {
-      const service = new HybridQRScanService()
-      
-      // Wait for WASM to load
-      await new Promise(resolve => setTimeout(resolve, 100))
-      
-      // Wait for WASM using the service method
-      const wasmReady = await service.waitForWasm()
-      console.log('🔧 WASM ready for scan service:', wasmReady)
-      
-      const engineInfo = service.getEngineInfo()
-      console.log('🔧 Scan engine info with WASM mock:', engineInfo)
-      
-      // With our mock, WASM should be available
-      expect(engineInfo.jsqrAvailable).toBe(true)
-      
-      if (engineInfo.rxingWasmAvailable) {
-        expect(engineInfo.recommendedEngine).toBe('rxing-wasm')
-        console.log('✅ rxing-wasm is the recommended scan engine')
-      } else {
-        expect(engineInfo.recommendedEngine).toBe('jsqr')
-        console.log('⚠️ Scan service falling back to jsQR (WASM mock may not have loaded)')
-      }
-    }, 10000)
-
-    it('should use rxing-wasm for scanning when available', async () => {
-      const service = new HybridQRScanService()
-      
-      // Ensure WASM is ready
-      await service.waitForWasm()
-      
-      // Verify that the service is configured to use rxing-wasm
-      const engineInfo = service.getEngineInfo()
-      
-      console.log('📊 WASM QR Scan Configuration:', {
-        recommended: engineInfo.recommendedEngine,
-        wasmAvailable: engineInfo.rxingWasmAvailable,
-        jsqrAvailable: engineInfo.jsqrAvailable,
-      })
-      
-      // The key test: when WASM is available, it should be the recommended engine
-      if (engineInfo.rxingWasmAvailable) {
-        expect(engineInfo.recommendedEngine).toBe('rxing-wasm')
-        console.log('✅ Scan service correctly configured to use rxing-wasm')
-      } else {
-        expect(engineInfo.recommendedEngine).toBe('jsqr')
-        console.log('⚠️ WASM not available, using jsQR fallback')
-      }
-      
-      // Both engines should be available in our test setup
-      expect(engineInfo.jsqrAvailable).toBe(true)
-    })
-  })
-
-  describe('WASM vs jsQR Engine Comparison', () => {
-    it('should demonstrate both engines can be used', async () => {
+  describe('WASM Engine Performance', () => {
+    it('should demonstrate WASM engine capabilities', async () => {
       const readerService = new HybridQRReaderService()
-      const scanService = new HybridQRScanService()
       
       // Wait for WASM
-      await Promise.all([
-        readerService.waitForWasm(),
-        scanService.waitForWasm(),
-      ])
+      await readerService.waitForWasm()
       
       const readerInfo = readerService.getEngineInfo()
-      const scanInfo = scanService.getEngineInfo()
       
-      console.log('🔄 Engine Comparison:')
+      console.log('🔄 Engine Performance Test:')
       console.log('  Reader Service:', {
         recommended: readerInfo.recommendedEngine,
         wasmAvailable: readerInfo.rxingWasmAvailable,
         jsqrAvailable: readerInfo.jsqrAvailable,
       })
-      console.log('  Scan Service:', {
-        recommended: scanInfo.recommendedEngine,
-        wasmAvailable: scanInfo.rxingWasmAvailable,
-        jsqrAvailable: scanInfo.jsqrAvailable,
-      })
       
-      // Both should have jsQR available as fallback
+      // Should have jsQR available as fallback
       expect(readerInfo.jsqrAvailable).toBe(true)
-      expect(scanInfo.jsqrAvailable).toBe(true)
       
-      // Test that the services can provide engine information
+      // Test that the service can provide engine information
       expect(readerInfo.recommendedEngine).toMatch(/^(jsqr|rxing-wasm)$/)
-      expect(scanInfo.recommendedEngine).toMatch(/^(jsqr|rxing-wasm)$/)
       
-      console.log('✅ Both engines are properly configured and available')
+      console.log('✅ QR Reader engine is properly configured and available')
     })
   })
 })
