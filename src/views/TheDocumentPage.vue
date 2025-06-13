@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useDocumentStore } from '../stores/documentStore'
-import { qrCodeUICalculator } from '@/services/qrcode-ui-calculator'
+import { useAuthStore } from '../stores/authStore'
+import { useToast } from '@/composables/useToast'
+import { OAuthProviderError, CodedError } from '@/types/errors'
 import DocumentDropzone from '../components/document/DocumentDropzone.vue'
 import DocumentPreview from '../components/document/DocumentPreview.vue'
 import SocialAuthSelector from '../components/auth/SocialAuthSelector.vue'
@@ -14,48 +16,97 @@ import { QRCodeUIPosition } from '@/types/qrcode'
 const router = useRouter()
 const { t } = useI18n()
 const documentStore = useDocumentStore()
+const authStore = useAuthStore()
+const { success, error, info } = useToast()
 
 const isDocumentLoaded = computed(() => documentStore.hasDocument)
 const isProcessing = ref(false)
-const qrPosition = ref<QRCodeUIPosition>({ x: 50, y: 50 })
-const qrSize = ref(20) // Default 20% of container width (between min 15% and max 35%)
+
+// Use QR position and size from the store
+const qrPosition = computed({
+  get: () => documentStore.qrPosition,
+  set: (value: QRCodeUIPosition) => documentStore.updateQRPosition(value)
+})
+
+const qrSize = computed({
+  get: () => documentStore.qrSizePercent,
+  set: (value: number) => documentStore.updateQRSize(value)
+})
 
 const handleDocumentLoaded = async (file: File) => {
   console.log('🔥 Document loaded in TheDocumentPage:', file.name, file.type)
   try {
     await documentStore.setDocument(file)
     console.log('✅ Document successfully set in store')
-  } catch (error) {
-    console.error('❌ Error setting document in store:', error)
-    // TODO: Show error message to user
+  } catch (err) {
+    console.error('❌ Error setting document in store:', err)
+    
+    if (err instanceof CodedError) {
+      error(t(`errors.${err.code}`))
+    } else {
+      error(t('errors.document_load_failed'))
+    }
   }
 }
 
-const handleSocialAuth = async (provider: string) => {
+const handleAuthenticateAndSeal = async (provider: string) => {
+  if (!documentStore.hasDocument) {
+    error(t('Please load a document first'))
+    return
+  }
+
   isProcessing.value = true
   try {
+    info(t('Redirecting to authentication...'))
+    
+    // This will save the current state and redirect to OAuth
     await documentStore.authenticateWith(provider)
-    await documentStore.sealDocument(qrPosition.value, qrSize.value)
-    router.push(`/sealed/${documentStore.documentId}`)
-  } catch (error) {
-    console.error('Authentication error:', error)
-    // TODO: Show error message to user
+    
+    // Note: User will be redirected to OAuth provider
+    // When they return, the auth state change will trigger automatic sealing
+    
+  } catch (err) {
+    console.error('Authentication error:', err)
+    
+    // Handle OAuth provider configuration errors
+    if (err instanceof OAuthProviderError && err.isConfigurationError) {
+      error(t('errors.provider_not_configured', { provider: err.provider }))
+    } else if (err instanceof CodedError) {
+      error(t(`errors.${err.code}`))
+    } else {
+      // Handle other authentication errors
+      error(t('errors.authentication_failed'))
+    }
   } finally {
     isProcessing.value = false
   }
 }
 
-// Calculate safe margins based on QR code size using the UI calculator
-const cornerPositions = computed(() => {
-  return qrCodeUICalculator.getCornerPositions(qrSize.value)
-})
+const handleManualSeal = async () => {
+  if (!documentStore.hasDocument || !authStore.isAuthenticated) {
+    error(t('Document and authentication required'))
+    return
+  }
 
-const setCornerPosition = (
-  corner: 'topLeft' | 'topRight' | 'bottomLeft' | 'bottomRight',
-) => {
-  const position = cornerPositions.value[corner]
-  if (position) {
-    qrPosition.value = position
+  isProcessing.value = true
+  try {
+    info(t('Sealing your document...'))
+    
+    const documentId = await documentStore.sealDocument()
+    
+    success(t('Document sealed successfully!'))
+    router.push(`/sealed/${documentId}`)
+    
+  } catch (err) {
+    console.error('Manual sealing error:', err)
+    
+    if (err instanceof CodedError) {
+      error(t(`errors.${err.code}`))
+    } else {
+      error(t('errors.document_seal_failed'))
+    }
+  } finally {
+    isProcessing.value = false
   }
 }
 
@@ -64,12 +115,37 @@ const chooseNewDocument = () => {
 }
 
 const updateQrPosition = (position: { x: number; y: number }) => {
-  qrPosition.value = position
+  documentStore.updateQRPosition(position)
 }
 
 const updateQrSize = (size: number) => {
-  qrSize.value = size
+  documentStore.updateQRSize(size)
 }
+
+// Watch for successful authentication and handle post-auth flow
+watch(
+  () => authStore.isAuthenticated,
+  async (isAuthenticated) => {
+    if (isAuthenticated) {
+      console.log('🎉 User authenticated, checking for post-auth flow...')
+      try {
+        const documentId = await documentStore.handlePostAuthFlow()
+        if (documentId) {
+          success(t('Document sealed successfully!'))
+          router.push(`/sealed/${documentId}`)
+        }
+      } catch (err) {
+        console.error('Post-auth flow error:', err)
+        if (err instanceof CodedError) {
+          error(t(`errors.${err.code}`))
+        } else {
+          error(t('errors.document_seal_failed'))
+        }
+      }
+    }
+  },
+  { immediate: true }
+)
 </script>
 
 <template>
@@ -114,36 +190,75 @@ const updateQrSize = (size: number) => {
                 >
                   {{ t("document.controls.chooseAnother") }}
                 </BaseButton>
-
-                <div class="flex gap-2">
-                  <button
-                    v-for="(position, key) in {
-                      topLeft: '↖',
-                      topRight: '↗',
-                      bottomLeft: '↙',
-                      bottomRight: '↘',
-                    }"
-                    :key="key"
-                    class="w-12 h-12 md:w-10 md:h-10 bg-white rounded-lg shadow-sm 
-                           hover:bg-gray-50 active:bg-gray-100 flex items-center justify-center 
-                           border border-gray-200 transition-colors touch-manipulation"
-                    :title="t(`document.preview.corners.${key}`)"
-                    @click="setCornerPosition(key as any)"
-                  >
-                    {{ position }}
-                  </button>
-                </div>
               </div>
 
-              <!-- Social Authentication Section -->
-              <div>
-                <h3 class="text-xl font-medium mb-3">
-                  {{ t("document.controls.authenticateWith") }}
-                </h3>
-                <SocialAuthSelector
-                  :is-processing="isProcessing"
-                  @provider-selected="handleSocialAuth"
-                />
+              <!-- Authentication Section - Always Visible -->
+              <div class="border-t pt-6">
+                <!-- Already Authenticated -->
+                <div v-if="authStore.isAuthenticated" class="space-y-4">
+                  <!-- Authentication Status -->
+                  <div class="p-4 bg-green-50 border border-green-200 rounded-lg">
+                    <div class="flex items-center gap-3">
+                      <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                      </div>
+                      <div>
+                        <p class="font-medium text-green-800">
+                          Authenticated as {{ authStore.userName }}
+                        </p>
+                        <p class="text-sm text-green-600">
+                          via {{ authStore.authProvider }}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Seal Document Button -->
+                  <div class="text-center">
+                    <BaseButton
+                      variant="cta"
+                      size="lg"
+                      :loading="isProcessing"
+                      :disabled="isProcessing"
+                      @click="handleManualSeal"
+                    >
+                      🔒 Seal This Document
+                    </BaseButton>
+                    <p class="text-sm text-gray-600 mt-2">
+                      This will create a permanent seal with your current authentication
+                    </p>
+                  </div>
+
+                  <!-- Option to Sign Out and Use Different Provider -->
+                  <div class="text-center pt-4 border-t">
+                    <p class="text-sm text-gray-600 mb-3">
+                      Want to use a different account?
+                    </p>
+                    <BaseButton
+                      variant="outline"
+                      size="sm"
+                      @click="authStore.signOut"
+                    >
+                      Sign Out & Choose Different Account
+                    </BaseButton>
+                  </div>
+                </div>
+
+                <!-- Not Authenticated -->
+                <div v-else>
+                  <h3 class="text-xl font-medium mb-3">
+                    {{ t("document.controls.authenticateWith") }}
+                  </h3>
+                  <p class="text-gray-600 mb-4">
+                    Choose how you want to authenticate your identity for this seal:
+                  </p>
+                  <SocialAuthSelector
+                    :is-processing="isProcessing"
+                    @provider-selected="handleAuthenticateAndSeal"
+                  />
+                </div>
               </div>
             </div>
           </div>
