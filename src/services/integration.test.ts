@@ -111,7 +111,7 @@ beforeAll(() => {
   // Setup URL API
   if (!globalThis.URL) {
     globalThis.URL = {
-      createObjectURL: (file: File) => {
+      createObjectURL: () => {
         // Return a mock data URL
         return 'data:image/png;base64,mock-data-url'
       },

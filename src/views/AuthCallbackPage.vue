@@ -25,21 +25,21 @@ onMounted(async () => {
         window.opener.postMessage({
           type: 'OAUTH_ERROR',
           error: error.message,
-          state
+          state,
         }, window.location.origin)
       } else if (data.session) {
         console.log('✅ OAuth callback successful')
         // Send success message to parent window
         window.opener.postMessage({
           type: 'OAUTH_SUCCESS',
-          state
+          state,
         }, window.location.origin)
       } else {
         console.error('❌ No session found in OAuth callback')
         window.opener.postMessage({
           type: 'OAUTH_ERROR',
           error: 'No session found',
-          state
+          state,
         }, window.location.origin)
       }
       
@@ -58,7 +58,7 @@ onMounted(async () => {
       window.opener.postMessage({
         type: 'OAUTH_ERROR',
         error: 'Callback processing failed',
-        state: route.query.state
+        state: route.query.state,
       }, window.location.origin)
       window.close()
     } else {
@@ -72,8 +72,10 @@ onMounted(async () => {
 <template>
   <div class="min-h-screen bg-gray-50 flex items-center justify-center">
     <div class="text-center">
-      <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500 mx-auto mb-4"></div>
-      <p class="text-gray-600">Completing authentication...</p>
+      <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500 mx-auto mb-4" />
+      <p class="text-gray-600">
+        Completing authentication...
+      </p>
     </div>
   </div>
 </template>

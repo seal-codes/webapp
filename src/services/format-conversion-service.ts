@@ -57,7 +57,7 @@ export class FormatConversionService {
     const sizeComparison = {
       originalSize,
       finalSize: convertedFile.size,
-      percentageChange: Math.round(((convertedFile.size - originalSize) / originalSize) * 100)
+      percentageChange: Math.round(((convertedFile.size - originalSize) / originalSize) * 100),
     }
     
     return {
@@ -66,7 +66,7 @@ export class FormatConversionService {
       originalFormat,
       finalFormat: targetFormat,
       conversionReason: this.getConversionReason(originalFormat, targetFormat),
-      sizeComparison
+      sizeComparison,
     }
   }
   
@@ -165,7 +165,7 @@ export class FormatConversionService {
       'image/webp': 'WebP',
       'image/gif': 'GIF',
       'image/bmp': 'BMP',
-      'image/tiff': 'TIFF'
+      'image/tiff': 'TIFF',
     }
     
     const original = formatNames[originalFormat] || originalFormat
@@ -185,7 +185,7 @@ export class FormatConversionService {
       'image/webp': 'WebP',
       'image/gif': 'GIF',
       'image/bmp': 'BMP',
-      'image/tiff': 'TIFF'
+      'image/tiff': 'TIFF',
     }
     
     return formatNames[mimeType] || mimeType

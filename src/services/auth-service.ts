@@ -6,7 +6,7 @@
 import { supabase } from './supabase-client'
 import type { User, Session, AuthError } from '@supabase/supabase-js'
 import type { Provider } from '@supabase/supabase-js'
-import { OAuthProviderError, type ErrorResult } from '@/types/errors'
+import { OAuthProviderError } from '@/types/errors'
 
 export interface AuthUser {
   id: string
@@ -47,8 +47,8 @@ export class AuthService {
           redirectTo,
           // Add query parameter to indicate this is a sealing flow
           queryParams: {
-            flow: 'seal-document'
-          }
+            flow: 'seal-document',
+          },
         },
       })
 
@@ -87,75 +87,6 @@ export class AuthService {
       
       // Check for specific error codes
       if (errorMessage === 'network_error' || errorMessage === 'authentication_failed' || errorMessage === 'unknown_error') {
-        throw new Error(errorMessage)
-      }
-      
-      // Default to unknown error
-      throw new Error('unknown_error')
-    }
-  }
-
-  /**
-   * Sign in with OAuth provider
-   * 
-   * @param provider - OAuth provider (google, github, etc.)
-   * @returns Promise that resolves when sign-in is initiated or throws CodedError
-   */
-  async signInWithProvider(provider: string): Promise<void> {
-    try {
-      console.log(`🔐 Initiating OAuth sign-in with ${provider}`)
-      
-      // Always redirect back to /document to continue the sealing flow
-      const redirectTo = `${window.location.origin}/document`
-      
-      console.log(`🔗 OAuth redirect URL: ${redirectTo}`)
-      
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: provider as Provider,
-        options: {
-          redirectTo,
-          // Add query parameter to indicate this is a sealing flow
-          queryParams: {
-            flow: 'seal-document'
-          }
-        },
-      })
-
-      if (error) {
-        console.error('OAuth sign-in error:', error)
-        
-        // Check if this is a provider configuration error
-        if (error.message?.includes('provider is not enabled') || 
-            error.message?.includes('Unsupported provider')) {
-          throw new OAuthProviderError(provider, true)
-        }
-        
-        // Network or other errors
-        if (error.message?.includes('network') || error.message?.includes('fetch')) {
-          throw new Error('network_error')
-        }
-        
-        // Generic authentication error
-        throw new Error('authentication_failed')
-      }
-
-      console.log(`✅ OAuth sign-in initiated for ${provider}, redirecting to ${redirectTo}`)
-    } catch (error) {
-      console.error('Unexpected error during OAuth sign-in:', error)
-      
-      // Re-throw our custom errors
-      if (error instanceof OAuthProviderError) {
-        throw error
-      }
-      
-      // Check if this looks like a configuration error
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
-      if (errorMessage.includes('provider') || errorMessage.includes('not enabled')) {
-        throw new OAuthProviderError(provider, true)
-      }
-      
-      // Check for specific error codes
-      if (errorMessage === 'network_error' || errorMessage === 'authentication_failed') {
         throw new Error(errorMessage)
       }
       
@@ -238,8 +169,8 @@ export class AuthService {
         error: { 
           message: error instanceof Error ? error.message : 'Unknown error',
           name: 'UnknownError',
-          status: 500
-        } as AuthError 
+          status: 500,
+        } as AuthError, 
       }
     }
   }
@@ -261,7 +192,7 @@ export class AuthService {
         } else {
           callback(null)
         }
-      }
+      },
     )
 
     // Return unsubscribe function

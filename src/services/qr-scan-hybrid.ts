@@ -52,7 +52,7 @@ export class HybridQRScanService {
    */
   async scanImageForQR(
     imageFile: File,
-    exclusionZone?: { x: number; y: number; width: number; height: number }
+    exclusionZone?: { x: number; y: number; width: number; height: number },
   ): Promise<QRScanResult> {
     const processingSteps: string[] = []
     const startTime = Date.now()
@@ -81,7 +81,7 @@ export class HybridQRScanService {
         processingSteps.push('Exclusion zone applied')
       }
 
-      imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
       processingSteps.push('Image data extracted')
 
       // Wait for WASM if it's currently loading
@@ -175,14 +175,16 @@ export class HybridQRScanService {
    */
   private async scanWithRxing(imageData: ImageData): Promise<string | null> {
     const rxingWasm = wasmGlobals.getRxingWasm()
-    if (!rxingWasm) return null
+    if (!rxingWasm) {
+      return null
+    }
 
     try {
       const luma8Data = rxingWasm.convert_imagedata_to_luma(imageData)
       const hints = new rxingWasm.DecodeHintDictionary()
-      hints.set_hint(rxingWasm.DecodeHintTypes.TryHarder, "true")
-      hints.set_hint(rxingWasm.DecodeHintTypes.PossibleFormats, "qrcode")
-      hints.set_hint(rxingWasm.DecodeHintTypes.AlsoInverted, "true")
+      hints.set_hint(rxingWasm.DecodeHintTypes.TryHarder, 'true')
+      hints.set_hint(rxingWasm.DecodeHintTypes.PossibleFormats, 'qrcode')
+      hints.set_hint(rxingWasm.DecodeHintTypes.AlsoInverted, 'true')
 
       const result = rxingWasm.decode_barcode_with_hints(luma8Data, imageData.width, imageData.height, hints)
 
@@ -273,7 +275,7 @@ export class HybridQRScanService {
     jsqrAvailable: boolean
     recommendedEngine: 'jsqr' | 'rxing-wasm'
     wasmLoadTime?: number
-  } {
+    } {
     const rxingWasm = wasmGlobals.getRxingWasm()
     const isLoading = wasmGlobals.isWasmLoading()
     

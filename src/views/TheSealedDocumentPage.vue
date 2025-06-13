@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from "vue";
-import { useRoute, useRouter } from "vue-router";
-import { useDocumentStore } from "../stores/documentStore";
-import BaseButton from "../components/common/BaseButton.vue";
-import FormatConversionNotification from "../components/sealed/FormatConversionNotification.vue";
+import { ref, onMounted, computed } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { useDocumentStore } from '../stores/documentStore'
+import BaseButton from '../components/common/BaseButton.vue'
+import FormatConversionNotification from '../components/sealed/FormatConversionNotification.vue'
 
-const route = useRoute();
-const router = useRouter();
-const documentStore = useDocumentStore();
+const route = useRoute()
+const router = useRouter()
+const documentStore = useDocumentStore()
 
-const documentId = computed(() => route.params.documentId as string);
-const isLoading = ref(true);
+const documentId = computed(() => route.params.documentId as string)
+const isLoading = ref(true)
 
 onMounted(async () => {
   try {
@@ -18,52 +18,64 @@ onMounted(async () => {
       !documentStore.hasDocument ||
       documentStore.documentId !== documentId.value
     ) {
-      router.push("/document");
-      return;
+      router.push('/document')
+      return
     }
 
-    isLoading.value = false;
+    isLoading.value = false
   } catch (error) {
-    console.error("Error loading sealed document:", error);
-    isLoading.value = false;
+    console.error('Error loading sealed document:', error)
+    isLoading.value = false
   }
-});
+})
 
 const downloadDocument = () => {
-  documentStore.downloadSealedDocument();
-};
+  documentStore.downloadSealedDocument()
+}
 
 const goBack = () => {
-  router.push("/document");
-};
+  router.push('/document')
+}
 
 const sealInfo = [
-  "A unique document identifier",
-  "Timestamp of sealing",
-  "Your authentication information (hashed for privacy)",
-  "A verification URL that can be accessed by scanning the QR code with any QR code reader",
-];
+  'A unique document identifier',
+  'Timestamp of sealing',
+  'Your authentication information (hashed for privacy)',
+  'A verification URL that can be accessed by scanning the QR code with any QR code reader',
+]
 </script>
 
 <template>
   <div class="min-h-screen bg-gray-50">
     <div class="container mx-auto px-4 py-8">
       <div class="mb-6">
-        <h1 class="text-3xl font-bold">Your Sealed Document</h1>
-        <p class="text-gray-600">Your document has been successfully sealed</p>
+        <h1 class="text-3xl font-bold">
+          Your Sealed Document
+        </h1>
+        <p class="text-gray-600">
+          Your document has been successfully sealed
+        </p>
       </div>
 
-      <div v-if="isLoading" class="flex justify-center items-center py-12">
+      <div
+        v-if="isLoading"
+        class="flex justify-center items-center py-12"
+      >
         <div
           class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500"
         />
       </div>
 
-      <div v-else class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div
+        v-else
+        class="grid grid-cols-1 md:grid-cols-3 gap-8"
+      >
         <!-- Main Column -->
         <div class="md:col-span-2">
           <div class="card mb-8 animate-fade-in">
-            <h2 class="text-2xl font-bold mb-4">Sealed Document</h2>
+            <h2 class="text-2xl font-bold mb-4">
+              Sealed Document
+            </h2>
 
             <div class="mb-6">
               <div
@@ -74,16 +86,22 @@ const sealInfo = [
                   :src="documentStore.sealedDocumentUrl"
                   alt="Sealed Document"
                   class="max-w-full max-h-[500px] rounded shadow-sm"
-                />
+                >
               </div>
             </div>
 
             <div class="flex justify-between items-center">
-              <BaseButton variant="secondary" @click="goBack">
+              <BaseButton
+                variant="secondary"
+                @click="goBack"
+              >
                 ← Back
               </BaseButton>
 
-              <BaseButton variant="primary" @click="downloadDocument">
+              <BaseButton
+                variant="primary"
+                @click="downloadDocument"
+              >
                 Download Document
               </BaseButton>
             </div>
@@ -104,7 +122,9 @@ const sealInfo = [
         <!-- Sidebar -->
         <div class="md:col-span-1">
           <div class="bg-white rounded-xl shadow-sm p-6">
-            <h2 class="text-xl font-bold mb-6">What's in Your Seal?</h2>
+            <h2 class="text-xl font-bold mb-6">
+              What's in Your Seal?
+            </h2>
 
             <div class="space-y-4">
               <div

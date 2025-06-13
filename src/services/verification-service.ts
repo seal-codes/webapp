@@ -103,7 +103,7 @@ export class VerificationService {
   async scanImageForQR(
     imageFile: File, 
     exclusionZone?: { x: number; y: number; width: number; height: number },
-    options?: { waitForWasm?: boolean; wasmTimeout?: number }
+    options?: { waitForWasm?: boolean; wasmTimeout?: number },
   ) {
     // Use hybrid QR reader with fallback support (jsQR while rxing-wasm loads)
     const { hybridQRReaderService } = await import('./qr-reader-hybrid')

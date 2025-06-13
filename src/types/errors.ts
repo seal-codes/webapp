@@ -34,7 +34,7 @@ export class CodedError extends Error {
     public code: ErrorCode,
     message: string,
     public provider?: string,
-    public details?: string
+    public details?: string,
   ) {
     super(message)
     this.name = 'CodedError'
@@ -47,12 +47,12 @@ export class CodedError extends Error {
 export class OAuthProviderError extends CodedError {
   constructor(
     provider: string,
-    public isConfigurationError: boolean = false
+    public isConfigurationError: boolean = false,
   ) {
     super(
       'provider_not_configured',
       `Provider ${provider} is not configured`,
-      provider
+      provider,
     )
     this.name = 'OAuthProviderError'
   }

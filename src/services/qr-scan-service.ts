@@ -59,9 +59,9 @@ export class QRScanService {
       
       // Create hints for better QR detection
       const hints = new DecodeHintDictionary()
-      hints.set_hint(DecodeHintTypes.TryHarder, "true")
-      hints.set_hint(DecodeHintTypes.PossibleFormats, "qrcode")
-      hints.set_hint(DecodeHintTypes.AlsoInverted, "true")
+      hints.set_hint(DecodeHintTypes.TryHarder, 'true')
+      hints.set_hint(DecodeHintTypes.PossibleFormats, 'qrcode')
+      hints.set_hint(DecodeHintTypes.AlsoInverted, 'true')
       
       let code = null
       try {
@@ -73,8 +73,8 @@ export class QRScanService {
               x: 0, // rxing-wasm doesn't provide exact location info like jsQR
               y: 0,
               width: imageData.width,
-              height: imageData.height
-            }
+              height: imageData.height,
+            },
           }
         }
       } catch (error) {

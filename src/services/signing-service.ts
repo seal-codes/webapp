@@ -121,7 +121,7 @@ export class SigningService {
    */
   combineWithServerSignature(
     clientPackage: AttestationPackage,
-    serverResponse: SigningResponse
+    serverResponse: SigningResponse,
   ): SignedAttestationPackage {
     console.log('🔗 Combining client package with server signature...')
     

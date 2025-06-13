@@ -5,9 +5,7 @@
 
 import jsQR from 'jsqr'
 import { verificationService } from './verification-service'
-import { qrAreaDetector } from './qr-area-detector'
 import type { AttestationData } from '@/types/qrcode'
-import type { DetectedQRRegion } from './qr-area-detector'
 import { wasmGlobals } from './wasm-preloader'
 
 // Type for unified QR result
@@ -75,7 +73,7 @@ export class HybridQRReaderService {
   async scanImageForQR(
     imageFile: File,
     exclusionZone?: { x: number; y: number; width: number; height: number },
-    options: QRScanOptions = {}
+    options: QRScanOptions = {},
   ): Promise<QRScanResult> {
     const { waitForWasm = true, wasmTimeout = 3000 } = options
     const processingSteps: string[] = []
@@ -131,7 +129,6 @@ export class HybridQRReaderService {
       }
 
       if (!qrCode) {
-        const totalTime = Date.now() - startTime
         return {
           found: false,
           error: 'No QR code found',
@@ -204,7 +201,7 @@ export class HybridQRReaderService {
   private async scanFullImage(
     imageData: ImageData,
     engine: 'jsqr' | 'rxing-wasm',
-    processingSteps: string[]
+    processingSteps: string[],
   ): Promise<QRCode | null> {
     processingSteps.push('Full image scan')
 
@@ -222,7 +219,7 @@ export class HybridQRReaderService {
     imageData: ImageData,
     exclusionZone: { x: number; y: number; width: number; height: number },
     engine: 'jsqr' | 'rxing-wasm',
-    processingSteps: string[]
+    processingSteps: string[],
   ): Promise<QRCode | null> {
     processingSteps.push('Scanning with exclusion zone')
 
@@ -251,18 +248,20 @@ export class HybridQRReaderService {
    */
   private async scanWithRxing(imageData: ImageData, tryHarder: boolean): Promise<QRCode | null> {
     const rxingWasm = wasmGlobals.getRxingWasm()
-    if (!rxingWasm) return null
+    if (!rxingWasm) {
+      return null
+    }
 
     try {
       const luma8Data = rxingWasm.convert_imagedata_to_luma(imageData)
       const hints = new rxingWasm.DecodeHintDictionary()
-      hints.set_hint(rxingWasm.DecodeHintTypes.PossibleFormats, "qrcode")
+      hints.set_hint(rxingWasm.DecodeHintTypes.PossibleFormats, 'qrcode')
 
       let result = null
 
       if (tryHarder) {
-        hints.set_hint(rxingWasm.DecodeHintTypes.TryHarder, "true")
-        hints.set_hint(rxingWasm.DecodeHintTypes.AlsoInverted, "true")
+        hints.set_hint(rxingWasm.DecodeHintTypes.TryHarder, 'true')
+        hints.set_hint(rxingWasm.DecodeHintTypes.AlsoInverted, 'true')
         result = rxingWasm.decode_barcode_with_hints(luma8Data, imageData.width, imageData.height, hints)
       } else {
         result = rxingWasm.decode_barcode(luma8Data, imageData.width, imageData.height, false)
@@ -275,8 +274,8 @@ export class HybridQRReaderService {
             x: 0, // rxing-wasm doesn't provide exact coordinates
             y: 0,
             width: imageData.width,
-            height: imageData.height
-          }
+            height: imageData.height,
+          },
         }
       }
 
@@ -326,7 +325,7 @@ export class HybridQRReaderService {
             y: minY,
             width: maxX - minX,
             height: maxY - minY,
-          }
+          },
         }
       }
 
@@ -397,7 +396,7 @@ export class HybridQRReaderService {
     jsqrAvailable: boolean
     recommendedEngine: 'jsqr' | 'rxing-wasm'
     wasmLoadTime?: number
-  } {
+    } {
     const rxingWasm = wasmGlobals.getRxingWasm()
     const isLoading = wasmGlobals.isWasmLoading()
     

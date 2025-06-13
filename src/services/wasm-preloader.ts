@@ -54,7 +54,9 @@ export class WasmPreloader {
    * Preload rxing-wasm module
    */
   private async preloadRxingWasm(): Promise<void> {
-    if (rxingWasm || rxingWasmLoading) return
+    if (rxingWasm || rxingWasmLoading) {
+      return
+    }
 
     rxingWasmLoading = true
     wasmLoadStartTime = Date.now()
@@ -89,7 +91,7 @@ export class WasmPreloader {
     isLoading: boolean
     loadTime?: number
     module?: any
-  } {
+    } {
     return {
       isLoaded: !!rxingWasm,
       isLoading: rxingWasmLoading,
@@ -115,8 +117,8 @@ export class WasmPreloader {
         const result = await Promise.race([
           wasmLoadPromise,
           new Promise((_, reject) => 
-            setTimeout(() => reject(new Error('WASM loading timeout')), timeoutMs)
-          )
+            setTimeout(() => reject(new Error('WASM loading timeout')), timeoutMs),
+          ),
         ])
         return result
       } catch (error) {
@@ -157,7 +159,7 @@ export class WasmPreloader {
     isReady: boolean
     recommendedEngine: 'jsqr' | 'rxing-wasm'
     startupLoadingEnabled: boolean
-  } {
+    } {
     return {
       loadTime: wasmLoadStartTime ? Date.now() - wasmLoadStartTime : undefined,
       isReady: !!rxingWasm,
@@ -191,14 +193,16 @@ export const wasmGlobals = {
    * @param timeoutMs - Maximum time to wait in milliseconds (default: 5000)
    */
   async waitForWasm(timeoutMs: number = 5000): Promise<any> {
-    if (rxingWasm) return rxingWasm
+    if (rxingWasm) {
+      return rxingWasm
+    }
     if (wasmLoadPromise) {
       try {
         const result = await Promise.race([
           wasmLoadPromise,
           new Promise((_, reject) => 
-            setTimeout(() => reject(new Error('WASM loading timeout')), timeoutMs)
-          )
+            setTimeout(() => reject(new Error('WASM loading timeout')), timeoutMs),
+          ),
         ])
         return result
       } catch (error) {
@@ -230,7 +234,7 @@ export const wasmGlobals = {
    */
   setWasmLoading(loading: boolean): void {
     rxingWasmLoading = loading
-  }
+  },
 }
 
 /**

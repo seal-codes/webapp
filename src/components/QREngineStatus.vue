@@ -1,10 +1,22 @@
 <template>
-  <div class="qr-engine-status" v-if="showStatus">
-    <div class="status-indicator" :class="statusClass">
-      <div class="status-icon">{{ statusIcon }}</div>
+  <div
+    v-if="showStatus"
+    class="qr-engine-status"
+  >
+    <div
+      class="status-indicator"
+      :class="statusClass"
+    >
+      <div class="status-icon">
+        {{ statusIcon }}
+      </div>
       <div class="status-text">
-        <div class="engine-name">{{ engineName }}</div>
-        <div class="status-message">{{ statusMessage }}</div>
+        <div class="engine-name">
+          {{ engineName }}
+        </div>
+        <div class="status-message">
+          {{ statusMessage }}
+        </div>
       </div>
     </div>
   </div>
@@ -19,9 +31,9 @@ interface Props {
   compact?: boolean
 }
 
-const props = withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<Props>(), {
   showStatus: true,
-  compact: false
+  compact: false,
 })
 
 const wasmState = ref({
@@ -49,20 +61,32 @@ const updateStatus = () => {
 }
 
 const statusClass = computed(() => {
-  if (wasmState.value.isLoading) return 'loading'
-  if (wasmState.value.isLoaded) return 'loaded'
+  if (wasmState.value.isLoading) {
+    return 'loading'
+  }
+  if (wasmState.value.isLoaded) {
+    return 'loaded'
+  }
   return 'fallback'
 })
 
 const statusIcon = computed(() => {
-  if (wasmState.value.isLoading) return '⏳'
-  if (wasmState.value.isLoaded) return '🚀'
+  if (wasmState.value.isLoading) {
+    return '⏳'
+  }
+  if (wasmState.value.isLoaded) {
+    return '🚀'
+  }
   return '📱'
 })
 
 const engineName = computed(() => {
-  if (wasmState.value.isLoaded) return 'High-Performance QR Scanner'
-  if (wasmState.value.isLoading) return 'Loading Enhanced Scanner...'
+  if (wasmState.value.isLoaded) {
+    return 'High-Performance QR Scanner'
+  }
+  if (wasmState.value.isLoading) {
+    return 'Loading Enhanced Scanner...'
+  }
   return 'Standard QR Scanner'
 })
 

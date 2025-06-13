@@ -20,8 +20,8 @@ export default [
     },
   },
   {
+    // General rules
     rules: {
-      // General rules
       'prefer-const': 'error',
       'no-var': 'error',
       'no-console': 'off',

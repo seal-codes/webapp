@@ -9,7 +9,7 @@ import { webcrypto } from 'node:crypto'
 // Mock rxing-wasm module before importing our services
 vi.mock('rxing-wasm', () => {
   const mockResult = {
-    text: () => 'mock-qr-data-from-rxing-wasm'
+    text: () => 'mock-qr-data-from-rxing-wasm',
   }
 
   return {
@@ -17,13 +17,13 @@ vi.mock('rxing-wasm', () => {
     decode_barcode_with_hints: vi.fn(() => mockResult),
     convert_imagedata_to_luma: vi.fn(() => new Uint8Array(100)),
     DecodeHintDictionary: vi.fn(() => ({
-      set_hint: vi.fn()
+      set_hint: vi.fn(),
     })),
     DecodeHintTypes: {
       TryHarder: 'TryHarder',
       PossibleFormats: 'PossibleFormats',
-      AlsoInverted: 'AlsoInverted'
-    }
+      AlsoInverted: 'AlsoInverted',
+    },
   }
 })
 
@@ -151,9 +151,15 @@ describe('Hybrid QR Services with WASM Mock', () => {
       await wasmModule.wasmPreloader.forceReload()
     } finally {
       // Restore environment
-      if (originalEnv) process.env.NODE_ENV = originalEnv
-      if (originalVitest) process.env.VITEST = originalVitest
-      if (originalDescribe) (globalThis as any).describe = originalDescribe
+      if (originalEnv) {
+        process.env.NODE_ENV = originalEnv
+      }
+      if (originalVitest) {
+        process.env.VITEST = originalVitest
+      }
+      if (originalDescribe) {
+        (globalThis as any).describe = originalDescribe
+      }
     }
   })
 
@@ -275,7 +281,7 @@ describe('Hybrid QR Services with WASM Mock', () => {
       // Wait for WASM
       await Promise.all([
         readerService.waitForWasm(),
-        scanService.waitForWasm()
+        scanService.waitForWasm(),
       ])
       
       const readerInfo = readerService.getEngineInfo()

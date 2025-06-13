@@ -97,6 +97,6 @@ const expand = () => {
 defineExpose({
   collapse,
   expand,
-  toggleDetails
+  toggleDetails,
 })
 </script>
