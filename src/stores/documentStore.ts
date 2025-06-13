@@ -271,7 +271,7 @@ export const useDocumentStore = defineStore('document', () => {
     set: (value: QRCodeUIPosition) => {
       persistedQRPosition.value = value
       console.log('📍 QR position updated:', value)
-    }
+    },
   })
   
   const qrSizePercent = computed({
@@ -279,7 +279,7 @@ export const useDocumentStore = defineStore('document', () => {
     set: (value: number) => {
       persistedQRSize.value = value
       console.log('📏 QR size updated:', value)
-    }
+    },
   })
   
   // Processing state
@@ -312,7 +312,7 @@ export const useDocumentStore = defineStore('document', () => {
   watch(uploadedDocument, async (newDoc, oldDoc) => {
     console.log('👀 Document watcher triggered:', {
       newDoc: newDoc ? `${newDoc.name} (${newDoc.size} bytes)` : 'null',
-      oldDoc: oldDoc ? `${oldDoc.name} (${oldDoc.size} bytes)` : 'null'
+      oldDoc: oldDoc ? `${oldDoc.name} (${oldDoc.size} bytes)` : 'null',
     })
     
     if (newDoc) {
@@ -626,7 +626,7 @@ export const useDocumentStore = defineStore('document', () => {
       // Combine client package with server signature to create final attestation data
       const finalAttestationData = attestationBuilder.combineWithServerSignature(
         attestationPackage,
-        signingResponse
+        signingResponse,
       )
       console.log('🔗 Final attestation data created:', finalAttestationData)
 
@@ -801,7 +801,7 @@ export const useDocumentStore = defineStore('document', () => {
       console.log('✅ Format converted:', {
         from: conversionResult.originalFormat,
         to: conversionResult.finalFormat,
-        reason: conversionResult.conversionReason
+        reason: conversionResult.conversionReason,
       })
     }
     
@@ -844,7 +844,7 @@ export const useDocumentStore = defineStore('document', () => {
               console.log('📊 Final sealed document:', {
                 format: outputFormat,
                 size: blob.size,
-                dimensions: `${canvas.width}x${canvas.height}`
+                dimensions: `${canvas.width}x${canvas.height}`,
               })
               resolve()
             } else {
@@ -905,14 +905,25 @@ export const useDocumentStore = defineStore('document', () => {
     a.click()
   }
   
-  const reset = () => {
-    console.log('🔄 Resetting document store...')
+  const reset = (preserveSealed = false) => {
+    console.log('🔄 Resetting document store...', preserveSealed ? '(preserving sealed document)' : '')
+    
+    // Keep sealed document data if requested
+    let sealedUrl = ''
+    let sealedBlob: Blob | null = null
+    let docId = ''
+    
+    if (preserveSealed) {
+      sealedUrl = sealedDocumentUrl.value
+      sealedBlob = sealedDocumentBlob.value
+      docId = documentId.value
+    }
     
     // Clean up object URLs to prevent memory leaks
     if (documentPreviewUrl.value) {
       URL.revokeObjectURL(documentPreviewUrl.value)
     }
-    if (sealedDocumentUrl.value) {
+    if (!preserveSealed && sealedDocumentUrl.value) {
       URL.revokeObjectURL(sealedDocumentUrl.value)
     }
     
@@ -939,7 +950,23 @@ export const useDocumentStore = defineStore('document', () => {
     persistedDocumentData.value = null
     persistedOAuthState.value = null
     
+    // Restore sealed document data if preserving
+    if (preserveSealed) {
+      sealedDocumentUrl.value = sealedUrl
+      sealedDocumentBlob.value = sealedBlob
+      documentId.value = docId
+      currentStep.value = 'sealed'
+    }
+    
     console.log('✅ Document store reset completed')
+  }
+  
+  /**
+   * Reset the document store after successful sealing
+   * This ensures users start fresh when they want to seal another document
+   */
+  const resetAfterSealing = () => {
+    reset(true) // Reset but preserve sealed document data
   }
   
   // Initialize store
@@ -1025,6 +1052,7 @@ export const useDocumentStore = defineStore('document', () => {
       showFormatConversionNotification.value = false
     },
     reset,
+    resetAfterSealing,
     initialize,
   }
 })
