@@ -13,6 +13,19 @@ import {
 import { verificationService } from './verification-service'
 import { qrAreaDetector } from './qr-area-detector'
 import type { AttestationData } from '@/types/qrcode'
+
+// Interface for internal QR scan result
+interface QRScanResult {
+  found: boolean
+  error?: string
+  data?: string
+  attestationData?: AttestationData
+  location?: { x: number; y: number; width: number; height: number }
+  debug?: {
+    processingSteps: string[]
+    detectedAreas?: unknown[]
+  }
+}
 import type { DetectedQRRegion } from './qr-area-detector'
 
 // Type for rxing-wasm result (simplified interface)
@@ -415,7 +428,7 @@ export class QRReaderService {
   /**
    * Process the QR scan result and format the response
    */
-  private processQRScanResult(result: any): {
+  private processQRScanResult(result: QRScanResult): {
     found: boolean;
     attestationData?: AttestationData;
     qrLocation?: { x: number; y: number; width: number; height: number };
@@ -440,7 +453,7 @@ export class QRReaderService {
   /**
    * Create result for when no QR code is found
    */
-  private createNotFoundResult(result: any) {
+  private createNotFoundResult(result: QRScanResult) {
     return {
       found: false,
       error: result.error || 'No QR code found',
@@ -455,7 +468,7 @@ export class QRReaderService {
   /**
    * Create result for when QR code is found but doesn't contain attestation data
    */
-  private createInvalidDataResult(result: any) {
+  private createInvalidDataResult(result: QRScanResult) {
     return {
       found: false,
       error: `QR code found but it does not contain seal.codes attestation data. Found: ${result.data?.substring(0, 100)}...`,
@@ -470,7 +483,7 @@ export class QRReaderService {
   /**
    * Create result for successful attestation data extraction
    */
-  private createSuccessResult(result: any) {
+  private createSuccessResult(result: QRScanResult) {
     return {
       found: true,
       attestationData: result.attestationData,

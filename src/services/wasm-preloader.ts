@@ -3,11 +3,17 @@
  * Handles early loading of rxing-wasm at application startup
  */
 
+// Interface for rxing-wasm module (external library)
+interface RxingWasmModule {
+  readBarcodesFromImageData: (imageData: ImageData, options?: unknown) => unknown[]
+  // Add other methods as needed
+}
+
 // Global WASM state shared across the application
-let rxingWasm: any = null
+let rxingWasm: RxingWasmModule | null = null
 let rxingWasmLoading = false
 let wasmLoadStartTime: number | null = null
-let wasmLoadPromise: Promise<any> | null = null
+let wasmLoadPromise: Promise<RxingWasmModule> | null = null
 
 /**
  * WASM Preloader Service
@@ -46,7 +52,7 @@ export class WasmPreloader {
       typeof process !== 'undefined' && 
       (process.env.NODE_ENV === 'test' || 
        process.env.VITEST === 'true' ||
-       typeof (globalThis as any).describe !== 'undefined')
+       typeof (globalThis as Record<string, unknown>).describe !== 'undefined')
     )
   }
 

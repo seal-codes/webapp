@@ -57,7 +57,7 @@ export class HybridQRReaderService {
       typeof process !== 'undefined' && 
       (process.env.NODE_ENV === 'test' || 
        process.env.VITEST === 'true' ||
-       typeof (globalThis as any).describe !== 'undefined')
+       typeof (globalThis as Record<string, unknown>).describe !== 'undefined')
     )
   }
 
