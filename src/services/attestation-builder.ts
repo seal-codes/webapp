@@ -101,10 +101,11 @@ export class AttestationBuilder {
 
   /**
    * Combine server signature with client attestation package
+   * NOTE: No longer includes public key in attestation data for space savings
    * 
    * @param clientPackage - Original attestation package from client
    * @param serverResponse - Signature response from server
-   * @returns Complete signed attestation data for QR encoding
+   * @returns Complete signed attestation data for QR encoding (without embedded public key)
    */
   combineWithServerSignature(
     clientPackage: AttestationPackage,
@@ -140,9 +141,8 @@ export class AttestationBuilder {
         h: clientPackage.exclusionZone.height,
         f: clientPackage.exclusionZone.fillColor.replace('#', ''), // Remove # for compactness
       },
-      // Add signature and public key for verification
+      // Add signature for verification (but no public key - save space)
       sig: serverResponse.signature,
-      pk: serverResponse.publicKey,
       ...(clientPackage.userUrl && { u: clientPackage.userUrl }),
     }
   }

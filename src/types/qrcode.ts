@@ -22,6 +22,7 @@ export interface QRCodeExclusionZone {
 /**
  * Compact attestation data structure for QR code embedding
  * All property names are shortened to minimize QR code size
+ * NOTE: Public key removed for space savings - verification is now online-only
  */
 export interface AttestationData {
   /** Document hash information - compact format */
@@ -67,8 +68,6 @@ export interface AttestationData {
   };
   /** Cryptographic signature (added by server) */
   sig?: string;
-  /** Public key for verification (added by server) */
-  pk?: string;
   /** Optional user-provided URL */
   u?: string;
 }

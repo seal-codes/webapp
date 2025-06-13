@@ -10,8 +10,14 @@ import {
   ChevronRight,
   Eye,
   Settings,
+  Shield,
+  User,
+  Calendar,
 } from 'lucide-vue-next'
+import LabeledText from '@/components/common/LabeledText.vue'
+import { providers } from '@/types/auth'
 import type { VerificationResult } from '@/services/verification-service'
+import type { Provider } from '@/types/auth'
 
 interface Props {
   verificationResult: VerificationResult;
@@ -77,6 +83,32 @@ const confidenceConfig = computed(() => {
         ),
       }
 
+    case 'error_signature_invalid':
+      return {
+        level: 'none',
+        icon: XCircle,
+        iconColor: 'text-red-500',
+        bgColor: 'bg-red-50',
+        borderColor: 'border-red-200',
+        title: 'Invalid Signature',
+        subtitle: 'The digital signature could not be verified',
+        description: 'The signature in this document is invalid or has been tampered with. This document cannot be trusted.',
+        recommendation: 'Do not trust this document - verify the source and obtain a new copy.',
+      }
+
+    case 'error_signature_missing':
+      return {
+        level: 'none',
+        icon: AlertCircle,
+        iconColor: 'text-red-500',
+        bgColor: 'bg-red-50',
+        borderColor: 'border-red-200',
+        title: 'Missing Signature',
+        subtitle: 'No digital signature found in this document',
+        description: 'This document does not contain a valid digital signature. It may be corrupted or not properly sealed.',
+        recommendation: 'This document cannot be verified - obtain a properly sealed version.',
+      }
+
     case 'error_processing':
       return {
         level: 'error',
@@ -129,6 +161,40 @@ const confidenceConfig = computed(() => {
           'verification.results.confidence.default.recommendation',
         ),
       }
+  }
+})
+
+/**
+ * Get provider information based on compact ID
+ */
+const providerInfo = computed(() => {
+  if (!props.verificationResult.details.signatureVerification?.identity.provider) {
+    return null
+  }
+  
+  const provider = providers.find((p: Provider) => 
+    p.compactId === props.verificationResult.details.signatureVerification?.identity.provider
+  )
+  return provider || { 
+    name: 'Unknown Provider', 
+    id: 'unknown', 
+    compactId: 'u',
+    icon: '', 
+  }
+})
+
+/**
+ * Format timestamp for display
+ */
+const formattedTimestamp = computed(() => {
+  if (!props.verificationResult.details.signatureVerification?.timestamp) {
+    return 'Unknown'
+  }
+  
+  try {
+    return new Date(props.verificationResult.details.signatureVerification.timestamp).toLocaleString()
+  } catch {
+    return 'Invalid date'
   }
 })
 
@@ -206,8 +272,87 @@ const toggleDetails = () => {
         </p>
       </div>
 
+      <!-- Identity Verification Section (if signature verification available) -->
+      <div
+        v-if="verificationResult.details.signatureVerification"
+        class="border-t pt-6"
+      >
+        <h4 class="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+          <Shield class="w-5 h-5 text-blue-500" />
+          Identity Verification
+        </h4>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Identity Information -->
+          <div class="space-y-4">
+            <LabeledText
+              :icon="User"
+              label="Sealed By"
+              :value="verificationResult.details.signatureVerification.identity.identifier"
+            />
+            
+            <div class="space-y-1">
+              <div class="flex items-center gap-2">
+                <div class="w-4 h-4">
+                  <img 
+                    v-if="providerInfo" 
+                    :src="providerInfo.icon" 
+                    :alt="providerInfo.name"
+                    class="w-4 h-4 object-contain"
+                  >
+                </div>
+                <span class="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                  Authentication Provider
+                </span>
+              </div>
+              <p class="text-gray-900">
+                {{ providerInfo?.name || 'Unknown' }}
+              </p>
+            </div>
+          </div>
+          
+          <!-- Verification Details -->
+          <div class="space-y-4">
+            <LabeledText
+              :icon="Calendar"
+              label="Sealed On"
+              :value="formattedTimestamp"
+            />
+            
+            <div class="space-y-1">
+              <div class="flex items-center gap-2">
+                <Shield class="w-4 h-4 text-gray-400" />
+                <span class="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                  Signature Status
+                </span>
+              </div>
+              <div class="flex items-center gap-2">
+                <component
+                  :is="verificationResult.details.signatureValid ? CheckCircle : XCircle"
+                  :class="verificationResult.details.signatureValid ? 'text-green-500' : 'text-red-500'"
+                  class="w-4 h-4"
+                />
+                <p class="text-gray-900">
+                  {{ verificationResult.details.signatureValid ? 'Valid' : 'Invalid' }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Signature Error (if any) -->
+        <div
+          v-if="verificationResult.details.signatureVerification.error"
+          class="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg"
+        >
+          <p class="text-sm text-red-800">
+            <strong>Signature Error:</strong> {{ verificationResult.details.signatureVerification.error }}
+          </p>
+        </div>
+      </div>
+
       <!-- Technical Details -->
-      <div>
+      <div class="border-t pt-6">
         <h4 class="font-semibold text-gray-900 mb-3">
           {{ t("verification.results.technicalDetails") }}
         </h4>
@@ -221,6 +366,24 @@ const toggleDetails = () => {
             <span class="text-sm text-gray-900 font-mono">{{
               verificationResult.status
             }}</span>
+          </div>
+
+          <!-- Signature Verification -->
+          <div
+            v-if="verificationResult.details.signatureValid !== undefined"
+            class="flex items-center justify-between py-2 px-3 bg-gray-50 rounded-lg"
+          >
+            <span class="text-sm font-medium text-gray-700">Digital Signature:</span>
+            <div class="flex items-center gap-2">
+              <component
+                :is="verificationResult.details.signatureValid ? CheckCircle : XCircle"
+                :class="verificationResult.details.signatureValid ? 'text-green-500' : 'text-red-500'"
+                class="w-4 h-4"
+              />
+              <span class="text-sm text-gray-900">
+                {{ verificationResult.details.signatureValid ? 'Valid' : 'Invalid' }}
+              </span>
+            </div>
           </div>
 
           <!-- Cryptographic Hash -->
@@ -294,7 +457,7 @@ const toggleDetails = () => {
       </div>
 
       <!-- Confidence Level Indicator -->
-      <div>
+      <div class="border-t pt-6">
         <h4 class="font-semibold text-gray-900 mb-3">
           {{ t("verification.results.confidenceLevel") }}
         </h4>

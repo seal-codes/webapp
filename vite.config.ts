@@ -14,4 +14,6 @@ export default defineConfig({
   build: {
     target: 'esnext', // Support top-level await
   },
+  // GitHub Pages configuration
+  base: process.env.NODE_ENV === 'production' ? '/seal-codes/' : '/',
 })
