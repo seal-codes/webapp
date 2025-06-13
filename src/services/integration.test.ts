@@ -293,6 +293,46 @@ describe('Integration Tests', () => {
       })
       console.log('Attestation data created for sealing')
       
+      // Test attestation data encoding and decoding
+      console.log('--- ATTESTATION DATA ENCODING/DECODING TEST ---')
+      
+      // Import verification service
+      const { verificationService } = await import('./verification-service')
+      
+      // Encode the attestation data for QR code
+      const encodedData = verificationService.encodeForQR(attestationData)
+      console.log('Encoded attestation data length:', encodedData.length)
+      expect(encodedData).toBeDefined()
+      expect(encodedData.length).toBeGreaterThan(0)
+      
+      // Decode the attestation data from QR code
+      const decodedData = verificationService.decodeFromQR(encodedData)
+      console.log('Decoded attestation data valid:', decodedData.isValid)
+      expect(decodedData.isValid).toBe(true)
+      expect(decodedData.errorCode).toBeUndefined()
+      
+      // Verify the decoded data matches the original
+      const originalAttestationJson = JSON.stringify(attestationData)
+      const decodedAttestationJson = JSON.stringify(decodedData.attestationData)
+      console.log('Original attestation data length:', originalAttestationJson.length)
+      console.log('Decoded attestation data length:', decodedAttestationJson.length)
+      
+      // Verify key fields match
+      expect(decodedData.attestationData.h.c).toBe(attestationData.h.c)
+      expect(decodedData.attestationData.h.p.p).toBe(attestationData.h.p.p)
+      expect(decodedData.attestationData.h.p.d).toBe(attestationData.h.p.d)
+      expect(decodedData.attestationData.i.p).toBe(attestationData.i.p)
+      expect(decodedData.attestationData.i.id).toBe(attestationData.i.id)
+      expect(decodedData.attestationData.s.k).toBe(attestationData.s.k)
+      expect(decodedData.attestationData.e.x).toBe(attestationData.e.x)
+      expect(decodedData.attestationData.e.y).toBe(attestationData.e.y)
+      expect(decodedData.attestationData.e.w).toBe(attestationData.e.w)
+      expect(decodedData.attestationData.e.h).toBe(attestationData.e.h)
+      expect(decodedData.attestationData.e.f).toBe(attestationData.e.f)
+      expect(decodedData.attestationData.u).toBe(attestationData.u)
+      
+      console.log('✅ Attestation data encoding/decoding test successful!')
+      
       // 3c: Create sealed document (simulate embedding QR code)
       // Load original image again for sealing, apply exclusion zone, and place QR code
       const sealingImage = await loadImage(originalImageBuffer)
