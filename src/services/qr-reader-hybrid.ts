@@ -66,13 +66,13 @@ export class HybridQRReaderService {
    * Uses the best available engine (rxing-wasm if loaded, jsQR as fallback)
    * 
    * @param imageFile - The image file to scan
-   * @param exclusionZone - Optional exclusion zone to avoid scanning
+   * @param focusZone - Optional focus zone to crop image before scanning (improves performance and accuracy)
    * @param options - Scanning options
    * @returns Promise resolving to scan result
    */
   async scanImageForQR(
     imageFile: File,
-    exclusionZone?: { x: number; y: number; width: number; height: number },
+    focusZone?: { x: number; y: number; width: number; height: number },
     options: QRScanOptions = {},
   ): Promise<QRScanResult> {
     const { waitForWasm = true, wasmTimeout = 3000 } = options
@@ -118,9 +118,9 @@ export class HybridQRReaderService {
 
       let qrCode: QRCode | null = null
 
-      if (exclusionZone) {
-        // Scan with exclusion zone
-        qrCode = await this.scanWithExclusionZone(imageData, exclusionZone, engine, processingSteps)
+      if (focusZone) {
+        // Scan with focus zone (crop to specific area)
+        qrCode = await this.scanWithFocusZone(imageData, focusZone, engine, processingSteps)
         scannedRegions = 1
       } else {
         // Full image scan
@@ -213,34 +213,54 @@ export class HybridQRReaderService {
   }
 
   /**
-   * Scan image with exclusion zone
+   * Scan image with focus zone (crop to specific area before scanning)
    */
-  private async scanWithExclusionZone(
+  private async scanWithFocusZone(
     imageData: ImageData,
-    exclusionZone: { x: number; y: number; width: number; height: number },
+    focusZone: { x: number; y: number; width: number; height: number },
     engine: 'jsqr' | 'rxing-wasm',
     processingSteps: string[],
   ): Promise<QRCode | null> {
-    processingSteps.push('Scanning with exclusion zone')
+    processingSteps.push('Scanning with focus zone (cropping image)')
 
-    // Create a copy of the image data and black out the exclusion zone
+    // Create a cropped version of the image data
     const canvas = document.createElement('canvas')
-    canvas.width = imageData.width
-    canvas.height = imageData.height
+    canvas.width = focusZone.width
+    canvas.height = focusZone.height
     const ctx = canvas.getContext('2d')!
-    ctx.putImageData(imageData, 0, 0)
+    
+    // Create a temporary canvas with the full image
+    const tempCanvas = document.createElement('canvas')
+    tempCanvas.width = imageData.width
+    tempCanvas.height = imageData.height
+    const tempCtx = tempCanvas.getContext('2d')!
+    tempCtx.putImageData(imageData, 0, 0)
+    
+    // Draw the cropped area onto the target canvas
+    ctx.drawImage(
+      tempCanvas,
+      focusZone.x, focusZone.y, focusZone.width, focusZone.height, // source rectangle
+      0, 0, focusZone.width, focusZone.height // destination rectangle
+    )
 
-    // Black out exclusion zone
-    ctx.fillStyle = 'black'
-    ctx.fillRect(exclusionZone.x, exclusionZone.y, exclusionZone.width, exclusionZone.height)
+    const croppedImageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
+    processingSteps.push(`Cropped to ${focusZone.width}x${focusZone.height} area`)
 
-    const modifiedImageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
-
+    let qrCode: QRCode | null = null
     if (engine === 'rxing-wasm') {
-      return await this.scanWithRxing(modifiedImageData, true) // true = try harder
+      qrCode = await this.scanWithRxing(croppedImageData, true) // true = try harder
     } else {
-      return this.scanWithJsQR(modifiedImageData, true) // true = try harder
+      qrCode = this.scanWithJsQR(croppedImageData, true) // true = try harder
     }
+
+    // If QR code found, adjust coordinates back to original image space
+    if (qrCode) {
+      qrCode.location.x += focusZone.x
+      qrCode.location.y += focusZone.y
+      processingSteps.push('Adjusted QR code coordinates to original image space')
+    }
+
+    return qrCode
   }
 
   /**

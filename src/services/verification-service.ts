@@ -97,17 +97,17 @@ export class VerificationService {
    * Scan an image file for QR codes
    * 
    * @param imageFile - The image file to scan
-   * @param exclusionZone - Optional exclusion zone to focus scanning
+   * @param focusZone - Optional focus zone to crop image before scanning
    * @returns Promise resolving to scan result
    */
   async scanImageForQR(
     imageFile: File, 
-    exclusionZone?: { x: number; y: number; width: number; height: number },
+    focusZone?: { x: number; y: number; width: number; height: number },
     options?: { waitForWasm?: boolean; wasmTimeout?: number },
   ) {
     // Use hybrid QR reader with fallback support (jsQR while rxing-wasm loads)
     const { hybridQRReaderService } = await import('./qr-reader-hybrid')
-    return hybridQRReaderService.scanImageForQR(imageFile, exclusionZone, options)
+    return hybridQRReaderService.scanImageForQR(imageFile, focusZone, options)
   }
 
   /**

@@ -95,18 +95,11 @@ export const useVerificationStore = defineStore('verification', () => {
     scanDebugInfo.value = null
     
     try {
-      // First, try to get exclusion zone if we have attestation data
-      const exclusionZone = decodedData.value?.attestationData?.e
-        ? {
-          x: decodedData.value.attestationData.e.x,
-          y: decodedData.value.attestationData.e.y,
-          width: decodedData.value.attestationData.e.w,
-          height: decodedData.value.attestationData.e.h,
-        }
-        : undefined
-      console.log('Exclusion zone:', exclusionZone)
+      // When scanning for QR codes, we scan the ENTIRE image to find the QR code
+      // No exclusion zones - we want to FIND the QR code, not avoid it!
+      console.log('Scanning entire image for QR codes...')
       
-      const scanResult = await verificationService.scanImageForQR(imageFile, exclusionZone)
+      const scanResult = await verificationService.scanImageForQR(imageFile)
       console.log('Scan result:', scanResult)
       
       if (scanResult.found && scanResult.attestationData) {
@@ -140,6 +133,8 @@ export const useVerificationStore = defineStore('verification', () => {
     scanError.value = null
     
     try {
+      // When manually selecting an area, use it as a focus zone (crop to selected area)
+      // This improves scanning performance and accuracy by focusing on the selected region
       const result = await verificationService.scanImageForQR(uploadedDocument.value, selection)
       console.log('Manual scan result:', result)
       
