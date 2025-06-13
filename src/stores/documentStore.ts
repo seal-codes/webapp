@@ -103,15 +103,49 @@ const deserializeFile = (serializedFile: any): File => {
   }
 }
 
+// Document processing steps
+type DocumentStep = 
+  | 'idle'                    // No document loaded
+  | 'document-loaded'         // Document loaded, ready for auth
+  | 'authenticating'          // User is being redirected to OAuth
+  | 'auth-completed'          // Auth completed, ready to seal
+  | 'sealing'                 // Document is being sealed
+  | 'sealed'                  // Document has been sealed
+  | 'error'                   // An error occurred
+
 export const useDocumentStore = defineStore('document', () => {
   // Get auth store for authentication state
   const authStore = useAuthStore()
+  
+  // Step state management (persistent)
+  const currentStep = ref<DocumentStep>('idle')
+  const stepError = ref<string | null>(null)
   
   // Persistent state using manual localStorage management
   const persistedDocumentData = ref<any>(null)
   const persistedQRPosition = ref<QRCodeUIPosition>({ x: 85, y: 15 })
   const persistedQRSize = ref<number>(20)
   const persistedOAuthState = ref<any>(null)
+  const persistedStep = ref<DocumentStep>('idle')
+  
+  // Sync step with localStorage
+  watch(currentStep, (newStep) => {
+    persistedStep.value = newStep
+    try {
+      localStorage.setItem('seal-codes-step', JSON.stringify(newStep))
+      console.log('📊 Step updated:', newStep)
+    } catch (error) {
+      console.error('Failed to save step to localStorage:', error)
+    }
+  })
+  
+  watch(persistedStep, (newStep) => {
+    try {
+      localStorage.setItem('seal-codes-step', JSON.stringify(newStep))
+    } catch (error) {
+      console.error('Failed to save persisted step to localStorage:', error)
+    }
+  })
   
   // Load initial values from localStorage
   const loadFromLocalStorage = () => {
@@ -166,6 +200,19 @@ export const useDocumentStore = defineStore('document', () => {
     } catch (error) {
       console.warn('Failed to load OAuth state from localStorage:', error)
       localStorage.removeItem('seal-codes-oauth-state')
+    }
+    
+    try {
+      const stepData = localStorage.getItem('seal-codes-step')
+      if (stepData && stepData !== 'null') {
+        const step = JSON.parse(stepData) as DocumentStep
+        currentStep.value = step
+        persistedStep.value = step
+        console.log('📥 Loaded step from localStorage:', step)
+      }
+    } catch (error) {
+      console.warn('Failed to load step from localStorage:', error)
+      localStorage.removeItem('seal-codes-step')
     }
   }
   
@@ -350,8 +397,8 @@ export const useDocumentStore = defineStore('document', () => {
     console.log('📄 Setting document in store:', file.name, file.type)
     
     try {
-      // Clear any re-upload flags
-      needsDocumentReupload.value = false
+      // Clear any previous errors
+      stepError.value = null
       
       // Determine document type
       if (file.type === 'application/pdf') {
@@ -374,13 +421,19 @@ export const useDocumentStore = defineStore('document', () => {
       // Create a preview URL
       documentPreviewUrl.value = URL.createObjectURL(file)
       
+      // Update step to document-loaded
+      currentStep.value = 'document-loaded'
+      
       console.log('✅ Document set successfully:', {
         name: file.name,
         type: documentType.value,
         size: file.size,
-        previewUrl: documentPreviewUrl.value,
+        step: currentStep.value,
       })
     } catch (error) {
+      currentStep.value = 'error'
+      stepError.value = error instanceof Error ? error.message : 'Failed to load document'
+      
       if (error instanceof CodedError) {
         throw error
       }
@@ -421,9 +474,17 @@ export const useDocumentStore = defineStore('document', () => {
       throw new CodedError('document_required', 'Please load a document first')
     }
     
+    if (currentStep.value !== 'document-loaded') {
+      throw new CodedError('invalid_step', 'Document must be loaded before authentication')
+    }
+    
     console.log('🔐 Starting authentication with provider:', provider)
     
     try {
+      // Update step to authenticating
+      currentStep.value = 'authenticating'
+      stepError.value = null
+      
       // Save OAuth state before redirect
       saveOAuthState()
       
@@ -432,6 +493,9 @@ export const useDocumentStore = defineStore('document', () => {
       
     } catch (error) {
       console.error('❌ Authentication failed:', error)
+      currentStep.value = 'error'
+      stepError.value = error instanceof Error ? error.message : 'Authentication failed'
+      
       // Clear OAuth state on error
       persistedOAuthState.value = null
       throw error
@@ -442,7 +506,8 @@ export const useDocumentStore = defineStore('document', () => {
    * Handle post-authentication flow
    */
   const handlePostAuthFlow = async (): Promise<string | null> => {
-    console.log('🎉 Handling post-authentication flow...')
+    console.log('🎉 Handling post-authentication flow...', 'Current step:', currentStep.value)
+    console.log('🔍 OAuth state:', persistedOAuthState.value)
     
     try {
       // Check if we have saved OAuth state
@@ -453,13 +518,18 @@ export const useDocumentStore = defineStore('document', () => {
         
         // Restore document if not already loaded
         if (!hasDocument.value) {
+          console.log('📄 Restoring document from localStorage...')
           await restoreDocumentFromStorage()
         }
         
         // Check if we have the document
         if (!hasDocument.value) {
           console.log('⚠️ Document lost during OAuth flow - localStorage persistence may have failed')
+          currentStep.value = 'error'
+          stepError.value = 'Document was lost during authentication. Please re-upload your document.'
           needsDocumentReupload.value = true
+          
+          // Clear OAuth state
           persistedOAuthState.value = null
           return null
         }
@@ -469,29 +539,36 @@ export const useDocumentStore = defineStore('document', () => {
           if (uploadedDocument.value?.name !== oauthState.documentName || 
               uploadedDocument.value?.size !== oauthState.documentSize) {
             console.log('❌ Document mismatch after OAuth flow')
+            currentStep.value = 'error'
+            stepError.value = 'Document changed during authentication'
             throw new CodedError('document_mismatch', 'Document changed during authentication')
           }
         }
         
-        console.log('✅ Document verified, proceeding with sealing...')
+        console.log('✅ Document verified, setting step to auth-completed...')
         
-        // Clear OAuth state before sealing
+        // Clear OAuth state BEFORE setting step to auth-completed
         persistedOAuthState.value = null
         
-        // Small delay to ensure UI is ready
-        await new Promise(resolve => setTimeout(resolve, 500))
+        // Update step to auth-completed - this should trigger auto-sealing
+        currentStep.value = 'auth-completed'
         
-        // Trigger document sealing
-        const documentId = await sealDocument()
+        console.log('🎯 Step set to auth-completed, auto-sealing should be triggered by watcher')
         
-        console.log('🎯 Post-OAuth sealing completed successfully, document ID:', documentId)
-        return documentId
+        // Return null here - the actual sealing will be handled by the step watcher
+        return null
       } else {
         console.log('ℹ️ No pending seal operation found')
+        // If user is authenticated but no pending operation, set step accordingly
+        if (authStore.isAuthenticated && hasDocument.value) {
+          currentStep.value = 'document-loaded' // Ready for manual sealing
+        }
       }
       
     } catch (error) {
       console.error('❌ Error handling post-auth flow:', error)
+      currentStep.value = 'error'
+      stepError.value = error instanceof Error ? error.message : 'Post-authentication flow failed'
       persistedOAuthState.value = null
       throw error
     }
@@ -504,10 +581,11 @@ export const useDocumentStore = defineStore('document', () => {
       throw new CodedError('document_seal_failed', 'Document or authentication missing')
     }
 
-    console.log('🔒 Starting document sealing process...')
+    console.log('🔒 Starting document sealing process...', 'Current step:', currentStep.value)
     
-    isSealing.value = true
-    sealingError.value = null
+    // Update step to sealing
+    currentStep.value = 'sealing'
+    stepError.value = null
 
     try {
       // Get document dimensions for pixel calculation
@@ -582,20 +660,22 @@ export const useDocumentStore = defineStore('document', () => {
         )
       }
 
+      // Update step to sealed
+      currentStep.value = 'sealed'
+      
       console.log('✅ Document sealing completed successfully')
       return documentId.value
     } catch (error) {
       console.error('❌ Error sealing document:', error)
       
-      sealingError.value = error instanceof Error ? error.message : 'Failed to seal document'
+      currentStep.value = 'error'
+      stepError.value = error instanceof Error ? error.message : 'Failed to seal document'
       
       if (error instanceof CodedError) {
         throw error
       }
       
       throw new CodedError('document_seal_failed', 'Failed to seal document')
-    } finally {
-      isSealing.value = false
     }
   }
   
@@ -847,13 +927,13 @@ export const useDocumentStore = defineStore('document', () => {
     showFormatConversionNotification.value = false
     needsDocumentReupload.value = false
     
+    // Reset step state
+    currentStep.value = 'idle'
+    stepError.value = null
+    
     // Reset QR positioning to defaults
     persistedQRPosition.value = { x: 85, y: 15 }
     persistedQRSize.value = 20
-    
-    // Reset processing state
-    isSealing.value = false
-    sealingError.value = null
     
     // Clear persisted data
     persistedDocumentData.value = null
@@ -875,10 +955,28 @@ export const useDocumentStore = defineStore('document', () => {
     console.log('  - seal-codes-qr-position:', localStorage.getItem('seal-codes-qr-position'))
     console.log('  - seal-codes-qr-size:', localStorage.getItem('seal-codes-qr-size'))
     console.log('  - seal-codes-oauth-state:', !!localStorage.getItem('seal-codes-oauth-state'))
+    console.log('  - seal-codes-step:', localStorage.getItem('seal-codes-step'))
+    console.log('🔍 Current step after loading:', currentStep.value)
+    console.log('🔍 Has OAuth state:', !!persistedOAuthState.value)
+    console.log('🔍 Auth store authenticated:', authStore.isAuthenticated)
     
     try {
       // Try to restore document from localStorage on startup
       await restoreDocumentFromStorage()
+      
+      // If we have a document and it was restored, update step accordingly
+      if (hasDocument.value && currentStep.value === 'idle') {
+        currentStep.value = 'document-loaded'
+        console.log('📄 Document restored, step updated to document-loaded')
+      }
+      
+      // Check if we're in authenticating state and user is now authenticated
+      // This handles the case where user returns from OAuth redirect
+      if (currentStep.value === 'authenticating' && authStore.isAuthenticated) {
+        console.log('🎉 User is authenticated and we were in authenticating state - triggering post-auth flow')
+        await handlePostAuthFlow()
+      }
+      
     } catch (error) {
       console.error('❌ Error during document store initialization:', error)
       
@@ -886,9 +984,11 @@ export const useDocumentStore = defineStore('document', () => {
       console.log('🧹 Clearing all persisted data due to initialization error')
       persistedDocumentData.value = null
       persistedOAuthState.value = null
+      currentStep.value = 'error'
+      stepError.value = 'Initialization failed'
     }
     
-    console.log('✅ Document store initialized')
+    console.log('✅ Document store initialized with step:', currentStep.value)
   }
   
   return { 
@@ -902,9 +1002,11 @@ export const useDocumentStore = defineStore('document', () => {
     showFormatConversionNotification,
     qrPosition,
     qrSizePercent,
-    isSealing,
-    sealingError,
     needsDocumentReupload,
+    
+    // Step state
+    currentStep,
+    stepError,
     
     // Getters
     hasDocument,

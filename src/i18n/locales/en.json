@@ -77,6 +77,23 @@
       "chooseAnother": "Choose Another Document",
       "authenticateWith": "Authenticate yourself with"
     },
+    "steps": {
+      "documentLoaded": "Document loaded successfully",
+      "authenticating": "Redirecting to authentication...",
+      "authCompleted": "Authentication completed - preparing to seal...",
+      "sealing": "Sealing your document...",
+      "sealingDetails": "Creating cryptographic seal and embedding QR code",
+      "sealed": "Document sealed successfully!"
+    },
+    "auth": {
+      "authenticated": "Authenticated as {name}",
+      "via": "via {provider}",
+      "signOut": "Sign Out & Choose Different Account",
+      "differentAccount": "Want to use a different account?",
+      "chooseProvider": "Choose how you want to authenticate your identity for this seal:",
+      "sealButton": "🔒 Seal This Document",
+      "sealDescription": "This will create a permanent seal with your current authentication"
+    },
     "howItWorks": {
       "title": "How It Works",
       "steps": {
