@@ -58,11 +58,12 @@
 import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { ChevronDown, ChevronRight } from 'lucide-vue-next'
+import type { Component } from 'vue'
 
 interface Props {
   title: string
   subtitle: string
-  icon: any
+  icon: Component
   iconColor?: string
   bgColor?: string
   borderColor?: string
@@ -73,6 +74,7 @@ const props = withDefaults(defineProps<Props>(), {
   iconColor: 'text-blue-500',
   bgColor: 'bg-blue-50',
   borderColor: 'border-blue-200',
+  detailsText: '',
 })
 
 const { t } = useI18n()

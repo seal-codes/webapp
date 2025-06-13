@@ -9,7 +9,7 @@ export interface Toast {
   duration?: number
   persistent?: boolean
   component?: Component
-  props?: Record<string, any>
+  props?: Record<string, unknown>
 }
 
 interface ToastOptions {

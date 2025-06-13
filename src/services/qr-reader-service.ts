@@ -407,33 +407,70 @@ export class QRReaderService {
     console.log('🔍 Scanning for attestation data in:', imageFile.name)
     
     const result = await this.readQRCodeFromImage(imageFile, exclusionZone)
-    
     console.log('📊 QR scan result:', result)
     
+    return this.processQRScanResult(result)
+  }
+
+  /**
+   * Process the QR scan result and format the response
+   */
+  private processQRScanResult(result: any): {
+    found: boolean;
+    attestationData?: AttestationData;
+    qrLocation?: { x: number; y: number; width: number; height: number };
+    error?: string;
+    debug?: {
+      processingSteps: string[];
+      scannedRegions: number;
+      totalRegions: number;
+    };
+  } {
     if (!result.found) {
-      return {
-        found: false,
-        error: result.error || 'No QR code found',
-        debug: {
-          processingSteps: result.debug?.processingSteps || [],
-          scannedRegions: result.debug?.detectedAreas?.length || 0,
-          totalRegions: result.debug?.detectedAreas?.length || 0,
-        },
-      }
+      return this.createNotFoundResult(result)
     }
     
     if (!result.attestationData) {
-      return {
-        found: false,
-        error: `QR code found but it does not contain seal.codes attestation data. Found: ${result.data?.substring(0, 100)}...`,
-        debug: {
-          processingSteps: result.debug?.processingSteps || [],
-          scannedRegions: result.debug?.detectedAreas?.length || 1,
-          totalRegions: result.debug?.detectedAreas?.length || 1,
-        },
-      }
+      return this.createInvalidDataResult(result)
     }
     
+    return this.createSuccessResult(result)
+  }
+
+  /**
+   * Create result for when no QR code is found
+   */
+  private createNotFoundResult(result: any) {
+    return {
+      found: false,
+      error: result.error || 'No QR code found',
+      debug: {
+        processingSteps: result.debug?.processingSteps || [],
+        scannedRegions: result.debug?.detectedAreas?.length || 0,
+        totalRegions: result.debug?.detectedAreas?.length || 0,
+      },
+    }
+  }
+
+  /**
+   * Create result for when QR code is found but doesn't contain attestation data
+   */
+  private createInvalidDataResult(result: any) {
+    return {
+      found: false,
+      error: `QR code found but it does not contain seal.codes attestation data. Found: ${result.data?.substring(0, 100)}...`,
+      debug: {
+        processingSteps: result.debug?.processingSteps || [],
+        scannedRegions: result.debug?.detectedAreas?.length || 1,
+        totalRegions: result.debug?.detectedAreas?.length || 1,
+      },
+    }
+  }
+
+  /**
+   * Create result for successful attestation data extraction
+   */
+  private createSuccessResult(result: any) {
     return {
       found: true,
       attestationData: result.attestationData,

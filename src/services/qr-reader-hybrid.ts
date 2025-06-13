@@ -240,7 +240,7 @@ export class HybridQRReaderService {
     ctx.drawImage(
       tempCanvas,
       focusZone.x, focusZone.y, focusZone.width, focusZone.height, // source rectangle
-      0, 0, focusZone.width, focusZone.height // destination rectangle
+      0, 0, focusZone.width, focusZone.height, // destination rectangle
     )
 
     const croppedImageData = ctx.getImageData(0, 0, canvas.width, canvas.height)

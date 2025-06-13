@@ -9,17 +9,9 @@ defineProps<{
   isProcessing: boolean;
 }>()
 
-const emit = defineEmits<{
-  (e: 'providerSelected', provider: string): void;
-}>()
-
 const providers = ref<AuthProvider[]>([])
 const isLoading = ref(true)
 const error = ref<string | null>(null)
-
-const handleProviderSelect = (providerId: string) => {
-  emit('providerSelected', providerId)
-}
 
 onMounted(async () => {
   try {
@@ -96,8 +88,9 @@ onMounted(async () => {
         v-for="provider in providers"
         :key="provider.id"
         :disabled="isProcessing"
-        class="aspect-square flex flex-col items-center justify-center p-4 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors relative group disabled:opacity-50 disabled:cursor-not-allowed"
-        @click="handleProviderSelect(provider.id)"
+        class="aspect-square flex flex-col items-center justify-center p-4 border border-gray-200 
+          rounded-xl hover:bg-gray-50 transition-colors relative group disabled:opacity-50 
+          disabled:cursor-not-allowed"
       >
         <!-- Loading Spinner -->
         <div

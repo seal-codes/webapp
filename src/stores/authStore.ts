@@ -57,7 +57,7 @@ export const useAuthStore = defineStore('auth', () => {
       if (error instanceof Error) {
         const message = error.message
         if (message === 'network_error' || message === 'authentication_failed' || message === 'unknown_error') {
-          throw new CodedError(message as any, message)
+          throw new CodedError(message as 'network_error' | 'authentication_failed' | 'unknown_error', message)
         }
       }
       

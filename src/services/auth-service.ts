@@ -34,65 +34,108 @@ export class AuthService {
    */
   async signInWithProvider(provider: string): Promise<void> {
     try {
-      console.log(`🔐 Initiating OAuth sign-in with ${provider}`)
-      
-      // Always redirect back to /document to continue the sealing flow
-      const redirectTo = `${window.location.origin}/document`
-      
-      console.log(`🔗 OAuth redirect URL: ${redirectTo}`)
-      
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: provider as Provider,
-        options: {
-          redirectTo,
-          // Add query parameter to indicate this is a sealing flow
-          queryParams: {
-            flow: 'seal-document',
-          },
-        },
-      })
-
-      if (error) {
-        console.error('OAuth sign-in error:', error)
-        
-        // Check if this is a provider configuration error
-        if (error.message?.includes('provider is not enabled') || 
-            error.message?.includes('Unsupported provider')) {
-          throw new OAuthProviderError(provider, true)
-        }
-        
-        // Network or other errors
-        if (error.message?.includes('network') || error.message?.includes('fetch')) {
-          throw new Error('network_error')
-        }
-        
-        // Generic authentication error
-        throw new Error('authentication_failed')
-      }
-
-      console.log(`✅ OAuth sign-in initiated for ${provider}, redirecting to ${redirectTo}`)
+      await this.initiateOAuthSignIn(provider)
     } catch (error) {
-      console.error('Unexpected error during OAuth sign-in:', error)
-      
-      // Re-throw our custom errors
-      if (error instanceof OAuthProviderError) {
-        throw error
-      }
-      
-      // Check if this looks like a configuration error
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
-      if (errorMessage.includes('provider') || errorMessage.includes('not enabled')) {
-        throw new OAuthProviderError(provider, true)
-      }
-      
-      // Check for specific error codes
-      if (errorMessage === 'network_error' || errorMessage === 'authentication_failed' || errorMessage === 'unknown_error') {
-        throw new Error(errorMessage)
-      }
-      
-      // Default to unknown error
-      throw new Error('unknown_error')
+      this.handleSignInError(error, provider)
     }
+  }
+
+  /**
+   * Initiate OAuth sign-in with Supabase
+   */
+  private async initiateOAuthSignIn(provider: string): Promise<void> {
+    console.log(`🔐 Initiating OAuth sign-in with ${provider}`)
+    
+    const redirectTo = `${window.location.origin}/document`
+    console.log(`🔗 OAuth redirect URL: ${redirectTo}`)
+    
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: provider as Provider,
+      options: {
+        redirectTo,
+        queryParams: {
+          flow: 'seal-document',
+        },
+      },
+    })
+
+    if (error) {
+      this.handleOAuthError(error, provider)
+    }
+
+    console.log(`✅ OAuth sign-in initiated for ${provider}, redirecting to ${redirectTo}`)
+  }
+
+  /**
+   * Handle OAuth-specific errors
+   */
+  private handleOAuthError(error: AuthError, provider: string): never {
+    console.error('OAuth sign-in error:', error)
+    
+    if (this.isProviderConfigurationError(error)) {
+      throw new OAuthProviderError(provider, true)
+    }
+    
+    if (this.isNetworkError(error)) {
+      throw new Error('network_error')
+    }
+    
+    throw new Error('authentication_failed')
+  }
+
+  /**
+   * Handle general sign-in errors
+   */
+  private handleSignInError(error: unknown, provider: string): never {
+    console.error('Unexpected error during OAuth sign-in:', error)
+    
+    if (error instanceof OAuthProviderError) {
+      throw error
+    }
+    
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+    
+    if (this.isProviderConfigurationMessage(errorMessage)) {
+      throw new OAuthProviderError(provider, true)
+    }
+    
+    if (this.isKnownErrorCode(errorMessage)) {
+      throw new Error(errorMessage)
+    }
+    
+    throw new Error('unknown_error')
+  }
+
+  /**
+   * Check if error indicates provider configuration issue
+   */
+  private isProviderConfigurationError(error: AuthError): boolean {
+    return error.message?.includes('provider is not enabled') || 
+           error.message?.includes('Unsupported provider') || false
+  }
+
+  /**
+   * Check if error indicates network issue
+   */
+  private isNetworkError(error: AuthError): boolean {
+    return error.message?.includes('network') || 
+           error.message?.includes('fetch') || false
+  }
+
+  /**
+   * Check if error message indicates provider configuration issue
+   */
+  private isProviderConfigurationMessage(message: string): boolean {
+    return message.includes('provider') || message.includes('not enabled')
+  }
+
+  /**
+   * Check if error message is a known error code
+   */
+  private isKnownErrorCode(message: string): boolean {
+    return message === 'network_error' || 
+           message === 'authentication_failed' || 
+           message === 'unknown_error'
   }
 
   /**
@@ -220,11 +263,8 @@ export class AuthService {
    * Transform Supabase user to our AuthUser format
    */
   private transformUser(user: User): AuthUser {
-    const provider = user.app_metadata?.provider || 'unknown'
-    const displayName = user.user_metadata?.full_name || 
-                       user.user_metadata?.name || 
-                       user.email?.split('@')[0] || 
-                       'User'
+    const provider = this.extractProvider(user)
+    const displayName = this.extractDisplayName(user)
 
     return {
       id: user.id,
@@ -233,6 +273,23 @@ export class AuthService {
       displayName,
       avatarUrl: user.user_metadata?.avatar_url,
     }
+  }
+
+  /**
+   * Extract provider from user metadata
+   */
+  private extractProvider(user: User): string {
+    return user.app_metadata?.provider || 'unknown'
+  }
+
+  /**
+   * Extract display name from user metadata with fallbacks
+   */
+  private extractDisplayName(user: User): string {
+    return user.user_metadata?.full_name || 
+           user.user_metadata?.name || 
+           user.email?.split('@')[0] || 
+           'User'
   }
 
   /**

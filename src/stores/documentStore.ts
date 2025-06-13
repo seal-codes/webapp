@@ -11,13 +11,21 @@ import { CodedError } from '@/types/errors'
 import type { QRCodeUIPosition, AttestationData } from '@/types/qrcode'
 import { useAuthStore } from './authStore'
 
+// Interface for serialized file data
+interface SerializedFile {
+  name: string
+  type: string
+  lastModified: number
+  data: string
+}
+
 // Unique ID generation for documents
 const generateUniqueId = () => {
   return Date.now().toString(36) + Math.random().toString(36).substring(2)
 }
 
 // Helper function to convert File to serializable format
-const serializeFile = async (file: File): Promise<any> => {
+const serializeFile = async (file: File): Promise<SerializedFile> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader()
     reader.onload = () => {
@@ -60,7 +68,7 @@ const serializeFile = async (file: File): Promise<any> => {
 }
 
 // Helper function to deserialize File from localStorage
-const deserializeFile = (serializedFile: any): File => {
+const deserializeFile = (serializedFile: unknown): File => {
   try {
     // Validate serialized file structure
     if (!serializedFile || typeof serializedFile !== 'object') {
@@ -81,7 +89,7 @@ const deserializeFile = (serializedFile: any): File => {
     // Test if the base64 string is valid by attempting to decode a small part
     try {
       atob(data.substring(0, Math.min(100, data.length)))
-    } catch (error) {
+    } catch {
       throw new Error('Invalid base64 encoding')
     }
     
@@ -121,10 +129,10 @@ export const useDocumentStore = defineStore('document', () => {
   const stepError = ref<string | null>(null)
   
   // Persistent state using manual localStorage management
-  const persistedDocumentData = ref<any>(null)
+  const persistedDocumentData = ref<SerializedFile | null>(null)
   const persistedQRPosition = ref<QRCodeUIPosition>({ x: 85, y: 15 })
   const persistedQRSize = ref<number>(20)
-  const persistedOAuthState = ref<any>(null)
+  const persistedOAuthState = ref<Record<string, unknown> | null>(null)
   const persistedStep = ref<DocumentStep>('idle')
   
   // Sync step with localStorage
@@ -148,7 +156,18 @@ export const useDocumentStore = defineStore('document', () => {
   
   // Load initial values from localStorage
   const loadFromLocalStorage = () => {
-    // Clean up any corrupted data first
+    cleanupCorruptedData()
+    loadDocumentData()
+    loadQRPosition()
+    loadQRSize()
+    loadOAuthState()
+    loadCurrentStep()
+  }
+
+  /**
+   * Clean up any corrupted localStorage data
+   */
+  const cleanupCorruptedData = () => {
     const docData = localStorage.getItem('seal-codes-document')
     if (docData === '[object Object]') {
       console.log('🧹 Cleaning up corrupted document data')
@@ -160,7 +179,12 @@ export const useDocumentStore = defineStore('document', () => {
       console.log('🧹 Cleaning up corrupted OAuth state data')
       localStorage.removeItem('seal-codes-oauth-state')
     }
-    
+  }
+
+  /**
+   * Load document data from localStorage
+   */
+  const loadDocumentData = () => {
     try {
       const cleanDocData = localStorage.getItem('seal-codes-document')
       if (cleanDocData && cleanDocData !== 'null') {
@@ -171,7 +195,12 @@ export const useDocumentStore = defineStore('document', () => {
       console.warn('Failed to load document data from localStorage:', error)
       localStorage.removeItem('seal-codes-document')
     }
-    
+  }
+
+  /**
+   * Load QR position from localStorage
+   */
+  const loadQRPosition = () => {
     try {
       const qrPos = localStorage.getItem('seal-codes-qr-position')
       if (qrPos && qrPos !== 'null') {
@@ -180,7 +209,12 @@ export const useDocumentStore = defineStore('document', () => {
     } catch (error) {
       console.warn('Failed to load QR position from localStorage:', error)
     }
-    
+  }
+
+  /**
+   * Load QR size from localStorage
+   */
+  const loadQRSize = () => {
     try {
       const qrSize = localStorage.getItem('seal-codes-qr-size')
       if (qrSize && qrSize !== 'null') {
@@ -189,29 +223,36 @@ export const useDocumentStore = defineStore('document', () => {
     } catch (error) {
       console.warn('Failed to load QR size from localStorage:', error)
     }
-    
+  }
+
+  /**
+   * Load OAuth state from localStorage
+   */
+  const loadOAuthState = () => {
     try {
-      const cleanOauthData = localStorage.getItem('seal-codes-oauth-state')
-      if (cleanOauthData && cleanOauthData !== 'null') {
-        persistedOAuthState.value = JSON.parse(cleanOauthData)
+      const cleanOAuthData = localStorage.getItem('seal-codes-oauth-state')
+      if (cleanOAuthData && cleanOAuthData !== 'null') {
+        persistedOAuthState.value = JSON.parse(cleanOAuthData)
         console.log('📥 Loaded OAuth state from localStorage')
       }
     } catch (error) {
       console.warn('Failed to load OAuth state from localStorage:', error)
       localStorage.removeItem('seal-codes-oauth-state')
     }
-    
+  }
+
+  /**
+   * Load current step from localStorage
+   */
+  const loadCurrentStep = () => {
     try {
-      const stepData = localStorage.getItem('seal-codes-step')
-      if (stepData && stepData !== 'null') {
-        const step = JSON.parse(stepData) as DocumentStep
-        currentStep.value = step
-        persistedStep.value = step
-        console.log('📥 Loaded step from localStorage:', step)
+      const step = localStorage.getItem('seal-codes-step')
+      if (step && step !== 'null') {
+        currentStep.value = JSON.parse(step)
+        console.log('📥 Loaded step from localStorage:', currentStep.value)
       }
     } catch (error) {
       console.warn('Failed to load step from localStorage:', error)
-      localStorage.removeItem('seal-codes-step')
     }
   }
   
