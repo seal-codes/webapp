@@ -69,44 +69,27 @@ const serializeFile = async (file: File): Promise<SerializedFile> => {
 
 // Helper function to deserialize File from localStorage
 const deserializeFile = (serializedFile: unknown): File => {
+  if (!serializedFile || typeof serializedFile !== 'object') {
+    throw new Error('Invalid serialized file structure')
+  }
+
+  const { name, type, lastModified, data } = serializedFile as any
+
+  if (!name || !type || !data || typeof data !== 'string') {
+    throw new Error('Invalid file data')
+  }
+
   try {
-    // Validate serialized file structure
-    if (!serializedFile || typeof serializedFile !== 'object') {
-      throw new Error('Invalid serialized file structure')
-    }
-    
-    const { name, type, lastModified, data } = serializedFile
-    
-    if (!name || !type || !data) {
-      throw new Error('Missing required file properties')
-    }
-    
-    // Validate base64 data before attempting to decode
-    if (typeof data !== 'string' || data.length === 0) {
-      throw new Error('Invalid base64 data')
-    }
-    
-    // Test if the base64 string is valid by attempting to decode a small part
-    try {
-      atob(data.substring(0, Math.min(100, data.length)))
-    } catch {
-      throw new Error('Invalid base64 encoding')
-    }
-    
-    // Convert base64 back to binary data
     const binaryString = atob(data)
     const bytes = new Uint8Array(binaryString.length)
     for (let i = 0; i < binaryString.length; i++) {
       bytes[i] = binaryString.charCodeAt(i)
     }
     
-    return new File([bytes], name, {
-      type,
-      lastModified: lastModified || Date.now(),
-    })
+    return new File([bytes], name, { type, lastModified: lastModified || Date.now() })
   } catch (error) {
     console.error('Error deserializing file:', error)
-    throw new Error(`Failed to deserialize file: ${error instanceof Error ? error.message : 'Unknown error'}`)
+    throw new Error('Failed to deserialize file')
   }
 }
 
@@ -543,68 +526,43 @@ export const useDocumentStore = defineStore('document', () => {
   /**
    * Handle post-authentication flow
    */
+  // eslint-disable-next-line complexity
   const handlePostAuthFlow = async (): Promise<string | null> => {
-    console.log('🎉 Handling post-authentication flow...', 'Current step:', currentStep.value)
-    console.log('🔍 OAuth state:', persistedOAuthState.value)
-    
+    const oauthState = persistedOAuthState.value
+
+    if (!oauthState?.shouldSeal) {
+      if (authStore.isAuthenticated && hasDocument.value) {
+        currentStep.value = 'document-loaded'
+      }
+      return null
+    }
+
     try {
-      // Check if we have saved OAuth state
-      const oauthState = persistedOAuthState.value
-      
-      if (oauthState && oauthState.shouldSeal) {
-        console.log('🔒 Post-OAuth document sealing required')
-        
-        // Restore document if not already loaded
+      if (!hasDocument.value) {
+        await restoreDocumentFromStorage()
+
         if (!hasDocument.value) {
-          console.log('📄 Restoring document from localStorage...')
-          await restoreDocumentFromStorage()
-        }
-        
-        // Check if we have the document
-        if (!hasDocument.value) {
-          console.log('⚠️ Document lost during OAuth flow - localStorage persistence may have failed')
           currentStep.value = 'error'
           stepError.value = 'Document was lost during authentication. Please re-upload your document.'
           needsDocumentReupload.value = true
-          
-          // Clear OAuth state
           persistedOAuthState.value = null
           return null
         }
-        
-        // Verify document matches what we expected (if we have the metadata)
-        if (oauthState.documentName && oauthState.documentSize) {
-          if (uploadedDocument.value?.name !== oauthState.documentName || 
-              uploadedDocument.value?.size !== oauthState.documentSize) {
-            console.log('❌ Document mismatch after OAuth flow')
-            currentStep.value = 'error'
-            stepError.value = 'Document changed during authentication'
-            throw new CodedError('document_mismatch', 'Document changed during authentication')
-          }
-        }
-        
-        console.log('✅ Document verified, setting step to auth-completed...')
-        
-        // Clear OAuth state BEFORE setting step to auth-completed
-        persistedOAuthState.value = null
-        
-        // Update step to auth-completed - this should trigger auto-sealing
-        currentStep.value = 'auth-completed'
-        
-        console.log('🎯 Step set to auth-completed, auto-sealing should be triggered by watcher')
-        
-        // Return null here - the actual sealing will be handled by the step watcher
-        return null
-      } else {
-        console.log('ℹ️ No pending seal operation found')
-        // If user is authenticated but no pending operation, set step accordingly
-        if (authStore.isAuthenticated && hasDocument.value) {
-          currentStep.value = 'document-loaded' // Ready for manual sealing
-        }
       }
+
+      // Verify document matches if metadata exists
+      if (oauthState.documentName && oauthState.documentSize &&
+        (uploadedDocument.value?.name !== oauthState.documentName ||
+          uploadedDocument.value?.size !== oauthState.documentSize)) {
+        currentStep.value = 'error'
+        stepError.value = 'Document changed during authentication'
+        throw new CodedError('document_mismatch', 'Document changed during authentication')
+      }
+
+      persistedOAuthState.value = null
+      currentStep.value = 'auth-completed'
       
     } catch (error) {
-      console.error('❌ Error handling post-auth flow:', error)
       currentStep.value = 'error'
       stepError.value = error instanceof Error ? error.message : 'Post-authentication flow failed'
       persistedOAuthState.value = null
