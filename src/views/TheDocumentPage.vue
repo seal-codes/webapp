@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useDocumentStore } from '../stores/documentStore'
@@ -89,6 +89,7 @@ const handleManualSeal = async () => {
     const documentId = await documentStore.sealDocument()
     
     if (documentId) {
+      // Navigate to sealed document page (don't reset yet)
       router.push(`/sealed/${documentId}`)
     }
     
@@ -117,6 +118,15 @@ const updateQrSize = (size: number) => {
   documentStore.updateQRSize(size)
 }
 
+// Reset document store when navigating to document page after sealing
+onMounted(() => {
+  // If we're coming from a sealed document (step is 'sealed'), reset for new document
+  if (documentStore.currentStep === 'sealed') {
+    console.log('🔄 Resetting document store for new document after previous sealing')
+    documentStore.reset()
+  }
+})
+
 // Watch for step changes to handle automatic sealing
 watch(
   () => documentStore.currentStep,
@@ -132,6 +142,7 @@ watch(
         const documentId = await documentStore.sealDocument()
         
         if (documentId) {
+          // Navigate to sealed document page (don't reset yet)
           router.push(`/sealed/${documentId}`)
         }
         
