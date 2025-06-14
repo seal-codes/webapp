@@ -208,6 +208,17 @@
       "visualContent": "Visual Content",
       "documentType": "Document Type",
       "confidenceLevel": "Confidence Level",
+      "timestamp": "Timestamp",
+      "provider": "Provider",
+      "identifier": "Identifier",
+      "publicKeyId": "Public Key ID",
+      "documentIntegrity": "Document Integrity",
+      "identityVerification": "Identity Verification",
+      "verificationDetails": "Verification Details",
+      "keyFound": "Signing key found",
+      "signatureMatch": "Signature matches",
+      "timestampValid": "Timestamp valid",
+      "errorDetails": "Error Details",
       "status": {
         "verified_exact": "Document integrity verified - exact match",
         "verified_demo": "Document integrity verified - hash prefix matches (demo mode)",
@@ -295,7 +306,31 @@
       "invalidQr": "Invalid QR code",
       "networkError": "Network error during verification",
       "documentModified": "Document has been modified since sealing",
-      "sealExpired": "Seal has expired"
+      "sealExpired": "Seal has expired",
+      "signatureMismatch": {
+        "title": "Identity Verification Failed",
+        "subtitle": "Document integrity confirmed, but identity cannot be verified",
+        "description": "The document appears to be intact and unmodified, but the digital signature doesn't match the claimed identity. This could indicate someone is trying to falsely claim ownership of this document.",
+        "recommendation": "⚠️ Caution: While the document itself appears genuine, the identity claim is suspicious. Verify the source through other means."
+      },
+      "serverError": {
+        "title": "Verification Service Unavailable", 
+        "subtitle": "Cannot verify identity at this time",
+        "description": "There is an issue with the verification service. We can confirm the document hasn't been tampered with, but cannot verify the claimed identity right now.",
+        "recommendation": "Document integrity: ✅ Confirmed | Identity verification: ❓ Try again later"
+      },
+      "networkError": {
+        "title": "Connection Error",
+        "subtitle": "Unable to complete verification",
+        "description": "Cannot connect to the verification service. The document's integrity and identity cannot be verified at this time.",
+        "recommendation": "Check your internet connection and try again."
+      },
+      "missingData": {
+        "title": "Incomplete Verification Data",
+        "subtitle": "Required verification information is missing",
+        "description": "The document is missing essential verification data needed to confirm its authenticity.",
+        "recommendation": "This document may not be properly sealed or the QR code is damaged."
+      }
     }
   },
   "errors": {

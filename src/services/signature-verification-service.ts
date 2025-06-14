@@ -20,12 +20,16 @@ export interface SignatureVerificationResult {
   };
   /** Error message if verification failed */
   error?: string;
+  /** Categorized error type for better user messaging */
+  errorType?: 'signature_mismatch' | 'server_error' | 'missing_data' | 'network_error';
   /** Additional verification details */
   details?: {
     keyFound: boolean;
     signatureMatch: boolean;
     timestampValid: boolean;
   };
+  /** Whether document integrity can be verified (even if identity cannot) */
+  documentIntegrityVerified?: boolean;
 }
 
 /**
@@ -64,6 +68,8 @@ export class SignatureVerificationService {
             identifier: attestationData.i.id,
           },
           error: 'No signature found in attestation data',
+          errorType: 'missing_data',
+          documentIntegrityVerified: false,
         }
       }
 
@@ -77,6 +83,8 @@ export class SignatureVerificationService {
             identifier: attestationData.i.id,
           },
           error: 'No public key ID found in attestation data',
+          errorType: 'missing_data',
+          documentIntegrityVerified: false,
         }
       }
 
@@ -122,10 +130,27 @@ export class SignatureVerificationService {
             identifier: attestationData.i.id,
           },
           error: errorMessage,
+          errorType: response.status >= 500 ? 'server_error' : 'network_error',
+          documentIntegrityVerified: false,
         }
       }
 
       const verificationResult: SignatureVerificationResult = await response.json()
+      
+      // Enhance the result with better error categorization
+      if (!verificationResult.isValid && verificationResult.details) {
+        const { keyFound, signatureMatch, timestampValid } = verificationResult.details
+        
+        if (keyFound && timestampValid && !signatureMatch) {
+          // Document hashes match but signature doesn't - potential identity fraud
+          verificationResult.errorType = 'signature_mismatch'
+          verificationResult.documentIntegrityVerified = true // Document itself is intact
+        } else if (!keyFound || !timestampValid) {
+          // Server-side verification issues
+          verificationResult.errorType = 'server_error'
+          verificationResult.documentIntegrityVerified = false
+        }
+      }
       
       console.log('✅ Signature verification completed:', {
         isValid: verificationResult.isValid,
@@ -147,6 +172,8 @@ export class SignatureVerificationService {
           identifier: attestationData.i?.id || '',
         },
         error: error instanceof Error ? error.message : 'Unknown verification error',
+        errorType: 'network_error',
+        documentIntegrityVerified: false,
       }
     }
   }

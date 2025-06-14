@@ -191,6 +191,17 @@
       "visualContent": "Visueller Inhalt",
       "documentType": "Dokumenttyp",
       "confidenceLevel": "Vertrauensstufe",
+      "timestamp": "Zeitstempel",
+      "provider": "Anbieter",
+      "identifier": "Identifikator",
+      "publicKeyId": "Öffentliche Schlüssel-ID",
+      "documentIntegrity": "Dokumentintegrität",
+      "identityVerification": "Identitätsverifizierung",
+      "verificationDetails": "Verifizierungsdetails",
+      "keyFound": "Signaturschlüssel gefunden",
+      "signatureMatch": "Signatur stimmt überein",
+      "timestampValid": "Zeitstempel gültig",
+      "errorDetails": "Fehlerdetails",
       "status": {
         "verified_exact": "Dokumentintegrität verifiziert - exakte Übereinstimmung",
         "verified_demo": "Dokumentintegrität verifiziert - Hash-Präfix stimmt überein (Demo-Modus)",
@@ -278,7 +289,31 @@
       "invalidQr": "Ungültiger QR-Code",
       "networkError": "Netzwerkfehler bei der Verifizierung",
       "documentModified": "Dokument wurde seit der Siegelung verändert",
-      "sealExpired": "Siegel ist abgelaufen"
+      "sealExpired": "Siegel ist abgelaufen",
+      "signatureMismatch": {
+        "title": "Identitätsverifizierung fehlgeschlagen",
+        "subtitle": "Dokumentintegrität bestätigt, aber Identität kann nicht verifiziert werden",
+        "description": "Das Dokument scheint intakt und unverändert zu sein, aber die digitale Signatur stimmt nicht mit der behaupteten Identität überein. Dies könnte darauf hindeuten, dass jemand versucht, fälschlicherweise die Urheberschaft dieses Dokuments zu beanspruchen.",
+        "recommendation": "⚠️ Vorsicht: Obwohl das Dokument selbst echt zu sein scheint, ist die Identitätsbehauptung verdächtig. Überprüfen Sie die Quelle auf andere Weise."
+      },
+      "serverError": {
+        "title": "Verifizierungsdienst nicht verfügbar",
+        "subtitle": "Identität kann derzeit nicht verifiziert werden",
+        "description": "Es gibt ein Problem mit dem Verifizierungsdienst. Wir können bestätigen, dass das Dokument nicht manipuliert wurde, können aber die behauptete Identität derzeit nicht verifizieren.",
+        "recommendation": "Dokumentintegrität: ✅ Bestätigt | Identitätsverifizierung: ❓ Später erneut versuchen"
+      },
+      "networkError": {
+        "title": "Verbindungsfehler",
+        "subtitle": "Verifizierung kann nicht abgeschlossen werden",
+        "description": "Keine Verbindung zum Verifizierungsdienst möglich. Die Integrität und Identität des Dokuments können derzeit nicht verifiziert werden.",
+        "recommendation": "Überprüfen Sie Ihre Internetverbindung und versuchen Sie es erneut."
+      },
+      "missingData": {
+        "title": "Unvollständige Verifizierungsdaten",
+        "subtitle": "Erforderliche Verifizierungsinformationen fehlen",
+        "description": "Dem Dokument fehlen wesentliche Verifizierungsdaten, die zur Bestätigung seiner Authentizität erforderlich sind.",
+        "recommendation": "Dieses Dokument ist möglicherweise nicht ordnungsgemäß versiegelt oder der QR-Code ist beschädigt."
+      }
     }
   },
   "errors": {
