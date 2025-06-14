@@ -190,7 +190,7 @@ export class VerificationService {
       },
 
       // Timestamp: Convert to Unix timestamp (saves ~15 characters vs ISO string)
-      t: Math.floor(new Date(attestationData.t).getTime() / 1000),
+      t: Math.floor(new Date(attestationData.t).getTime()),
 
       // Identity: Combine provider and user with separator (saves field overhead)
       // PRESERVE FULL USER ID - no truncation
@@ -241,7 +241,7 @@ export class VerificationService {
           d: compactData.h.d,
         },
       },
-      t: new Date(compactData.t * 1000).toISOString(),
+      t: new Date(compactData.t).toISOString(),
       i: {
         p: provider,
         id: userId,

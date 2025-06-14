@@ -77,6 +77,14 @@ serve(async (req) => {
     const { attestationData }: { attestationData: AttestationData } = await req.json()
 
     console.log('🔐 Starting signature verification for key:', attestationData.s.k)
+    console.log('📋 RAW ATTESTATION DATA RECEIVED:', JSON.stringify(attestationData))
+    console.log('📋 Identity:', attestationData.i)
+    console.log('📋 Service info:', attestationData.s)
+    console.log('📋 Exclusion zone:', attestationData.e)
+    console.log('📋 Signature present:', !!attestationData.sig)
+    console.log('📋 Signature length:', attestationData.sig?.length || 0)
+    console.log('📋 TIMESTAMP RECEIVED:', attestationData.t)
+    console.log('📋 TIMESTAMP TYPE:', typeof attestationData.t)
 
     // Validate required fields
     if (!attestationData.sig) {
@@ -204,13 +212,21 @@ serve(async (req) => {
         ...(attestationData.u && { u: attestationData.u }),
       }
 
+      console.log('📋 DATA TO VERIFY (without signature):', JSON.stringify(dataToVerify))
+
       // Convert to canonical JSON string for verification
       const dataString = JSON.stringify(dataToVerify)
       const dataBytes = new TextEncoder().encode(dataString)
 
+      console.log('📋 DATA STRING FOR VERIFICATION:', dataString)
+      console.log('📋 DATA STRING LENGTH:', dataString.length)
+
       // Import the public key
       const publicKeyPem = keyData.public_key
       const publicKeyDer = pemToArrayBuffer(publicKeyPem)
+      
+      console.log('📋 PUBLIC KEY PEM:', publicKeyPem)
+      console.log('📋 PUBLIC KEY DER LENGTH:', publicKeyDer.byteLength)
       
       const publicKey = await crypto.subtle.importKey(
         'spki',
@@ -224,6 +240,9 @@ serve(async (req) => {
 
       // Decode the signature from base64
       const signatureBytes = base64ToArrayBuffer(attestationData.sig)
+      
+      console.log('📋 SIGNATURE BASE64:', attestationData.sig)
+      console.log('📋 SIGNATURE BYTES LENGTH:', signatureBytes.byteLength)
 
       // Verify the signature
       const isSignatureValid = await crypto.subtle.verify(
@@ -234,6 +253,14 @@ serve(async (req) => {
       )
 
       console.log('📋 Signature verification result:', isSignatureValid)
+      console.log('📋 VERIFICATION SUMMARY:')
+      console.log('  - Key ID:', attestationData.s.k)
+      console.log('  - Provider:', attestationData.i.p)
+      console.log('  - Service name:', attestationData.s.n)
+      console.log('  - Fill color:', attestationData.e.f)
+      console.log('  - Data string length:', dataString.length)
+      console.log('  - Signature length:', signatureBytes.byteLength)
+      console.log('  - Verification result:', isSignatureValid)
 
       return Response.json({
         isValid: isSignatureValid,
