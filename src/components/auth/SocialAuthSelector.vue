@@ -9,9 +9,18 @@ defineProps<{
   isProcessing: boolean;
 }>()
 
+const emit = defineEmits<{
+  'provider-selected': [provider: string]
+}>()
+
 const providers = ref<AuthProvider[]>([])
 const isLoading = ref(true)
 const error = ref<string | null>(null)
+
+const handleProviderClick = (providerId: string) => {
+  console.log(`🔐 Provider selected: ${providerId}`)
+  emit('provider-selected', providerId)
+}
 
 onMounted(async () => {
   try {
@@ -91,6 +100,7 @@ onMounted(async () => {
         class="aspect-square flex flex-col items-center justify-center p-4 border border-gray-200 
           rounded-xl hover:bg-gray-50 transition-colors relative group disabled:opacity-50 
           disabled:cursor-not-allowed"
+        @click="handleProviderClick(provider.id)"
       >
         <!-- Loading Spinner -->
         <div
