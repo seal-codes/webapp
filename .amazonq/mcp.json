@@ -5,6 +5,26 @@
       "args": [
         "mcp-server-git"
       ]
+    },
+    "playwright": {
+      "command": "npx",
+      "args": [
+        "@playwright/mcp@latest"
+      ]
+    },
+    "pdf-lib Docs": {
+      "command": "npx",
+      "args": [
+        "mcp-remote",
+        "https://gitmcp.io/Hopding/pdf-lib"
+      ]
+    },
+    "pdf.js Docs": {
+      "command": "npx",
+      "args": [
+        "mcp-remote",
+        "https://gitmcp.io/mozilla/pdf.js"
+      ]
     }
   }
 }
