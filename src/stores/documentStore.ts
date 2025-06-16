@@ -1,6 +1,5 @@
 import { defineStore } from 'pinia'
 import { ref, computed, watch } from 'vue'
-import { PDFDocument } from 'pdf-lib'
 import { qrCodeUICalculator } from '@/services/qrcode-ui-calculator'
 import { attestationBuilder } from '@/services/attestation-builder'
 import { qrSealRenderer } from '@/services/qr-seal-renderer'
@@ -293,7 +292,7 @@ export const useDocumentStore = defineStore('document', () => {
   
   // Reactive state
   const uploadedDocument = ref<File | null>(null)
-  const documentType = ref<'pdf' | 'image' | null>(null)
+  const documentType = ref<'image' | null>(null)
   const documentId = ref<string>('')
   const documentPreviewUrl = ref<string>('')
   const sealedDocumentUrl = ref<string>('')
@@ -398,10 +397,10 @@ export const useDocumentStore = defineStore('document', () => {
         uploadedDocument.value = restoredFile
         
         // Determine document type
-        if (restoredFile.type === 'application/pdf') {
-          documentType.value = 'pdf'
-        } else if (restoredFile.type.startsWith('image/')) {
+        if (restoredFile.type.startsWith('image/')) {
           documentType.value = 'image'
+        } else {
+          documentType.value = null
         }
         
         // Create a new preview URL
@@ -433,12 +432,10 @@ export const useDocumentStore = defineStore('document', () => {
       stepError.value = null
       
       // Determine document type
-      if (file.type === 'application/pdf') {
-        documentType.value = 'pdf'
-      } else if (file.type.startsWith('image/')) {
+      if (file.type.startsWith('image/')) {
         documentType.value = 'image'
       } else {
-        throw new CodedError('unsupported_format', 'Unsupported file type')
+        throw new CodedError('unsupported_format', 'Unsupported file format')
       }
       
       // Check file size (10MB limit)
@@ -604,7 +601,7 @@ export const useDocumentStore = defineStore('document', () => {
         qrPosition.value,
         qrSizePercent.value,
         documentDimensions,
-        documentType.value as 'pdf' | 'image',
+        documentType.value as 'image',
       )
       console.log('📍 Pixel calculation result:', pixelCalculation)
 
@@ -650,21 +647,20 @@ export const useDocumentStore = defineStore('document', () => {
       // Generate a unique document ID
       documentId.value = generateUniqueId()
 
-      // Embed the complete seal
-      if (documentType.value === 'pdf') {
-        await sealPdfDocument(
-          sealResult.dataUrl, 
-          pixelCalculation.position, 
+      // Seal the document
+      let sealedUrl: string
+      if (documentType.value === 'image') {
+        sealedUrl = await sealImageDocument(
+          sealResult.dataUrl,
+          { 
+            x: qrPosition.value.x, 
+            y: qrPosition.value.y 
+          },
           sealResult.dimensions.width,
           sealResult.dimensions.height,
         )
-      } else if (documentType.value === 'image') {
-        await sealImageDocument(
-          sealResult.dataUrl, 
-          pixelCalculation.position, 
-          sealResult.dimensions.width,
-          sealResult.dimensions.height,
-        )
+      } else {
+        throw new Error('Unsupported document type')
       }
 
       // Update step to sealed
@@ -699,13 +695,6 @@ export const useDocumentStore = defineStore('document', () => {
         img.onerror = () => reject(new CodedError('document_processing_failed', 'Failed to load image dimensions'))
         img.src = documentPreviewUrl.value
       })
-    } else if (documentType.value === 'pdf') {
-      // For PDFs, we need to get the page dimensions
-      const fileArrayBuffer = await uploadedDocument.value.arrayBuffer()
-      const pdfDoc = await PDFDocument.load(fileArrayBuffer)
-      const firstPage = pdfDoc.getPages()[0]
-      const { width, height } = firstPage.getSize()
-      return { width, height }
     }
 
     throw new CodedError('unsupported_format', 'Unsupported document type')
@@ -742,47 +731,6 @@ export const useDocumentStore = defineStore('document', () => {
       },
       exclusionZone: placeholderExclusionZone,
     })
-  }
-  
-  const sealPdfDocument = async (
-    sealDataUrl: string, 
-    position: { x: number; y: number }, 
-    width: number,
-    height: number,
-  ) => {
-    if (!uploadedDocument.value) {
-      return
-    }
-    
-    console.log('📄 Sealing PDF document...')
-    
-    // Read the PDF file
-    const fileArrayBuffer = await uploadedDocument.value.arrayBuffer()
-    const pdfDoc = await PDFDocument.load(fileArrayBuffer)
-    
-    // Convert seal image to PNG for embedding
-    const sealImage = await pdfDoc.embedPng(sealDataUrl)
-    
-    // Add seal to the first page of the PDF
-    const pages = pdfDoc.getPages()
-    const firstPage = pages[0]
-    
-    // Use the exact position and dimensions of the complete seal
-    firstPage.drawImage(sealImage, {
-      x: position.x,
-      y: position.y,
-      width: width,
-      height: height,
-    })
-    
-    // Save the PDF
-    const sealedPdfBytes = await pdfDoc.save()
-    const sealedPdfBlob = new Blob([sealedPdfBytes], { type: 'application/pdf' })
-    
-    sealedDocumentBlob.value = sealedPdfBlob
-    sealedDocumentUrl.value = URL.createObjectURL(sealedPdfBlob)
-    
-    console.log('✅ PDF sealing completed')
   }
   
   const sealImageDocument = async (

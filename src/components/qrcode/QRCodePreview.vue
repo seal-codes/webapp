@@ -21,7 +21,7 @@ const props = defineProps<{
   /** Container dimensions for calculations */
   containerDimensions: DocumentDimensions;
   /** Document type for accurate preview */
-  documentType: 'pdf' | 'image';
+  documentType: 'image';
   /** Attestation data to encode (optional for placeholder) */
   attestationData?: AttestationData;
   /** Whether this is just a placeholder */

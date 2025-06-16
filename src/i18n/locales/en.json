@@ -38,7 +38,7 @@
     "steps": {
       "loadDocument": {
         "title": "Load Document",
-        "description": "Load any PDF or image file you want to protect with a seal."
+        "description": "Load any image file you want to protect with a seal."
       },
       "positionSeal": {
         "title": "Position Your Seal",
@@ -55,7 +55,7 @@
     "dropzone": {
       "title": "Drop your document here",
       "subtitle": "or click to browse",
-      "supportedFormats": "Supported formats: PDF, PNG, JPG, JPEG",
+      "supportedFormats": "Supported formats: PNG, JPG, JPEG, WebP",
       "maxSize": "Maximum file size: 10MB",
       "dragActive": "Drop the file here...",
       "processing": "Processing document...",
@@ -99,7 +99,7 @@
       "steps": {
         "upload": {
           "title": "Upload Document",
-          "description": "Select the PDF or image file you want to seal."
+          "description": "Select the image file you want to seal."
         },
         "position": {
           "title": "Position QR Code",
@@ -341,7 +341,7 @@
     "document_load_failed": "Failed to load document. Please try again.",
     "document_seal_failed": "Failed to seal document. Please try again.",
     "document_processing_failed": "Error processing document. Please try again.",
-    "unsupported_format": "Unsupported file format. Please use PDF, PNG, JPG, or JPEG.",
+    "unsupported_format": "Unsupported file format. Please use PNG, JPG, JPEG, or WebP.",
     "popup_blocked": "Authentication popup was blocked by your browser. Please allow popups for this site and try again.",
     "auth_cancelled": "Authentication was cancelled. Please try again if you want to seal your document."
   },

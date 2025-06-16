@@ -38,7 +38,7 @@
     "steps": {
       "loadDocument": {
         "title": "Dokument laden",
-        "description": "Lade eine beliebige PDF- oder Bilddatei, die du mit einem Siegel schützen möchtest."
+        "description": "Lade eine beliebige Bilddatei, die du mit einem Siegel schützen möchtest."
       },
       "positionSeal": {
         "title": "Siegel positionieren",
@@ -55,7 +55,7 @@
     "dropzone": {
       "title": "Dokument hier ablegen",
       "subtitle": "oder klicken zum Durchsuchen",
-      "supportedFormats": "Unterstützte Formate: PDF, PNG, JPG, JPEG",
+      "supportedFormats": "Unterstützte Formate: PNG, JPG, JPEG, WebP",
       "maxSize": "Maximale Dateigröße: 10MB",
       "dragActive": "Datei hier ablegen...",
       "processing": "Dokument wird verarbeitet...",
@@ -82,7 +82,7 @@
       "steps": {
         "upload": {
           "title": "Dokument hochladen",
-          "description": "Wähle die PDF- oder Bilddatei aus, die du siegeln möchtest."
+          "description": "Wähle die Bilddatei aus, die du siegeln möchtest."
         },
         "position": {
           "title": "QR-Code positionieren",

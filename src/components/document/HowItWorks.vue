@@ -22,7 +22,7 @@ const steps = [
   },
 ]
 
-const fileTypes = ['PDF', 'PNG', 'JPG/JPEG']
+const fileTypes = ['PNG', 'JPG/JPEG', 'WebP']
 </script>
 
 <template>

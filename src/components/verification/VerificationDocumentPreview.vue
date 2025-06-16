@@ -237,17 +237,7 @@ defineExpose({ resetSelection })
         />
       </div>
       
-      <!-- PDF Preview -->
-      <div
-        v-else-if="uploadedDocument.type === 'application/pdf' && documentPreviewUrl"
-        class="mt-4"
-      >
-        <iframe 
-          :src="documentPreviewUrl" 
-          class="w-full h-96 rounded border"
-          title="PDF preview"
-        />
-      </div>
+
     </div>
   </div>
 </template>

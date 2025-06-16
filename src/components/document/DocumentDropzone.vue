@@ -13,7 +13,6 @@ const isDragging = ref(false)
 const errorMessage = ref('')
 
 const allowedTypes = [
-  'application/pdf',
   'image/jpeg',
   'image/png',
   'image/webp',
@@ -96,7 +95,7 @@ const validateAndEmitFile = (file: File) => {
       ref="fileInput"
       type="file"
       class="hidden"
-      accept=".pdf,.jpg,.jpeg,.png,.webp"
+      accept=".jpg,.jpeg,.png,.webp"
       @change="handleFileSelect"
     >
     

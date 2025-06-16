@@ -14,7 +14,7 @@ const props = defineProps<{
 }>()
 
 const previewUrl = ref('')
-const documentType = ref<'pdf' | 'image' | null>(null)
+const documentType = ref<'image' | null>(null)
 const isLoading = ref(true)
 const containerWidth = ref(0)
 const containerHeight = ref(0)
@@ -35,9 +35,7 @@ watch(() => props.document, async (newDocument) => {
   isLoading.value = true
   
   // Determine document type
-  if (newDocument.type === 'application/pdf') {
-    documentType.value = 'pdf'
-  } else if (newDocument.type.startsWith('image/')) {
+  if (newDocument.type.startsWith('image/')) {
     documentType.value = 'image'
   } else {
     documentType.value = null
@@ -158,40 +156,7 @@ const emit = defineEmits<{
       />
     </div>
     
-    <!-- PDF preview -->
-    <div 
-      v-else-if="documentType === 'pdf' && previewUrl" 
-      ref="previewRef"
-      class="relative document-preview w-full h-[600px]"
-    >
-      <iframe 
-        :src="`${previewUrl}#view=FitH`" 
-        class="w-full h-full rounded" 
-        title="PDF preview"
-        @load="() => {
-          if (previewRef) {
-            const rect = previewRef.getBoundingClientRect();
-            containerWidth = rect.width;
-            containerHeight = rect.height;
-          }
-        }"
-      />
-      
-      <!-- QR code preview -->
-      <QRCodePreview
-        v-if="!hasQr && containerDimensions.width && containerDimensions.height && documentType"
-        :position="qrPosition"
-        :size-percent="qrSizePercent"
-        :container-dimensions="containerDimensions"
-        :document-type="documentType"
-        :attestation-data="attestationData"
-        :is-placeholder="!attestationData"
-        :auth-provider="authProvider"
-        :user-name="userName"
-        @position-updated="emit('positionUpdated', $event)"
-        @size-updated="emit('sizeUpdated', $event)"
-      />
-    </div>
+
     
     <!-- No preview available -->
     <div

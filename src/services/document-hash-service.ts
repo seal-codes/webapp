@@ -34,8 +34,6 @@ export class DocumentHashService {
   ): Promise<DocumentHashes> {
     if (document.type.startsWith('image/')) {
       return this.calculateImageHashes(document, exclusionZone)
-    } else if (document.type === 'application/pdf') {
-      return this.calculatePdfHashes(document)
     } else {
       throw new Error('Unsupported document type')
     }
@@ -92,35 +90,7 @@ export class DocumentHashService {
     })
   }
 
-  /**
-   * Calculate hashes for PDF documents
-   * 
-   * @param pdfFile - The PDF file
-   * @param exclusionZone - Area to exclude from hash calculation
-   * @returns Promise resolving to calculated hashes
-   */
-  private async calculatePdfHashes(
-    pdfFile: File,
-  ): Promise<DocumentHashes> {
-    // Read the PDF file
-    const fileBuffer = await pdfFile.arrayBuffer()
-    
-    // Calculate cryptographic hash of the raw PDF data
-    const cryptoHash = await this.calculateSHA256(fileBuffer)
-    
-    // TODO: Implement proper PDF perceptual hashing
-    // This will require:
-    // 1. Rendering the PDF to an image (using PDF.js or similar)
-    // 2. Applying the exclusion zone
-    // 3. Calculating perceptual hashes from the rendered image
-    // For now, return placeholder values for perceptual hashes
-    
-    return {
-      cryptographic: cryptoHash,
-      pHash: 'pdf-phash-not-implemented',
-      dHash: 'pdf-dhash-not-implemented',
-    }
-  }
+
 
   /**
    * Apply exclusion zone to canvas context
