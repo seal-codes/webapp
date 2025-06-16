@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
+/* eslint-disable @typescript-eslint/no-require-imports */
 /**
  * Test setup file for Vitest
  * Configures global test environment and mocks
@@ -21,7 +23,7 @@ global.HTMLCanvasElement = class HTMLCanvasElement {
   }
   width = 200
   height = 200
-} as any
+} as never
 
 global.Image = class Image {
   onload: (() => void) | null = null
@@ -39,14 +41,14 @@ global.Image = class Image {
       }
     }, 0)
   }
-} as any
+} as never
 
 // Mock File API
 global.File = class File {
   constructor(
     public chunks: BlobPart[],
     public name: string,
-    public options?: FilePropertyBag
+    public options?: FilePropertyBag,
   ) {}
   
   arrayBuffer() {
@@ -60,7 +62,7 @@ global.File = class File {
   size = 0
   type = 'application/octet-stream'
   lastModified = Date.now()
-} as any
+} as never
 
 // Mock crypto API if not available
 if (!global.crypto) {
@@ -82,4 +84,4 @@ global.URL = class URL {
   toString() {
     return this.href
   }
-} as any
+} as never

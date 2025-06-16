@@ -3,10 +3,9 @@
  * Handles early loading of rxing-wasm at application startup
  */
 
-// Interface for rxing-wasm module (external library)
-interface RxingWasmModule {
-  readBarcodesFromImageData: (imageData: ImageData, options?: unknown) => unknown[]
-  // Add other methods as needed
+type RxingWasmModule = typeof import('rxing-wasm') & {
+  // Original method (kept for backward compatibility)
+  readBarcodesFromImageData?: (imageData: ImageData, options?: unknown) => unknown[]
 }
 
 // Global WASM state shared across the application
@@ -112,7 +111,7 @@ export class WasmPreloader {
    * 
    * @param timeoutMs - Maximum time to wait in milliseconds (default: 5000)
    */
-  async waitForWasm(timeoutMs: number = 5000): Promise<RxingWasmModule> {
+  async waitForWasm(timeoutMs: number = 5000): Promise<RxingWasmModule | null> {
     if (rxingWasm) {
       return rxingWasm // Already loaded
     }
@@ -120,9 +119,9 @@ export class WasmPreloader {
     if (wasmLoadPromise) {
       try {
         // Race between WASM loading and timeout
-        const result = await Promise.race([
+        const result = await Promise.race<RxingWasmModule | null>([
           wasmLoadPromise,
-          new Promise((_, reject) => 
+          new Promise<null>((_, reject) => 
             setTimeout(() => reject(new Error('WASM loading timeout')), timeoutMs),
           ),
         ])
@@ -210,7 +209,7 @@ export const wasmGlobals = {
             setTimeout(() => reject(new Error('WASM loading timeout')), timeoutMs),
           ),
         ])
-        return result
+        return result as RxingWasmModule
       } catch (error) {
         if (error instanceof Error && error.message === 'WASM loading timeout') {
           console.warn(`⏰ WASM loading timed out after ${timeoutMs}ms, falling back to jsQR`)

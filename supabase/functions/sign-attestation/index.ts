@@ -52,8 +52,8 @@ serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseServiceKey, {
       auth: {
         autoRefreshToken: false,
-        persistSession: false
-      }
+        persistSession: false,
+      },
     })
 
     // Parse request body
@@ -169,14 +169,14 @@ serve(async (req) => {
           name: 'Ed25519',
         },
         false,
-        ['sign']
+        ['sign'],
       )
 
       // Sign the data
       const signatureBuffer = await crypto.subtle.sign(
         'Ed25519',
         privateKey,
-        dataBytes
+        dataBytes,
       )
 
       // Convert signature to base64

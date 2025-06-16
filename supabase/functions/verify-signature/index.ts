@@ -69,8 +69,8 @@ serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseServiceKey, {
       auth: {
         autoRefreshToken: false,
-        persistSession: false
-      }
+        persistSession: false,
+      },
     })
 
     // Parse request body
@@ -235,7 +235,7 @@ serve(async (req) => {
           name: 'Ed25519',
         },
         false,
-        ['verify']
+        ['verify'],
       )
 
       // Decode the signature from base64
@@ -249,7 +249,7 @@ serve(async (req) => {
         'Ed25519',
         publicKey,
         signatureBytes,
-        dataBytes
+        dataBytes,
       )
 
       console.log('📋 Signature verification result:', isSignatureValid)

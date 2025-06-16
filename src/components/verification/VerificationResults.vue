@@ -173,7 +173,7 @@ const providerInfo = computed(() => {
   }
   
   const provider = providers.find((p: Provider) => 
-    p.compactId === props.verificationResult.details.signatureVerification?.identity.provider
+    p.compactId === props.verificationResult.details.signatureVerification?.identity.provider,
   )
   return provider || { 
     name: 'Unknown Provider', 

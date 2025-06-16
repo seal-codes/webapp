@@ -65,18 +65,24 @@
     <!-- Technical Details (Collapsible) -->
     <div class="bg-gray-50 rounded-lg border">
       <button
-        @click="showTechnicalDetails = !showTechnicalDetails"
         class="w-full p-4 text-left flex items-center justify-between hover:bg-gray-100 transition-colors"
+        @click="showTechnicalDetails = !showTechnicalDetails"
       >
         <span class="font-medium">
           {{ $t('verification.results.technicalDetails') }}
         </span>
-        <span class="transform transition-transform" :class="{ 'rotate-180': showTechnicalDetails }">
+        <span
+          class="transform transition-transform"
+          :class="{ 'rotate-180': showTechnicalDetails }"
+        >
           ▼
         </span>
       </button>
       
-      <div v-if="showTechnicalDetails" class="px-4 pb-4 space-y-3">
+      <div
+        v-if="showTechnicalDetails"
+        class="px-4 pb-4 space-y-3"
+      >
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
           <div>
             <span class="font-medium">{{ $t('verification.results.publicKeyId') }}:</span>
@@ -96,8 +102,13 @@
           </div>
         </div>
         
-        <div v-if="result.details" class="mt-4 p-3 bg-white rounded border">
-          <h5 class="font-medium mb-2">{{ $t('verification.results.verificationDetails') }}</h5>
+        <div
+          v-if="result.details"
+          class="mt-4 p-3 bg-white rounded border"
+        >
+          <h5 class="font-medium mb-2">
+            {{ $t('verification.results.verificationDetails') }}
+          </h5>
           <div class="space-y-1 text-sm">
             <div class="flex items-center space-x-2">
               <span>{{ result.details.keyFound ? '✅' : '❌' }}</span>
@@ -114,9 +125,16 @@
           </div>
         </div>
 
-        <div v-if="result.error" class="mt-4 p-3 bg-red-50 border border-red-200 rounded">
-          <h5 class="font-medium text-red-800 mb-1">{{ $t('verification.results.errorDetails') }}</h5>
-          <p class="text-sm text-red-700">{{ result.error }}</p>
+        <div
+          v-if="result.error"
+          class="mt-4 p-3 bg-red-50 border border-red-200 rounded"
+        >
+          <h5 class="font-medium text-red-800 mb-1">
+            {{ $t('verification.results.errorDetails') }}
+          </h5>
+          <p class="text-sm text-red-700">
+            {{ result.error }}
+          </p>
         </div>
       </div>
     </div>
@@ -125,7 +143,6 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { useI18n } from 'vue-i18n'
 import { useVerificationMessages } from '@/composables/useVerificationMessages'
 import type { SignatureVerificationResult } from '@/services/signature-verification-service'
 
@@ -134,13 +151,12 @@ interface Props {
 }
 
 const props = defineProps<Props>()
-const { t } = useI18n()
 const { 
   getVerificationMessage, 
   getStatusIcon, 
   getStatusColorClass,
   getDocumentIntegrityMessage,
-  getIdentityStatusMessage 
+  getIdentityStatusMessage, 
 } = useVerificationMessages()
 
 const showTechnicalDetails = ref(false)

@@ -15,8 +15,10 @@ import { useAuthStore } from './authStore'
 interface SerializedFile {
   name: string
   type: string
+  size: number
   lastModified: number
   data: string
+  timestamp?: number
 }
 
 // Unique ID generation for documents
@@ -73,20 +75,29 @@ const deserializeFile = (serializedFile: unknown): File => {
     throw new Error('Invalid serialized file structure')
   }
 
-  const { name, type, lastModified, data } = serializedFile as Record<string, unknown>
+  const { name, type, lastModified, data } = serializedFile as SerializedFile
 
-  if (!name || !type || !data || typeof data !== 'string') {
+  if (!name || !type || !data) {
     throw new Error('Invalid file data')
   }
 
   try {
-    const binaryString = atob(data)
+    // Remove the data URL prefix if present (e.g., 'data:image/png;base64,')
+    const base64Data = data.includes('base64,') ? data.split(',')[1] : data
+    const binaryString = atob(base64Data)
     const bytes = new Uint8Array(binaryString.length)
     for (let i = 0; i < binaryString.length; i++) {
       bytes[i] = binaryString.charCodeAt(i)
     }
     
-    return new File([bytes], name, { type, lastModified: lastModified || Date.now() })
+    return new File(
+      [bytes], 
+      String(name), 
+      { 
+        type: String(type), 
+        lastModified: typeof lastModified === 'number' ? lastModified : Date.now(), 
+      },
+    )
   } catch (error) {
     console.error('Error deserializing file:', error)
     throw new Error('Failed to deserialize file')

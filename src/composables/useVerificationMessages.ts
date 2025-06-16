@@ -142,19 +142,19 @@ export function useVerificationMessages() {
         return {
           text: t('verification.details.integrity'),
           icon: '✅',
-          class: 'text-green-600'
+          class: 'text-green-600',
         }
       case 'unverified':
         return {
           text: t('verification.errors.documentModified'),
           icon: '❌',
-          class: 'text-red-600'
+          class: 'text-red-600',
         }
       case 'unknown':
         return {
           text: t('verification.errors.networkError'),
           icon: '❓',
-          class: 'text-gray-600'
+          class: 'text-gray-600',
         }
     }
   })
@@ -168,25 +168,25 @@ export function useVerificationMessages() {
         return {
           text: t('verification.details.authentic'),
           icon: '✅',
-          class: 'text-green-600'
+          class: 'text-green-600',
         }
       case 'suspicious':
         return {
           text: t('verification.errors.signatureMismatch.title'),
           icon: '⚠️',
-          class: 'text-amber-600'
+          class: 'text-amber-600',
         }
       case 'unverified':
         return {
           text: t('verification.errors.serverError.subtitle'),
           icon: '❓',
-          class: 'text-blue-600'
+          class: 'text-blue-600',
         }
       case 'unknown':
         return {
           text: t('verification.errors.networkError.subtitle'),
           icon: '❓',
-          class: 'text-gray-600'
+          class: 'text-gray-600',
         }
     }
   })
