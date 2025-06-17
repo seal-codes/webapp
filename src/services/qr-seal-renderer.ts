@@ -181,10 +181,11 @@ export class QRSealRenderer {
     const baseFontSize = Math.max(9, qrSizeInPixels / 12) // Minimum 9px
     const providerFontSize = Math.max(11, baseFontSize * 1.2) // Minimum 11px, slightly larger
     
-    // Calculate vertical positioning - center the text block with small bottom padding
+    // Calculate vertical positioning - center the text block with small bottom padding and top padding
+    const topPadding = Math.max(8, qrSizeInPixels / 15) // Small top padding
     const bottomPadding = Math.max(6, qrSizeInPixels / 20) // Small bottom padding
     const textBlockHeight = providerFontSize + baseFontSize + 8 // Height of both lines plus spacing
-    const textStartY = y + (height - textBlockHeight - bottomPadding) / 2
+    const textStartY = y + topPadding + (height - textBlockHeight - bottomPadding - topPadding) / 2
     
     // Draw provider name (centered)
     ctx.fillStyle = '#374151'
