@@ -1,0 +1,14 @@
+{
+  "cookies": [],
+  "origins": [
+    {
+      "origin": "http://localhost:5173",
+      "localStorage": [
+        {
+          "name": "supabase.auth.token",
+          "value": "{\"currentSession\":{\"access_token\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzUwMTU5NDI1LCJzdWIiOiJ0ZXN0LWdpdGh1Yi11c2VyLWlkIiwiZW1haWwiOiJ0ZXN0LWdpdGh1YkBleGFtcGxlLmNvbSIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImdpdGh1YiIsInByb3ZpZGVycyI6WyJnaXRodWIiXX0sInVzZXJfbWV0YWRhdGEiOnsiYXZhdGFyX3VybCI6Imh0dHBzOi8vZXhhbXBsZS5jb20vYXZhdGFyLnBuZyIsImZ1bGxfbmFtZSI6IlRlc3QgVXNlciIsInVzZXJfbmFtZSI6InRlc3R1c2VyIn0sInJvbGUiOiJhdXRoZW50aWNhdGVkIn0.rOXIRywgnBV6hHMYzqg4nCtbXqLrIs-1i0oU1de9364\",\"refresh_token\":\"mock-refresh-token-1750155825247\",\"expires_in\":3600,\"expires_at\":1750159425,\"user\":{\"id\":\"test-github-user-id\",\"email\":\"test-github@example.com\",\"app_metadata\":{\"provider\":\"github\",\"providers\":[\"github\"]},\"user_metadata\":{\"avatar_url\":\"https://example.com/avatar.png\",\"full_name\":\"Test User\",\"user_name\":\"testuser\"}}},\"expiresAt\":1750159425}"
+        }
+      ]
+    }
+  ]
+}

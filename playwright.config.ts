@@ -31,17 +31,25 @@ export default defineConfig({
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
   },
+  
+  /* Global setup script to run before tests */
+  globalSetup: './e2e/setup/test-setup.ts',
 
   /* Configure projects for major browsers */
   projects: [
+    // Setup project for authentication
+    { name: 'auth-setup', testMatch: /.*\.setup\.ts/ },
+    
     {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
+      dependencies: ['auth-setup'],
     },
 
     {
       name: 'firefox',
       use: { ...devices['Desktop Firefox'] },
+      dependencies: ['auth-setup'],
     },
 
     {
