@@ -313,6 +313,7 @@ watch(
                       size="lg"
                       :loading="isProcessing"
                       :disabled="isProcessing"
+                      data-testid="seal-document-button"
                       @click="handleManualSeal"
                     >
                       {{ t('document.auth.sealButton') }}

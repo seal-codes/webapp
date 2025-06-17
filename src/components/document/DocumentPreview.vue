@@ -49,6 +49,7 @@ const emit = defineEmits<{
     <!-- Loading indicator -->
     <div
       v-if="isLoading"
+      data-testid="document-loading"
       class="flex justify-center items-center p-12"
     >
       <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500" />
@@ -71,6 +72,7 @@ const emit = defineEmits<{
     <!-- No preview available -->
     <div
       v-else
+      data-testid="no-preview-message"
       class="flex justify-center items-center p-12 text-gray-500"
     >
       No preview available

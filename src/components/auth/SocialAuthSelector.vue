@@ -96,7 +96,8 @@ onMounted(async () => {
       <button
         v-for="provider in providers"
         :key="provider.id"
-        :disabled="isProcessing || !provider.enabled"
+        :disabled="isProcessing"
+        :data-testid="`select-auth-provider-${provider.id}`"
         class="aspect-square flex flex-col items-center justify-center p-4 border border-gray-200 
           rounded-xl hover:bg-gray-50 transition-colors relative group disabled:opacity-50 
           disabled:cursor-not-allowed"

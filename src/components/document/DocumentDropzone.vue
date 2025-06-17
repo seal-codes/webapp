@@ -81,6 +81,7 @@ const validateAndEmitFile = (file: File) => {
 
 <template>
   <div 
+    data-testid="document-dropzone"
     class="border-2 border-dashed rounded-lg p-12 text-center cursor-pointer transition-colors duration-200"
     :class="[
       isDragging ? 'border-primary-500 bg-primary-50' : 'border-gray-300 hover:border-primary-400 hover:bg-gray-50',
@@ -94,6 +95,7 @@ const validateAndEmitFile = (file: File) => {
   >
     <input 
       ref="fileInput"
+      data-testid="document-file-input"
       type="file"
       class="hidden"
       accept=".jpg,.jpeg,.png,.webp"
@@ -123,6 +125,7 @@ const validateAndEmitFile = (file: File) => {
       
       <BaseMessage
         v-if="errorMessage"
+        data-testid="document-error-message"
         type="error"
         :message="errorMessage"
         class="mb-4"
