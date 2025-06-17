@@ -59,9 +59,9 @@ export class QRSealRenderer {
     const providerName = provider?.name || providerId
 
     // Calculate seal dimensions
-    const padding = 12 // Padding around QR code
-    const identityHeight = 50 // Height of identity section
-    const borderRadius = 8
+    const padding = Math.max(8, qrSizeInPixels / 10) // Scale padding relative to QR size (minimum 8px)
+    const identityHeight = Math.max(40, qrSizeInPixels / 3) // Scale identity section relative to QR size (minimum 40px)
+    const borderRadius = Math.max(6, qrSizeInPixels / 15) // Scale radius relative to QR size (minimum 6px)
     
     const sealWidth = qrSizeInPixels + (padding * 2)
     const sealHeight = qrSizeInPixels + (padding * 2) + identityHeight
@@ -91,6 +91,7 @@ export class QRSealRenderer {
       identityHeight,
       providerName,
       userIdentifier,
+      qrSizeInPixels, // Pass QR size for font scaling
     )
 
     // Convert to data URL
@@ -165,6 +166,7 @@ export class QRSealRenderer {
     height: number,
     providerName: string,
     userIdentifier: string,
+    qrSizeInPixels: number, // Add QR size parameter for font scaling
   ): Promise<void> {
     // Draw separator line
     ctx.strokeStyle = '#f3f4f6'
@@ -180,15 +182,19 @@ export class QRSealRenderer {
     ctx.arc(x + width / 2 - 25, y + 15, 3, 0, 2 * Math.PI)
     ctx.fill()
 
+    // Calculate dynamic font sizes based on QR code dimensions (1/12 of height)
+    const baseFontSize = Math.max(9, qrSizeInPixels / 12) // Minimum 9px
+    const providerFontSize = Math.max(11, baseFontSize * 1.2) // Minimum 11px, slightly larger
+    
     // Draw provider name
     ctx.fillStyle = '#374151'
-    ctx.font = 'bold 11px system-ui, -apple-system, sans-serif'
+    ctx.font = `bold ${Math.round(providerFontSize)}px system-ui, -apple-system, sans-serif`
     ctx.textAlign = 'left'
     ctx.fillText(providerName, x + width / 2 - 15, y + 18)
 
     // Draw user identifier (truncated if too long)
     ctx.fillStyle = '#6b7280'
-    ctx.font = '9px system-ui, -apple-system, sans-serif'
+    ctx.font = `${Math.round(baseFontSize)}px system-ui, -apple-system, sans-serif`
     ctx.textAlign = 'center'
     
     const maxWidth = width - 16
