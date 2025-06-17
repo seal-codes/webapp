@@ -24,7 +24,7 @@ describe('Canvas Positioning Consistency', () => {
       testPosition,
       testSizePercent,
       testDimensions,
-      'image'
+      'image',
     )
 
     // Verify the calculation is deterministic
@@ -32,7 +32,7 @@ describe('Canvas Positioning Consistency', () => {
       testPosition,
       testSizePercent,
       testDimensions,
-      'image'
+      'image',
     )
 
     expect(pixelCalc.position).toEqual(pixelCalc2.position)
@@ -45,7 +45,7 @@ describe('Canvas Positioning Consistency', () => {
       testPosition,
       testSizePercent,
       testDimensions,
-      'image'
+      'image',
     )
 
     // Calculate expected position manually
@@ -70,14 +70,14 @@ describe('Canvas Positioning Consistency', () => {
       testPosition,
       testSizePercent,
       smallDoc,
-      'image'
+      'image',
     )
     
     const largeCalc = qrCodeUICalculator.calculateEmbeddingPixels(
       testPosition,
       testSizePercent,
       largeDoc,
-      'image'
+      'image',
     )
 
     // Position percentages should be the same when aspect ratios match
@@ -97,7 +97,7 @@ describe('Canvas Positioning Consistency', () => {
       { x: 0, y: 0 },     // Top-left
       { x: 100, y: 0 },   // Top-right
       { x: 0, y: 100 },   // Bottom-left
-      { x: 100, y: 100 }  // Bottom-right
+      { x: 100, y: 100 },  // Bottom-right
     ]
 
     corners.forEach(corner => {
@@ -105,7 +105,7 @@ describe('Canvas Positioning Consistency', () => {
         corner,
         testSizePercent,
         testDimensions,
-        'image'
+        'image',
       )
 
       // Ensure QR code stays within document bounds
@@ -121,7 +121,7 @@ describe('Canvas Positioning Consistency', () => {
       testPosition,
       testSizePercent,
       testDimensions,
-      'image'
+      'image',
     )
 
     // Exclusion zone should match the seal position and dimensions exactly
@@ -140,7 +140,7 @@ describe('Canvas Positioning Consistency', () => {
         testPosition,
         size,
         testDimensions,
-        'image'
+        'image',
       )
 
       // Larger sizes should result in larger pixel dimensions
@@ -156,7 +156,7 @@ describe('Canvas Positioning Consistency', () => {
       testPosition,
       5, // Very small percentage
       testDimensions,
-      'image'
+      'image',
     )
 
     // Should enforce minimum size for scannability
@@ -195,7 +195,7 @@ describe('Canvas Coordinate Conversion', () => {
     const testPositions = [
       { display: { x: 80, y: 60 }, expected: { x: 10, y: 10 } },    // 10% position
       { display: { x: 400, y: 300 }, expected: { x: 50, y: 50 } },  // 50% position
-      { display: { x: 720, y: 540 }, expected: { x: 90, y: 90 } }   // 90% position
+      { display: { x: 720, y: 540 }, expected: { x: 90, y: 90 } },   // 90% position
     ]
 
     testPositions.forEach(({ display, expected }) => {

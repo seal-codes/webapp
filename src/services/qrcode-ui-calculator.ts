@@ -82,13 +82,11 @@ export class QRCodeUICalculator {
   private calculateSizeInPixels(
     sizePercent: number,
     documentDimensions: DocumentDimensions,
-    documentType: 'pdf' | 'image',
+    _documentType: 'pdf' | 'image',
   ): number {
-    let calculatedSize: number
-
     // For images: use percentage of smallest dimension for pixel-perfect scaling
     const minDimension = Math.min(documentDimensions.width, documentDimensions.height)
-    calculatedSize = Math.round(minDimension * sizePercent / 100)
+    const calculatedSize = Math.round(minDimension * sizePercent / 100)
 
     // Enforce minimum size for scannability
     const MINIMUM_QR_SIZE = 120 // pixels - minimum for reliable scanning

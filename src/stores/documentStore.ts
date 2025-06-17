@@ -648,17 +648,16 @@ export const useDocumentStore = defineStore('document', () => {
       documentId.value = generateUniqueId()
 
       // Seal the document
-      let sealedUrl: string
       if (documentType.value === 'image') {
         // Calculate pixel position using the same logic as preview
         const pixelCalc = qrCodeUICalculator.calculateEmbeddingPixels(
           qrPosition.value,
           qrSizePercent.value,
           documentDimensions,
-          'image'
+          'image',
         )
         
-        sealedUrl = await sealImageDocument(
+        sealedDocumentUrl.value = await sealImageDocument(
           sealResult.dataUrl,
           pixelCalc.position, // Use calculated pixel position
           pixelCalc.completeSealDimensions.width,

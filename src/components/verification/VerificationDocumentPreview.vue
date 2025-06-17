@@ -236,8 +236,6 @@ defineExpose({ resetSelection })
           class="mt-4"
         />
       </div>
-      
-
     </div>
   </div>
 </template>

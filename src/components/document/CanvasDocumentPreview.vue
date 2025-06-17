@@ -4,10 +4,15 @@
  * Uses canvas for both preview and QR positioning to ensure pixel-perfect consistency with sealing
  */
 
-import { ref, onMounted, watch, computed, nextTick, onUnmounted } from 'vue'
+import { ref, onMounted, watch, computed, onUnmounted } from 'vue'
 import { qrCodeUICalculator } from '@/services/qrcode-ui-calculator'
 import { qrSealRenderer } from '@/services/qr-seal-renderer'
 import type { QRCodeUIPosition, AttestationData } from '@/types/qrcode'
+
+// Interface for container element with ResizeObserver
+interface ContainerElement extends HTMLDivElement {
+  _resizeObserver?: ResizeObserver;
+}
 
 const props = defineProps<{
   document: File | null;
@@ -26,7 +31,7 @@ const emit = defineEmits<{
 
 // Canvas refs and state
 const canvasRef = ref<HTMLCanvasElement | null>(null)
-const containerRef = ref<HTMLDivElement | null>(null)
+const containerRef = ref<ContainerElement | null>(null)
 const isLoading = ref(true)
 const isDragging = ref(false)
 const dragOffset = ref({ x: 0, y: 0 })
@@ -42,7 +47,6 @@ const qrSealImage = ref<HTMLImageElement | null>(null)
 const isGeneratingQR = ref(false)
 
 // Computed properties for template
-const qrPosition = computed(() => props.qrPosition)
 const qrSizePercent = computed(() => props.qrSizePercent)
 
 // Calculate QR code position on screen for UI elements
@@ -56,7 +60,7 @@ const qrScreenPosition = computed(() => {
     props.qrPosition,
     props.qrSizePercent,
     documentDimensions.value,
-    'image'
+    'image',
   )
 
   // Get canvas position within its container
@@ -81,7 +85,7 @@ const qrScreenPosition = computed(() => {
     x: canvasOffsetX + screenX,
     y: canvasOffsetY + screenY,
     width: screenWidth,
-    height: screenHeight
+    height: screenHeight,
   }
 })
 
@@ -89,7 +93,9 @@ const qrScreenPosition = computed(() => {
  * Load and setup the document image
  */
 const loadDocument = async () => {
-  if (!props.document) return
+  if (!props.document) {
+    return
+  }
 
   isLoading.value = true
   
@@ -101,7 +107,7 @@ const loadDocument = async () => {
         documentImage.value = img
         documentDimensions.value = {
           width: img.naturalWidth,
-          height: img.naturalHeight
+          height: img.naturalHeight,
         }
         resolve()
       }
@@ -164,7 +170,7 @@ const setupCanvas = () => {
   // Set canvas display size
   canvasDisplaySize.value = {
     width: displayWidth,
-    height: displayHeight
+    height: displayHeight,
   }
   
   // Set canvas actual size to match document for pixel-perfect positioning
@@ -183,7 +189,9 @@ const setupCanvas = () => {
  * Generate QR seal image
  */
 const generateQRSeal = async () => {
-  if (!props.attestationData && !props.authProvider) return
+  if (!props.attestationData && !props.authProvider) {
+    return
+  }
 
   isGeneratingQR.value = true
   
@@ -193,7 +201,7 @@ const generateQRSeal = async () => {
       props.qrPosition,
       props.qrSizePercent,
       documentDimensions.value,
-      'image'
+      'image',
     )
 
     // Generate the complete QR seal
@@ -276,7 +284,7 @@ const redrawCanvas = async () => {
       props.qrPosition,
       props.qrSizePercent,
       documentDimensions.value,
-      'image'
+      'image',
     )
 
     ctx.drawImage(
@@ -284,7 +292,7 @@ const redrawCanvas = async () => {
       pixelCalc.position.x,
       pixelCalc.position.y,
       pixelCalc.completeSealDimensions.width,
-      pixelCalc.completeSealDimensions.height
+      pixelCalc.completeSealDimensions.height,
     )
   }
 }
@@ -293,7 +301,9 @@ const redrawCanvas = async () => {
  * Handle mouse/touch events for dragging
  */
 const handlePointerDown = (e: MouseEvent | TouchEvent) => {
-  if (props.hasQr || !canvasRef.value || !qrSealImage.value) return
+  if (props.hasQr || !canvasRef.value || !qrSealImage.value) {
+    return
+  }
 
   e.preventDefault()
   
@@ -313,7 +323,7 @@ const handlePointerDown = (e: MouseEvent | TouchEvent) => {
     props.qrPosition,
     props.qrSizePercent,
     documentDimensions.value,
-    'image'
+    'image',
   )
   
   // Check if click is anywhere on canvas (make entire canvas draggable)
@@ -329,7 +339,7 @@ const handlePointerDown = (e: MouseEvent | TouchEvent) => {
     
     dragOffset.value = {
       x: canvasX - qrCenterX,
-      y: canvasY - qrCenterY
+      y: canvasY - qrCenterY,
     }
     
     // Add event listeners
@@ -345,7 +355,9 @@ const handlePointerDown = (e: MouseEvent | TouchEvent) => {
 }
 
 const handlePointerMove = (e: MouseEvent | TouchEvent) => {
-  if (!isDragging.value || !canvasRef.value) return
+  if (!isDragging.value || !canvasRef.value) {
+    return
+  }
 
   e.preventDefault()
   
@@ -367,18 +379,18 @@ const handlePointerMove = (e: MouseEvent | TouchEvent) => {
   // Convert to percentage coordinates
   const newPositionPercent = {
     x: (newCenterX / documentDimensions.value.width) * 100,
-    y: (newCenterY / documentDimensions.value.height) * 100
+    y: (newCenterY / documentDimensions.value.height) * 100,
   }
   
   // Apply bounds checking using the calculator
   const margins = qrCodeUICalculator.calculateSafeMargins(
     props.qrSizePercent,
-    documentDimensions.value
+    documentDimensions.value,
   )
   
   const boundedPosition = {
     x: Math.max(margins.horizontal, Math.min(100 - margins.horizontal, newPositionPercent.x)),
-    y: Math.max(margins.vertical, Math.min(100 - margins.vertical, newPositionPercent.y))
+    y: Math.max(margins.vertical, Math.min(100 - margins.vertical, newPositionPercent.y)),
   }
   
   // Emit position update
@@ -386,7 +398,9 @@ const handlePointerMove = (e: MouseEvent | TouchEvent) => {
 }
 
 const handlePointerUp = () => {
-  if (!isDragging.value) return
+  if (!isDragging.value) {
+    return
+  }
   
   isDragging.value = false
   
@@ -455,7 +469,7 @@ onMounted(() => {
     resizeObserver.observe(containerRef.value)
     
     // Store observer for cleanup
-    ;(containerRef.value as any)._resizeObserver = resizeObserver
+    containerRef.value._resizeObserver = resizeObserver
   }
 })
 
@@ -464,8 +478,8 @@ const cleanup = () => {
   window.removeEventListener('resize', handleResize)
   
   // Clean up ResizeObserver
-  if (containerRef.value && (containerRef.value as any)._resizeObserver) {
-    ;(containerRef.value as any)._resizeObserver.disconnect()
+  if (containerRef.value?._resizeObserver) {
+    containerRef.value._resizeObserver.disconnect()
   }
   
   if (isDragging.value) {
@@ -483,7 +497,7 @@ onUnmounted(() => {
 // Cursor style based on state
 const canvasStyle = computed(() => ({
   cursor: props.hasQr ? 'default' : (isDragging.value ? 'grabbing' : 'grab'),
-  touchAction: 'none'
+  touchAction: 'none',
 }))
 </script>
 
