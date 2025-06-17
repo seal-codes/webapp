@@ -82,6 +82,7 @@ export class QRCodeUICalculator {
   private calculateSizeInPixels(
     sizePercent: number,
     documentDimensions: DocumentDimensions,
+    documentType: 'pdf' | 'image',
   ): number {
     let calculatedSize: number
 

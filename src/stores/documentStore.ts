@@ -650,14 +650,19 @@ export const useDocumentStore = defineStore('document', () => {
       // Seal the document
       let sealedUrl: string
       if (documentType.value === 'image') {
+        // Calculate pixel position using the same logic as preview
+        const pixelCalc = qrCodeUICalculator.calculateEmbeddingPixels(
+          qrPosition.value,
+          qrSizePercent.value,
+          documentDimensions,
+          'image'
+        )
+        
         sealedUrl = await sealImageDocument(
           sealResult.dataUrl,
-          { 
-            x: qrPosition.value.x, 
-            y: qrPosition.value.y 
-          },
-          sealResult.dimensions.width,
-          sealResult.dimensions.height,
+          pixelCalc.position, // Use calculated pixel position
+          pixelCalc.completeSealDimensions.width,
+          pixelCalc.completeSealDimensions.height,
         )
       } else {
         throw new Error('Unsupported document type')
@@ -738,9 +743,9 @@ export const useDocumentStore = defineStore('document', () => {
     position: { x: number; y: number }, 
     width: number,
     height: number,
-  ) => {
+  ): Promise<string> => {
     if (!uploadedDocument.value) {
-      return
+      throw new Error('No document available')
     }
     
     console.log('🖼️ Sealing image document...')
@@ -763,7 +768,7 @@ export const useDocumentStore = defineStore('document', () => {
     // Use the converted file for sealing
     const fileToSeal = conversionResult.file
     
-    return new Promise<void>((resolve, reject) => {
+    return new Promise<string>((resolve, reject) => {
       const img = new Image()
       const canvas = document.createElement('canvas')
       const ctx = canvas.getContext('2d')
@@ -801,7 +806,7 @@ export const useDocumentStore = defineStore('document', () => {
                 size: blob.size,
                 dimensions: `${canvas.width}x${canvas.height}`,
               })
-              resolve()
+              resolve(sealedDocumentUrl.value)
             } else {
               reject(new CodedError('document_processing_failed', 'Failed to create image blob'))
             }
