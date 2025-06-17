@@ -59,8 +59,8 @@ export class QRSealRenderer {
     const providerName = provider?.name || providerId
 
     // Calculate seal dimensions
-    const padding = Math.max(8, qrSizeInPixels / 10) // Scale padding relative to QR size (minimum 8px)
-    const identityHeight = Math.max(40, qrSizeInPixels / 3) // Scale identity section relative to QR size (minimum 40px)
+    const padding = Math.max(8, qrSizeInPixels / 15) // Scale padding relative to QR size (minimum 8px)
+    const identityHeight = Math.max(40, qrSizeInPixels / 4) // Scale identity section relative to QR size (minimum 40px)
     const borderRadius = Math.max(6, qrSizeInPixels / 15) // Scale radius relative to QR size (minimum 6px)
     
     const sealWidth = qrSizeInPixels + (padding * 2)
@@ -177,22 +177,22 @@ export class QRSealRenderer {
     ctx.stroke()
 
     // Draw provider indicator (blue dot)
-    ctx.fillStyle = '#3b82f6'
-    ctx.beginPath()
-    ctx.arc(x + width / 2 - 25, y + 15, 3, 0, 2 * Math.PI)
-    ctx.fill()
-
     // Calculate dynamic font sizes based on QR code dimensions (1/12 of height)
     const baseFontSize = Math.max(9, qrSizeInPixels / 12) // Minimum 9px
     const providerFontSize = Math.max(11, baseFontSize * 1.2) // Minimum 11px, slightly larger
     
-    // Draw provider name
+    // Calculate vertical positioning - center the text block with small bottom padding
+    const bottomPadding = Math.max(6, qrSizeInPixels / 20) // Small bottom padding
+    const textBlockHeight = providerFontSize + baseFontSize + 8 // Height of both lines plus spacing
+    const textStartY = y + (height - textBlockHeight - bottomPadding) / 2
+    
+    // Draw provider name (centered)
     ctx.fillStyle = '#374151'
     ctx.font = `bold ${Math.round(providerFontSize)}px system-ui, -apple-system, sans-serif`
-    ctx.textAlign = 'left'
-    ctx.fillText(providerName, x + width / 2 - 15, y + 18)
+    ctx.textAlign = 'center'
+    ctx.fillText(providerName, x + width / 2, textStartY + providerFontSize)
 
-    // Draw user identifier (truncated if too long)
+    // Draw user identifier (centered, truncated if too long)
     ctx.fillStyle = '#6b7280'
     ctx.font = `${Math.round(baseFontSize)}px system-ui, -apple-system, sans-serif`
     ctx.textAlign = 'center'
@@ -205,7 +205,7 @@ export class QRSealRenderer {
       displayText = displayText.substring(0, displayText.length - 4) + '...'
     }
     
-    ctx.fillText(displayText, x + width / 2, y + 35)
+    ctx.fillText(displayText, x + width / 2, textStartY + providerFontSize + 8 + baseFontSize)
   }
 
   /**
