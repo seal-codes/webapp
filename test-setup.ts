@@ -7,10 +7,34 @@
 
 import { vi } from 'vitest'
 
-// Mock environment variables for Supabase
-process.env.VITE_SUPABASE_URL = 'https://test.supabase.co'
-process.env.VITE_SUPABASE_ANON_KEY = 'test-anon-key'
-process.env.SUPABASE_SERVICE_ROLE_KEY = 'test-service-role-key'
+// Mock Supabase client to prevent initialization issues in tests
+vi.mock('./src/services/supabase-client', () => ({
+  supabase: {
+    auth: {
+      signInWithOAuth: vi.fn(),
+      signOut: vi.fn(),
+      getUser: vi.fn(),
+      onAuthStateChange: vi.fn(),
+    },
+    from: vi.fn(() => ({
+      select: vi.fn(),
+      insert: vi.fn(),
+      update: vi.fn(),
+      delete: vi.fn(),
+    })),
+  },
+}))
+
+// Mock auth service to prevent Supabase initialization in tests
+vi.mock('./src/services/auth-service', () => ({
+  authService: {
+    isAuthenticated: false,
+    currentUser: null,
+    signInWithProvider: vi.fn(),
+    signOut: vi.fn(),
+    onAuthStateChange: vi.fn(),
+  },
+}))
 
 // Mock browser APIs that aren't available in Node.js test environment
 global.HTMLCanvasElement = class HTMLCanvasElement {
@@ -20,11 +44,8 @@ global.HTMLCanvasElement = class HTMLCanvasElement {
   getContext() {
     return {
       fillRect: vi.fn(),
-      drawImage: vi.fn((image, ...args) => {
+      drawImage: vi.fn((_image, ..._args) => {
         // Accept any image-like object
-        if (image && (image.width !== undefined || image.naturalWidth !== undefined)) {
-          return true
-        }
         return true
       }),
       getImageData: vi.fn(() => ({ data: new Uint8ClampedArray(4) })),
@@ -38,44 +59,67 @@ global.HTMLCanvasElement = class HTMLCanvasElement {
   }
 } as never
 
-global.Image = class Image extends EventTarget {
-  onload: (() => void) | null = null
-  onerror: (() => void) | null = null
-  width = 200
-  height = 200
-  naturalWidth = 200
-  naturalHeight = 200
-  complete = false
-  
-  constructor() {
-    super()
-  }
-  
-  set src(value: string) {
-    // Simulate successful image load
-    setTimeout(() => {
-      this.complete = true
-      if (this.onload) {
-        this.onload()
-      }
-      this.dispatchEvent(new Event('load'))
-    }, 0)
-  }
-  
-  get src() {
-    return this._src || ''
-  }
-  
-  private _src = ''
-} as never
+// Mock Image constructor to work with jsdom
+Object.defineProperty(global, 'Image', {
+  value: class MockImage {
+    onload: (() => void) | null = null
+    onerror: (() => void) | null = null
+    width = 200
+    height = 200
+    naturalWidth = 200
+    naturalHeight = 200
+    complete = false
+    crossOrigin: string | null = null
+    currentSrc = ''
+    
+    constructor() {
+      // Return a proper HTMLImageElement-like object
+      return this
+    }
+    
+    set src(value: string) {
+      this._src = value
+      this.currentSrc = value
+      // Simulate successful image load
+      setTimeout(() => {
+        this.complete = true
+        if (this.onload) {
+          this.onload()
+        }
+      }, 0)
+    }
+    
+    get src() {
+      return this._src || ''
+    }
+    
+    addEventListener() {}
+    removeEventListener() {}
+    dispatchEvent() {
+      return true 
+    }
+    
+    private _src = ''
+  },
+  writable: true,
+  configurable: true,
+})
 
 // Mock File API
 global.File = class File {
+  public size: number
+  public type: string
+  public lastModified: number
+  
   constructor(
     public chunks: BlobPart[],
     public name: string,
     public options?: FilePropertyBag,
-  ) {}
+  ) {
+    this.size = options?.size || 0
+    this.type = options?.type || 'application/octet-stream'
+    this.lastModified = options?.lastModified || Date.now()
+  }
   
   arrayBuffer() {
     return Promise.resolve(new ArrayBuffer(0))
@@ -84,10 +128,6 @@ global.File = class File {
   text() {
     return Promise.resolve('')
   }
-  
-  size = 0
-  type = 'application/octet-stream'
-  lastModified = Date.now()
 } as never
 
 // Mock crypto API if not available

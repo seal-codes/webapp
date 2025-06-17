@@ -100,6 +100,17 @@ describe('FormatConversionService', () => {
   })
 
   describe('convertToOptimalFormat', () => {
+    beforeEach(() => {
+      // Mock the convertImage method to avoid canvas issues in tests
+      vi.spyOn(service as any, 'convertImage').mockResolvedValue(
+        new File(['converted-data'], 'converted.png', { type: 'image/png' }),
+      )
+    })
+
+    afterEach(() => {
+      vi.restoreAllMocks()
+    })
+
     it('should not convert PNG files', async () => {
       const pngFile = new File(['fake-png-data'], 'test.png', { type: 'image/png' })
       
@@ -109,6 +120,9 @@ describe('FormatConversionService', () => {
       expect(result.file).toBe(pngFile)
       expect(result.originalFormat).toBe('image/png')
       expect(result.finalFormat).toBe('image/png')
+      
+      // Should not call convertImage for optimal formats
+      expect(service['convertImage']).not.toHaveBeenCalled()
     })
 
     it('should not convert WebP files', async () => {
@@ -120,6 +134,9 @@ describe('FormatConversionService', () => {
       expect(result.file).toBe(webpFile)
       expect(result.originalFormat).toBe('image/webp')
       expect(result.finalFormat).toBe('image/webp')
+      
+      // Should not call convertImage for optimal formats
+      expect(service['convertImage']).not.toHaveBeenCalled()
     })
 
     // Note: Actual conversion tests would require a more complex setup with canvas mocking
