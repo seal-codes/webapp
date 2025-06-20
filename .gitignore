@@ -24,3 +24,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# public-private key pairs created by Makefile
+ed25519
+*.pem
