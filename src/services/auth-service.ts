@@ -52,7 +52,7 @@ export class AuthService {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: provider as Provider,
       options: {
-        redirectTo,
+        redirectTo: redirectTo,
         queryParams: {
           flow: 'seal-document',
         },
