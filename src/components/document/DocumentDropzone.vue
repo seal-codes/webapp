@@ -66,8 +66,8 @@ const validateAndEmitFile = (file: File) => {
     return
   }
   
-  // Check file size (10MB max)
-  const maxSize = 10 * 1024 * 1024 // 10MB in bytes
+  // Check file size (50MB max)
+  const maxSize = 50 * 1024 * 1024 // 10MB in bytes
   if (file.size > maxSize) {
     errorMessage.value = t('errors.fileTooBig')
     return
