@@ -85,6 +85,7 @@
         "bottomRight": "Bottom Right Corner"
       }
     },
+    "qr_size": "QR Code Size",
     "controls": {
       "chooseAnother": "Choose Another Document",
       "authenticateWith": "Authenticate yourself with"

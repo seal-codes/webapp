@@ -73,6 +73,7 @@
         "bottomRight": "Untere rechte Ecke"
       }
     },
+    "qr_size": "QR-Code Größe",
     "controls": {
       "chooseAnother": "Anderes Dokument wählen",
       "authenticateWith": "Authentifiziere dich mit"

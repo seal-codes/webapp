@@ -31,7 +31,7 @@
         >
           <div class="aspect-[3/4] bg-white rounded shadow-sm overflow-hidden">
             <canvas 
-              :ref="`page-${page.pageNumber}`"
+              :id="`page-canvas-${page.pageNumber}`"
               :width="page.canvas.width"
               :height="page.canvas.height"
               class="w-full h-full object-contain"
@@ -94,6 +94,12 @@ const showPageSelection = ref(false)
 
 const selectedPageCanvas = computed(() => {
   const page = renderedPages.value.find(p => p.pageNumber === props.selectedPage)
+  console.log('🎯 selectedPageCanvas computed:', {
+    selectedPage: props.selectedPage,
+    renderedPagesCount: renderedPages.value.length,
+    foundPage: !!page,
+    hasCanvas: !!page?.canvas
+  })
   return page?.canvas || null
 })
 
@@ -112,16 +118,24 @@ const renderPDFPages = async () => {
     error.value = null
     renderedPages.value = []
     
+    console.log('🔄 Starting PDF rendering process...')
+    
     const pdf = await pdfRenderingService.loadPDF(props.pdfFile)
+    console.log('✅ PDF loaded successfully:', pdf)
+    
     const pageCount = await pdfRenderingService.getPageCount(pdf)
+    console.log('📄 PDF page count:', pageCount)
     
     // Always render first page at full scale for preview
+    console.log('🎨 Rendering first page at full scale...')
     const firstPage = await pdfRenderingService.renderPage(pdf, 1, 1.0)
+    console.log('✅ First page rendered:', firstPage)
     renderedPages.value = [firstPage]
     
     // If multi-page, show page selection and render thumbnails
     if (pageCount > 1) {
       showPageSelection.value = true
+      console.log('📚 Multi-page PDF detected, rendering thumbnails...')
       
       // Render thumbnails for all pages
       const thumbnailPages = await pdfRenderingService.renderPages(
@@ -129,6 +143,7 @@ const renderPDFPages = async () => {
         Array.from({ length: pageCount }, (_, i) => i + 1),
         0.2 // Small scale for thumbnails
       )
+      console.log('🖼️ Thumbnails rendered:', thumbnailPages.length)
       
       renderedPages.value = thumbnailPages
       
@@ -142,10 +157,13 @@ const renderPDFPages = async () => {
       selectPage(1)
     }
     
+    console.log('🎯 Final rendered pages:', renderedPages.value.length)
+    
     await nextTick()
     await updateCanvasElements()
+    console.log('✅ Canvas elements updated')
   } catch (err) {
-    console.error('Failed to render PDF pages:', err)
+    console.error('❌ Failed to render PDF pages:', err)
     error.value = err instanceof Error ? err.message : t('pdf.render_error')
   } finally {
     isLoading.value = false
@@ -178,17 +196,32 @@ const selectPage = async (pageNumber: number) => {
 }
 
 const updateCanvasElements = async () => {
+  console.log('🎨 Updating canvas elements for', renderedPages.value.length, 'pages')
+  
+  // Only update thumbnail canvas elements if we have page selection (multi-page PDF)
+  if (!showPageSelection.value) {
+    console.log('📄 Single-page PDF - skipping thumbnail canvas updates')
+    return
+  }
+  
   // Update canvas elements in the DOM
   for (const page of renderedPages.value) {
-    const canvasRef = `page-${page.pageNumber}`
-    const canvasElement = document.querySelector(`canvas[ref="${canvasRef}"]`) as HTMLCanvasElement
+    const canvasId = `page-canvas-${page.pageNumber}`
+    const canvasElement = document.getElementById(canvasId) as HTMLCanvasElement
+    
+    console.log(`🔍 Looking for canvas element: ${canvasId}`, canvasElement ? 'found' : 'not found')
     
     if (canvasElement && page.canvas) {
       const ctx = canvasElement.getContext('2d')
       if (ctx) {
+        console.log(`✅ Drawing page ${page.pageNumber} to canvas`)
         ctx.clearRect(0, 0, canvasElement.width, canvasElement.height)
         ctx.drawImage(page.canvas, 0, 0)
+      } else {
+        console.error(`❌ Could not get 2D context for canvas ${canvasId}`)
       }
+    } else {
+      console.warn(`⚠️ Canvas element ${canvasId} not found or page canvas missing`)
     }
   }
 }

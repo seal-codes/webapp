@@ -8,8 +8,8 @@
       <!-- PDF page canvas -->
       <canvas
         ref="pageCanvas"
-        :width="pageCanvas?.width || 0"
-        :height="pageCanvas?.height || 0"
+        :width="containerWidth"
+        :height="containerHeight"
         class="absolute inset-0 w-full h-full object-contain"
       />
       
@@ -79,8 +79,8 @@ const previewContainer = ref<HTMLDivElement>()
 const pageCanvas = ref<HTMLCanvasElement>()
 const qrOverlay = ref<HTMLDivElement>()
 
-const containerWidth = ref(600)
-const containerHeight = ref(800)
+const containerWidth = ref(800)
+const containerHeight = ref(600)
 const isDragging = ref(false)
 const isResizing = ref(false)
 const dragStart = ref({ x: 0, y: 0 })
@@ -109,14 +109,25 @@ watch(() => props.pageCanvas, async () => {
 })
 
 const updatePreview = async () => {
-  if (!props.pageCanvas || !pageCanvas.value) return
+  console.log('🖼️ PDFPagePreview updatePreview called:', {
+    hasPageCanvas: !!props.pageCanvas,
+    hasPageCanvasRef: !!pageCanvas.value,
+    pageCanvasSize: props.pageCanvas ? `${props.pageCanvas.width}x${props.pageCanvas.height}` : 'none'
+  })
+  
+  if (!props.pageCanvas || !pageCanvas.value) {
+    console.log('❌ Missing canvas - pageCanvas:', !!props.pageCanvas, 'pageCanvasRef:', !!pageCanvas.value)
+    return
+  }
   
   // Calculate container size maintaining aspect ratio
   const canvas = props.pageCanvas
   const aspectRatio = canvas.width / canvas.height
   
-  // Set container size (max 600px width)
-  const maxWidth = 600
+  console.log('📐 Canvas dimensions:', { width: canvas.width, height: canvas.height, aspectRatio })
+  
+  // Set container size (max 800px width for better visibility)
+  const maxWidth = 800
   if (canvas.width > maxWidth) {
     containerWidth.value = maxWidth
     containerHeight.value = maxWidth / aspectRatio
@@ -124,6 +135,8 @@ const updatePreview = async () => {
     containerWidth.value = canvas.width
     containerHeight.value = canvas.height
   }
+  
+  console.log('📦 Container size:', { width: containerWidth.value, height: containerHeight.value })
   
   await nextTick()
   
@@ -133,8 +146,12 @@ const updatePreview = async () => {
     pageCanvas.value.width = containerWidth.value
     pageCanvas.value.height = containerHeight.value
     
+    console.log('🎨 Drawing PDF to canvas...')
     ctx.clearRect(0, 0, containerWidth.value, containerHeight.value)
     ctx.drawImage(canvas, 0, 0, containerWidth.value, containerHeight.value)
+    console.log('✅ PDF drawn to canvas successfully')
+  } else {
+    console.error('❌ Could not get 2D context for preview canvas')
   }
 }
 
