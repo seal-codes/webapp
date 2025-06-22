@@ -1,9 +1,12 @@
 /**
  * Document hashing service with QR code exclusion zone support
  * Handles cryptographic and perceptual hashing while excluding QR code areas
+ * Extended to support PDF documents
  */
 
 import type { QRCodeExclusionZone } from '@/types/qrcode'
+import type { PDFHashes } from '@/types/pdf'
+import { PDFHashService } from './pdf-hash-service'
 
 /**
  * Document hash calculation result
@@ -18,21 +21,32 @@ export interface DocumentHashes {
 }
 
 /**
+ * Union type for all document hash types
+ */
+export type AllDocumentHashes = DocumentHashes | PDFHashes
+
+/**
  * Service for calculating document hashes with QR code exclusion
  */
 export class DocumentHashService {
+  private pdfHashService = new PDFHashService()
+
   /**
    * Calculate hashes for a document with QR code exclusion zone
    * 
    * @param document - The document file
-   * @param exclusionZone - Area to exclude from hash calculation (optional for initial hashing)
+   * @param exclusionZone - Area to exclude from hash calculation (optional for initial hashing, not used for PDFs)
    * @returns Promise resolving to calculated hashes
    */
   async calculateDocumentHashes(
     document: File,
     exclusionZone?: QRCodeExclusionZone,
-  ): Promise<DocumentHashes> {
-    if (document.type.startsWith('image/')) {
+  ): Promise<AllDocumentHashes> {
+    if (document.type === 'application/pdf') {
+      // Use PDF-specific hashing
+      return this.pdfHashService.calculatePDFHashes(document)
+    } else if (document.type.startsWith('image/')) {
+      // Use existing image hashing
       return this.calculateImageHashes(document, exclusionZone)
     } else {
       throw new Error('Unsupported document type')

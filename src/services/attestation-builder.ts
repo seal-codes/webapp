@@ -7,17 +7,14 @@ import { providers } from '@/types/auth'
 import type { AttestationData, QRCodeExclusionZone } from '@/types/qrcode'
 import type { Provider } from '@/types/auth'
 import type { AttestationPackage, SigningResponse } from './signing-service'
+import type { AllDocumentHashes } from './document-hash-service'
 
 /**
  * Input data for building attestation
  */
 export interface AttestationInput {
-  /** Document hash information */
-  documentHashes: {
-    cryptographic: string;
-    pHash: string;
-    dHash: string;
-  };
+  /** Document hash information (images or PDFs) */
+  documentHashes: AllDocumentHashes;
   /** User authentication information */
   identity: {
     provider: string; // provider.id
@@ -27,8 +24,8 @@ export interface AttestationInput {
   serviceInfo: {
     publicKeyId: string;
   };
-  /** QR code exclusion zone for verification */
-  exclusionZone: QRCodeExclusionZone;
+  /** QR code exclusion zone for verification (images only) */
+  exclusionZone?: QRCodeExclusionZone;
   /** Optional user-provided URL */
   userUrl?: string;
 }
@@ -49,13 +46,16 @@ export class AttestationBuilder {
     if (!provider) {
       throw new Error(`Unknown provider: ${input.identity.provider}`)
     }
-
-    return {
+    
+    // Normalize hashes for both image and PDF documents
+    const normalizedHashes = this.normalizeHashes(input.documentHashes)
+    
+    const attestationData: AttestationData = {
       h: {
-        c: input.documentHashes.cryptographic,
+        c: normalizedHashes.cryptographic,
         p: {
-          p: input.documentHashes.pHash,
-          d: input.documentHashes.dHash,
+          p: normalizedHashes.perceptual,
+          d: normalizedHashes.dHash || '', // May be empty for PDFs
         },
       },
       t: new Date().toISOString(),
@@ -64,17 +64,43 @@ export class AttestationBuilder {
         id: input.identity.identifier,
       },
       s: {
-        n: 'sc', // seal.codes shortened
+        n: 'seal.codes',
         k: input.serviceInfo.publicKeyId,
       },
-      e: {
-        x: input.exclusionZone.x,
-        y: input.exclusionZone.y,
-        w: input.exclusionZone.width,
-        h: input.exclusionZone.height,
-        f: input.exclusionZone.fillColor.replace('#', ''), // Remove # for compactness
-      },
+      // Only include exclusion zone for images
+      ...(input.exclusionZone && {
+        e: {
+          x: input.exclusionZone.x,
+          y: input.exclusionZone.y,
+          w: input.exclusionZone.width,
+          h: input.exclusionZone.height,
+          f: input.exclusionZone.fillColor.replace('#', ''),
+        },
+      }),
       ...(input.userUrl && { u: input.userUrl }),
+    }
+    
+    return attestationData
+  }
+  
+  /**
+   * Normalize hashes from different document types
+   */
+  private normalizeHashes(hashes: AllDocumentHashes) {
+    if ('compositePerceptual' in hashes) {
+      // PDF hashes
+      return {
+        cryptographic: hashes.cryptographic,
+        perceptual: hashes.compositePerceptual,
+        dHash: '', // PDFs don't use dHash
+      }
+    } else {
+      // Image hashes
+      return {
+        cryptographic: hashes.cryptographic,
+        perceptual: hashes.pHash,
+        dHash: hashes.dHash,
+      }
     }
   }
 
@@ -85,16 +111,26 @@ export class AttestationBuilder {
    * @returns Attestation package ready for server signing
    */
   buildAttestationPackage(input: Omit<AttestationInput, 'serviceInfo'>): AttestationPackage {
+    // Normalize hashes for the package
+    const normalizedHashes = this.normalizeHashes(input.documentHashes)
+    
     return {
-      hashes: input.documentHashes,
-      identity: input.identity,
-      exclusionZone: {
-        x: input.exclusionZone.x,
-        y: input.exclusionZone.y,
-        width: input.exclusionZone.width,
-        height: input.exclusionZone.height,
-        fillColor: input.exclusionZone.fillColor,
+      hashes: {
+        cryptographic: normalizedHashes.cryptographic,
+        pHash: normalizedHashes.perceptual,
+        dHash: normalizedHashes.dHash,
       },
+      identity: input.identity,
+      // Only include exclusion zone if provided (images only)
+      ...(input.exclusionZone && {
+        exclusionZone: {
+          x: input.exclusionZone.x,
+          y: input.exclusionZone.y,
+          width: input.exclusionZone.width,
+          height: input.exclusionZone.height,
+          fillColor: input.exclusionZone.fillColor,
+        },
+      }),
       ...(input.userUrl && { userUrl: input.userUrl }),
     }
   }
@@ -134,13 +170,16 @@ export class AttestationBuilder {
         n: 'sc', // seal.codes shortened
         k: serverResponse.publicKeyId, // Use server public key ID
       },
-      e: {
-        x: clientPackage.exclusionZone.x,
-        y: clientPackage.exclusionZone.y,
-        w: clientPackage.exclusionZone.width,
-        h: clientPackage.exclusionZone.height,
-        f: clientPackage.exclusionZone.fillColor.replace('#', ''), // Remove # for compactness
-      },
+      // Only include exclusion zone if it exists (images only)
+      ...(clientPackage.exclusionZone && {
+        e: {
+          x: clientPackage.exclusionZone.x,
+          y: clientPackage.exclusionZone.y,
+          w: clientPackage.exclusionZone.width,
+          h: clientPackage.exclusionZone.height,
+          f: clientPackage.exclusionZone.fillColor.replace('#', ''), // Remove # for compactness
+        },
+      }),
       // Add signature for verification (but no public key - save space)
       sig: serverResponse.signature,
       ...(clientPackage.userUrl && { u: clientPackage.userUrl }),
@@ -151,9 +190,13 @@ export class AttestationBuilder {
    * Extract exclusion zone from compact attestation data
    * 
    * @param attestationData - Compact attestation data
-   * @returns Exclusion zone configuration
+   * @returns Exclusion zone configuration or null if not present
    */
-  extractExclusionZone(attestationData: AttestationData): QRCodeExclusionZone {
+  extractExclusionZone(attestationData: AttestationData): QRCodeExclusionZone | null {
+    if (!attestationData.e) {
+      return null // No exclusion zone (PDF document)
+    }
+    
     return {
       x: attestationData.e.x,
       y: attestationData.e.y,
@@ -182,12 +225,26 @@ export class AttestationBuilder {
       throw new Error('Cryptographic hash is required')
     }
     
-    if (!input.documentHashes.pHash) {
-      throw new Error('pHash is required')
-    }
-    
-    if (!input.documentHashes.dHash) {
-      throw new Error('dHash is required')
+    // Validate hash type-specific fields
+    if ('compositePerceptual' in input.documentHashes) {
+      // PDF validation
+      if (!input.documentHashes.compositePerceptual) {
+        throw new Error('Composite perceptual hash is required for PDFs')
+      }
+    } else {
+      // Image validation
+      if (!input.documentHashes.pHash) {
+        throw new Error('pHash is required for images')
+      }
+      
+      if (!input.documentHashes.dHash) {
+        throw new Error('dHash is required for images')
+      }
+      
+      // Exclusion zone is required for images
+      if (!input.exclusionZone) {
+        throw new Error('Exclusion zone is required for images')
+      }
     }
     
     if (!input.identity.identifier) {
@@ -198,17 +255,15 @@ export class AttestationBuilder {
       throw new Error('Public key ID is required')
     }
 
-    // Validate exclusion zone
-    if (!input.exclusionZone) {
-      throw new Error('Exclusion zone is required')
-    }
+    // Validate exclusion zone if provided
+    if (input.exclusionZone) {
+      if (input.exclusionZone.x < 0 || input.exclusionZone.y < 0) {
+        throw new Error('Exclusion zone position must be non-negative')
+      }
 
-    if (input.exclusionZone.x < 0 || input.exclusionZone.y < 0) {
-      throw new Error('Exclusion zone position must be non-negative')
-    }
-
-    if (input.exclusionZone.width <= 0 || input.exclusionZone.height <= 0) {
-      throw new Error('Exclusion zone dimensions must be positive')
+      if (input.exclusionZone.width <= 0 || input.exclusionZone.height <= 0) {
+        throw new Error('Exclusion zone dimensions must be positive')
+      }
     }
 
     return true

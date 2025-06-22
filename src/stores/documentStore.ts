@@ -6,6 +6,8 @@ import { qrSealRenderer } from '@/services/qr-seal-renderer'
 import { documentHashService } from '@/services/document-hash-service'
 import { formatConversionService, type FormatConversionResult } from '@/services/format-conversion-service'
 import { signingService } from '@/services/signing-service'
+import { pdfRenderingService } from '@/services/pdf-rendering-service'
+import { pdfSealingService } from '@/services/pdf-sealing-service'
 import { CodedError } from '@/types/errors'
 import type { QRCodeUIPosition, AttestationData } from '@/types/qrcode'
 import { useAuthStore } from './authStore'
@@ -292,9 +294,13 @@ export const useDocumentStore = defineStore('document', () => {
   
   // Reactive state
   const uploadedDocument = ref<File | null>(null)
-  const documentType = ref<'image' | null>(null)
+  const documentType = ref<'image' | 'pdf' | null>(null)
   const documentId = ref<string>('')
   const documentPreviewUrl = ref<string>('')
+  
+  // PDF-specific state
+  const selectedPage = ref<number>(1)
+  const totalPages = ref<number>(0)
   const sealedDocumentUrl = ref<string>('')
   const sealedDocumentBlob = ref<Blob | null>(null)
   
@@ -399,6 +405,8 @@ export const useDocumentStore = defineStore('document', () => {
         // Determine document type
         if (restoredFile.type.startsWith('image/')) {
           documentType.value = 'image'
+        } else if (restoredFile.type === 'application/pdf') {
+          documentType.value = 'pdf'
         } else {
           documentType.value = null
         }
@@ -434,6 +442,8 @@ export const useDocumentStore = defineStore('document', () => {
       // Determine document type
       if (file.type.startsWith('image/')) {
         documentType.value = 'image'
+      } else if (file.type === 'application/pdf') {
+        documentType.value = 'pdf'
       } else {
         throw new CodedError('unsupported_format', 'Unsupported file format')
       }
@@ -476,6 +486,63 @@ export const useDocumentStore = defineStore('document', () => {
   
   const updateQRSize = (size: number) => {
     qrSizePercent.value = size
+  }
+  
+  // PDF-specific methods
+  const setPDFDocument = async (file: File) => {
+    console.log('📄 Setting PDF document in store:', file.name)
+    
+    try {
+      // Clear any previous errors
+      stepError.value = null
+      
+      // Validate PDF file
+      if (file.type !== 'application/pdf') {
+        throw new CodedError('unsupported_format', 'File must be a PDF')
+      }
+      
+      // Check file size (50MB limit for PDFs)
+      const maxSize = 50 * 1024 * 1024
+      if (file.size > maxSize) {
+        throw new CodedError('file_too_large', 'PDF file is too large')
+      }
+      
+      // Set document type
+      documentType.value = 'pdf'
+      
+      // Set the document
+      uploadedDocument.value = file
+      
+      // Initialize PDF-specific state
+      selectedPage.value = 1
+      totalPages.value = 0 // Will be set by the PDF component
+      
+      // Update step to document-loaded
+      currentStep.value = 'document-loaded'
+      
+      console.log('✅ PDF document set successfully:', {
+        name: file.name,
+        type: documentType.value,
+        size: file.size,
+        step: currentStep.value,
+      })
+    } catch (error) {
+      currentStep.value = 'error'
+      stepError.value = error instanceof Error ? error.message : 'Failed to load PDF'
+      
+      if (error instanceof CodedError) {
+        throw error
+      }
+      throw new CodedError('document_load_failed', 'Failed to load PDF document')
+    }
+  }
+  
+  const updateSelectedPage = (pageNumber: number) => {
+    selectedPage.value = pageNumber
+  }
+  
+  const updateTotalPages = (count: number) => {
+    totalPages.value = count
   }
   
   /**
@@ -596,31 +663,59 @@ export const useDocumentStore = defineStore('document', () => {
       const documentDimensions = await getDocumentDimensions()
       console.log('📐 Document dimensions:', documentDimensions)
       
-      // Calculate exact pixel positioning using our UI calculator
-      const pixelCalculation = qrCodeUICalculator.calculateEmbeddingPixels(
-        qrPosition.value,
-        qrSizePercent.value,
-        documentDimensions,
-        documentType.value as 'image',
-      )
-      console.log('📍 Pixel calculation result:', pixelCalculation)
+      let pixelCalculation
+      let documentHashes
+      
+      if (documentType.value === 'image') {
+        // Calculate exact pixel positioning using our UI calculator
+        pixelCalculation = qrCodeUICalculator.calculateEmbeddingPixels(
+          qrPosition.value,
+          qrSizePercent.value,
+          documentDimensions,
+          documentType.value as 'image',
+        )
+        console.log('📍 Pixel calculation result:', pixelCalculation)
 
-      // Calculate document hashes with exclusion zone
-      const documentHashes = await documentHashService.calculateDocumentHashes(
-        uploadedDocument.value,
-        pixelCalculation.exclusionZone,
-      )
+        // Calculate document hashes with exclusion zone
+        documentHashes = await documentHashService.calculateDocumentHashes(
+          uploadedDocument.value,
+          pixelCalculation.exclusionZone,
+        )
+      } else if (documentType.value === 'pdf') {
+        // For PDFs, calculate position without exclusion zone
+        pixelCalculation = qrCodeUICalculator.calculateEmbeddingPixels(
+          qrPosition.value,
+          qrSizePercent.value,
+          documentDimensions,
+          'image', // Use image calculation for positioning
+        )
+        console.log('📍 PDF pixel calculation result:', pixelCalculation)
+
+        // Calculate PDF hashes (no exclusion zone needed)
+        documentHashes = await documentHashService.calculateDocumentHashes(
+          uploadedDocument.value,
+        )
+      } else {
+        throw new CodedError('unsupported_format', 'Unsupported document type')
+      }
+      
       console.log('🔢 Document hashes calculated:', documentHashes)
 
       // Build attestation package for server signing
-      const attestationPackage = attestationBuilder.buildAttestationPackage({
+      const attestationInput = {
         documentHashes,
         identity: {
           provider: authStore.currentUser.provider,
           identifier: authStore.currentUser.email,
         },
-        exclusionZone: pixelCalculation.exclusionZone,
-      })
+      }
+      
+      // Only include exclusion zone for images, never for PDFs
+      if (documentType.value === 'image') {
+        attestationInput.exclusionZone = pixelCalculation.exclusionZone
+      }
+      
+      const attestationPackage = attestationBuilder.buildAttestationPackage(attestationInput)
       console.log('📋 Attestation package built for signing:', attestationPackage)
 
       // Send to server for signing
@@ -663,6 +758,19 @@ export const useDocumentStore = defineStore('document', () => {
           pixelCalc.completeSealDimensions.width,
           pixelCalc.completeSealDimensions.height,
         )
+      } else if (documentType.value === 'pdf') {
+        // Seal PDF document
+        const sealedPDF = await pdfSealingService.sealPDF({
+          originalFile: uploadedDocument.value,
+          qrCodeDataUrl: sealResult.dataUrl,
+          position: pixelCalculation.position,
+          sizeInPixels: pixelCalculation.sizeInPixels,
+          pageNumber: selectedPage.value,
+          attestationData: sealResult.attestationData,
+        })
+        
+        // Create URL for download
+        sealedDocumentUrl.value = URL.createObjectURL(sealedPDF)
       } else {
         throw new Error('Unsupported document type')
       }
@@ -699,6 +807,14 @@ export const useDocumentStore = defineStore('document', () => {
         img.onerror = () => reject(new CodedError('document_processing_failed', 'Failed to load image dimensions'))
         img.src = documentPreviewUrl.value
       })
+    } else if (documentType.value === 'pdf') {
+      try {
+        const pdf = await pdfRenderingService.loadPDF(uploadedDocument.value)
+        const dimensions = await pdfRenderingService.getPageDimensions(pdf, selectedPage.value)
+        return dimensions
+      } catch (error) {
+        throw new CodedError('document_processing_failed', `Failed to get PDF dimensions: ${error}`)
+      }
     }
 
     throw new CodedError('unsupported_format', 'Unsupported document type')
@@ -891,6 +1007,10 @@ export const useDocumentStore = defineStore('document', () => {
     documentType.value = null
     documentId.value = ''
     documentPreviewUrl.value = ''
+    
+    // Reset PDF-specific state
+    selectedPage.value = 1
+    totalPages.value = 0
     sealedDocumentUrl.value = ''
     sealedDocumentBlob.value = null
     formatConversionResult.value = null
@@ -990,6 +1110,10 @@ export const useDocumentStore = defineStore('document', () => {
     qrSizePercent,
     needsDocumentReupload,
     
+    // PDF-specific state
+    selectedPage,
+    totalPages,
+    
     // Step state
     currentStep,
     stepError,
@@ -1001,8 +1125,11 @@ export const useDocumentStore = defineStore('document', () => {
     
     // Actions
     setDocument,
+    setPDFDocument,
     updateQRPosition,
     updateQRSize,
+    updateSelectedPage,
+    updateTotalPages,
     authenticateWith,
     handlePostAuthFlow,
     sealDocument,

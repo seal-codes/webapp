@@ -14,4 +14,10 @@ export default defineConfig({
   build: {
     target: 'esnext', // Support top-level await
   },
+  optimizeDeps: {
+    include: ['pdfjs-dist'],
+  },
+  worker: {
+    format: 'es',
+  },
 })

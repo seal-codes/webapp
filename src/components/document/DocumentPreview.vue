@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import CanvasDocumentPreview from './CanvasDocumentPreview.vue'
+import PDFPageSelector from '../pdf/PDFPageSelector.vue'
 import type { QRCodeUIPosition, AttestationData } from '@/types/qrcode'
+import { useDocumentStore } from '@/stores/documentStore'
 
 const props = defineProps<{
   document: File | null;
@@ -13,7 +15,8 @@ const props = defineProps<{
   userName?: string;
 }>()
 
-const documentType = ref<'image' | null>(null)
+const documentStore = useDocumentStore()
+const documentType = ref<'image' | 'pdf' | null>(null)
 const isLoading = ref(true)
 
 // Determine document type when document changes
@@ -28,6 +31,8 @@ watch(() => props.document, (newDocument) => {
   
   if (newDocument.type.startsWith('image/')) {
     documentType.value = 'image'
+  } else if (newDocument.type === 'application/pdf') {
+    documentType.value = 'pdf'
   } else {
     documentType.value = null
   }
@@ -39,6 +44,19 @@ const emit = defineEmits<{
   (e: 'positionUpdated', position: QRCodeUIPosition): void;
   (e: 'sizeUpdated', sizePercent: number): void;
 }>()
+
+// PDF-specific handlers
+const handlePageSelected = (pageNumber: number) => {
+  documentStore.updateSelectedPage(pageNumber)
+}
+
+const handlePositionChanged = (position: QRCodeUIPosition) => {
+  emit('positionUpdated', position)
+}
+
+const handleSizeChanged = (size: number) => {
+  emit('sizeUpdated', size)
+}
 </script>
 
 <template>
@@ -63,6 +81,18 @@ const emit = defineEmits<{
       :user-name="userName"
       @position-updated="emit('positionUpdated', $event)"
       @size-updated="emit('sizeUpdated', $event)"
+    />
+    
+    <!-- PDF preview with page selection -->
+    <PDFPageSelector
+      v-else-if="documentType === 'pdf' && document"
+      :pdf-file="document"
+      :selected-page="documentStore.selectedPage"
+      :qr-position="qrPosition"
+      :qr-size="qrSizePercent"
+      @page-selected="handlePageSelected"
+      @position-changed="handlePositionChanged"
+      @size-changed="handleSizeChanged"
     />
     
     <!-- No preview available -->

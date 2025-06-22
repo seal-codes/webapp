@@ -198,13 +198,13 @@ export class VerificationService {
 
       // Service: PRESERVE FULL KEY ID - no truncation
       s: attestationData.s.k,
-      e: [
+      e: attestationData.e && [
         Math.round(attestationData.e.x),
         Math.round(attestationData.e.y),
         Math.round(attestationData.e.w),
         Math.round(attestationData.e.h),
         attestationData.e.f, // Fill color is required for hash consistency
-      ],
+      ]
     }
 
     // Include signature if present

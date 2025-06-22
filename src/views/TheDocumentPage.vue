@@ -36,7 +36,11 @@ const qrSize = computed({
 const handleDocumentLoaded = async (file: File) => {
   console.log('🔥 Document loaded in TheDocumentPage:', file.name, file.type)
   try {
-    await documentStore.setDocument(file)
+    if (file.type === 'application/pdf') {
+      await documentStore.setPDFDocument(file)
+    } else {
+      await documentStore.setDocument(file)
+    }
     console.log('✅ Document successfully set in store')
   } catch (err) {
     console.error('❌ Error setting document in store:', err)

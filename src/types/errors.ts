@@ -17,6 +17,11 @@ export type DocumentErrorCode =
   | 'document_required'
   | 'invalid_step'
   | 'document_mismatch'
+  | 'pdf_encrypted'
+  | 'pdf_corrupted'
+  | 'pdf_too_large'
+  | 'pdf_no_text'
+  | 'pdf_processing_timeout'
 
 export type ErrorCode = AuthErrorCode | DocumentErrorCode
 
@@ -58,5 +63,19 @@ export class OAuthProviderError extends CodedError {
       provider,
     )
     this.name = 'OAuthProviderError'
+  }
+}
+
+/**
+ * PDF processing specific error
+ */
+export class PDFProcessingError extends CodedError {
+  constructor(
+    code: DocumentErrorCode,
+    message: string,
+    details?: string,
+  ) {
+    super(code, message, undefined, details)
+    this.name = 'PDFProcessingError'
   }
 }

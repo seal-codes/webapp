@@ -18,6 +18,18 @@
     "larger": "{percent}% larger",
     "smaller": "{percent}% smaller"
   },
+  "pdf": {
+    "loading_pages": "Loading PDF pages...",
+    "select_page": "Select page for QR code placement",
+    "page_number": "Page {number}",
+    "position_qr_code": "Position your QR code",
+    "render_error": "Failed to render PDF pages",
+    "processing_error": "Error processing PDF",
+    "encrypted_error": "This PDF is password protected",
+    "corrupted_error": "This PDF file appears to be corrupted",
+    "too_large_error": "This PDF file is too large to process",
+    "timeout_error": "PDF processing timed out"
+  },
   "navigation": {
     "home": "Home",
     "sealDocument": "Seal Document",
@@ -55,8 +67,8 @@
     "dropzone": {
       "title": "Drop your document here",
       "subtitle": "or click to browse",
-      "supportedFormats": "Supported formats: PNG, JPG, JPEG, WebP",
-      "maxSize": "Maximum file size: 10MB",
+      "supportedFormats": "Supported formats: PNG, JPG, JPEG, WebP, PDF",
+      "maxSize": "Maximum file size: 10MB for images, 50MB for PDFs",
       "dragActive": "Drop the file here...",
       "processing": "Processing document...",
       "error": "Error processing document. Please try again.",
@@ -341,9 +353,14 @@
     "document_load_failed": "Failed to load document. Please try again.",
     "document_seal_failed": "Failed to seal document. Please try again.",
     "document_processing_failed": "Error processing document. Please try again.",
-    "unsupported_format": "Unsupported file format. Please use PNG, JPG, JPEG, or WebP.",
+    "unsupported_format": "Unsupported file format. Please use PNG, JPG, JPEG, WebP, or PDF.",
     "popup_blocked": "Authentication popup was blocked by your browser. Please allow popups for this site and try again.",
-    "auth_cancelled": "Authentication was cancelled. Please try again if you want to seal your document."
+    "auth_cancelled": "Authentication was cancelled. Please try again if you want to seal your document.",
+    "pdf_encrypted": "This PDF is password protected and cannot be processed.",
+    "pdf_corrupted": "This PDF file appears to be corrupted or invalid.",
+    "pdf_too_large": "This PDF file is too large to process.",
+    "pdf_no_text": "No text content found in this PDF.",
+    "pdf_processing_timeout": "PDF processing timed out. Please try with a smaller file."
   },
   "formatConversion": {
     "title": "Format Converted: {originalFormat} → {finalFormat}",

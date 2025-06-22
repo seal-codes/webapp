@@ -17,7 +17,7 @@ interface AttestationPackage {
     provider: string;
     identifier: string;
   };
-  exclusionZone: {
+  exclusionZone?: {
     x: number;
     y: number;
     width: number;
@@ -137,13 +137,16 @@ serve(async (req) => {
         n: 'sc', // Use same shortened name as client
         k: keyData.id,
       },
-      e: {
-        x: attestationPackage.exclusionZone.x,
-        y: attestationPackage.exclusionZone.y,
-        w: attestationPackage.exclusionZone.width,
-        h: attestationPackage.exclusionZone.height,
-        f: attestationPackage.exclusionZone.fillColor.replace('#', ''), // Remove # for compactness, same as client
-      },
+      // Only include exclusion zone if provided (images only, not PDFs)
+      ...(attestationPackage.exclusionZone && {
+        e: {
+          x: attestationPackage.exclusionZone.x,
+          y: attestationPackage.exclusionZone.y,
+          w: attestationPackage.exclusionZone.width,
+          h: attestationPackage.exclusionZone.height,
+          f: attestationPackage.exclusionZone.fillColor.replace('#', ''), // Remove # for compactness, same as client
+        },
+      }),
       ...(attestationPackage.userUrl && { u: attestationPackage.userUrl }),
     }
 

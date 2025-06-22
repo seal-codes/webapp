@@ -15,7 +15,7 @@ export interface AttestationPackage {
     provider: string;
     identifier: string;
   };
-  exclusionZone: {
+  exclusionZone?: {
     x: number;
     y: number;
     width: number;

@@ -16,6 +16,7 @@ const allowedTypes = [
   'image/jpeg',
   'image/png',
   'image/webp',
+  'application/pdf',
 ]
 
 // Handle file selection
@@ -66,8 +67,8 @@ const validateAndEmitFile = (file: File) => {
     return
   }
   
-  // Check file size (50MB max)
-  const maxSize = 50 * 1024 * 1024 // 10MB in bytes
+  // Check file size (10MB max)
+  const maxSize = 10 * 1024 * 1024 // 10MB in bytes
   if (file.size > maxSize) {
     errorMessage.value = t('errors.fileTooBig')
     return
@@ -95,7 +96,7 @@ const validateAndEmitFile = (file: File) => {
       ref="fileInput"
       type="file"
       class="hidden"
-      accept=".jpg,.jpeg,.png,.webp"
+      accept=".jpg,.jpeg,.png,.webp,.pdf"
       @change="handleFileSelect"
     >
     
