@@ -1,5 +1,11 @@
 {
   "mcpServers": {
+    "vibe-feature-mcp": {
+      "command": "node",
+      "args": [
+        "/Users/oliverjaegle/projects/privat/mcp-server/vibe-feature/dist/index.js"
+      ]
+    },
     "git": {
       "command": "uvx",
       "args": [
