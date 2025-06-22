@@ -54,6 +54,10 @@
         :page-canvas="selectedPageCanvas"
         :qr-position="qrPosition"
         :qr-size="qrSize"
+        :has-qr="hasQr"
+        :attestation-data="attestationData"
+        :auth-provider="authProvider"
+        :user-name="userName"
         @position-change="updateQRPosition"
         @size-change="updateQRSize"
       />
@@ -66,7 +70,7 @@ import { ref, computed, onMounted, watch, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { PDFRenderingService } from '@/services/pdf-rendering-service'
 import type { PDFPageRenderResult } from '@/types/pdf'
-import type { QRCodeUIPosition } from '@/types/qrcode'
+import type { QRCodeUIPosition, AttestationData } from '@/types/qrcode'
 import PDFPagePreview from './PDFPagePreview.vue'
 
 interface Props {
@@ -74,6 +78,10 @@ interface Props {
   selectedPage: number
   qrPosition: QRCodeUIPosition
   qrSize: number
+  hasQr?: boolean
+  attestationData?: AttestationData
+  authProvider?: string
+  userName?: string
 }
 
 interface Emits {

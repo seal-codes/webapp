@@ -27,7 +27,27 @@
       >
         <!-- QR code preview -->
         <div class="w-full h-full flex items-center justify-center">
-          <div class="text-blue-600 text-xs font-medium">QR</div>
+          <img 
+            v-if="qrSealImage && !props.hasQr"
+            :src="qrSealImage.src"
+            alt="QR Code Preview"
+            class="w-full h-full object-contain"
+          />
+          <div v-else-if="isGeneratingQR" class="text-blue-600 text-xs font-medium">
+            Generating...
+          </div>
+          <div v-else class="text-blue-600 text-xs font-medium">QR</div>
+        </div>
+      </div>
+      
+      <!-- QR generation overlay -->
+      <div
+        v-if="isGeneratingQR"
+        class="absolute inset-0 bg-black bg-opacity-20 rounded flex items-center justify-center"
+      >
+        <div class="bg-white rounded-lg p-4 shadow-lg flex items-center gap-3">
+          <div class="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-blue-500" />
+          <span class="text-sm text-gray-700">Generating QR code...</span>
         </div>
       </div>
       
@@ -66,12 +86,18 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch, nextTick, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { QRCodeUIPosition } from '@/types/qrcode'
+import { qrCodeUICalculator } from '@/services/qrcode-ui-calculator'
+import { qrSealRenderer } from '@/services/qr-seal-renderer'
+import type { QRCodeUIPosition, AttestationData } from '@/types/qrcode'
 
 interface Props {
   pageCanvas: HTMLCanvasElement | null
   qrPosition: QRCodeUIPosition
   qrSize: number
+  hasQr?: boolean
+  attestationData?: AttestationData
+  authProvider?: string
+  userName?: string
 }
 
 interface Emits {
@@ -91,6 +117,10 @@ const containerWidth = ref(800)
 const containerHeight = ref(600)
 const isDragging = ref(false)
 const dragOffset = ref({ x: 0, y: 0 })
+
+// QR seal state
+const qrSealImage = ref<HTMLImageElement | null>(null)
+const isGeneratingQR = ref(false)
 
 // Calculate QR overlay style based on position and size
 const qrOverlayStyle = computed(() => {
@@ -130,11 +160,26 @@ const canvasStyle = computed(() => ({
 onMounted(async () => {
   await updatePreview()
   setupEventListeners()
+  
+  // Generate QR seal if we have authentication data
+  if (props.attestationData || props.authProvider) {
+    await generateQRSeal()
+  }
 })
 
 watch(() => props.pageCanvas, async () => {
   await updatePreview()
 })
+
+watch(() => props.attestationData, async () => {
+  await generateQRSeal()
+}, { deep: true })
+
+watch([() => props.qrPosition, () => props.qrSize], async () => {
+  if (props.attestationData || props.authProvider) {
+    await generateQRSeal()
+  }
+}, { deep: true })
 
 const updatePreview = async () => {
   if (!props.pageCanvas || !pageCanvas.value) return
@@ -254,6 +299,58 @@ const handlePointerUp = () => {
   // Restore text selection
   document.body.style.userSelect = ''
   document.body.style.touchAction = ''
+}
+
+/**
+ * Generate QR seal image
+ */
+const generateQRSeal = async () => {
+  if (!props.attestationData && !props.authProvider) {
+    return
+  }
+
+  isGeneratingQR.value = true
+  
+  try {
+    // Calculate QR size in actual document pixels
+    const pixelCalc = qrCodeUICalculator.calculateEmbeddingPixels(
+      props.qrPosition,
+      props.qrSize,
+      { width: containerWidth.value, height: containerHeight.value },
+      'pdf',
+    )
+
+    // Generate the complete QR seal
+    const sealResult = await qrSealRenderer.generateSeal({
+      attestationData: props.attestationData || {
+        h: { c: 'preview', p: { p: 'preview', d: 'preview' } },
+        t: new Date().toISOString(),
+        i: { p: 'g', id: 'preview@example.com' },
+        s: { n: 'sc', k: 'preview-key' },
+        e: { x: 0, y: 0, w: 100, h: 100, f: 'FFFFFF' },
+      },
+      qrSizeInPixels: pixelCalc.sizeInPixels,
+      providerId: props.authProvider || 'google',
+      userIdentifier: props.userName || 'preview@example.com',
+      baseUrl: window.location.origin,
+    })
+
+    // Load the seal image
+    const sealImg = new Image()
+    await new Promise<void>((resolve, reject) => {
+      sealImg.onload = () => {
+        qrSealImage.value = sealImg
+        resolve()
+      }
+      sealImg.onerror = () => reject(new Error('Failed to load QR seal'))
+      sealImg.src = sealResult.dataUrl
+    })
+
+  } catch (error) {
+    console.error('Failed to generate QR seal:', error)
+  } finally {
+    isGeneratingQR.value = false
+  }
 }
 
 /**
