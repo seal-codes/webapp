@@ -31,7 +31,7 @@ export interface PDFSealingOptions {
   originalFile: File;
   qrCodeDataUrl: string;
   position: { x: number; y: number };
-  sizeInPixels: number;
+  sealDimensions: { width: number; height: number };
   pageNumber: number;
   attestationData: AttestationData;
 }
@@ -48,6 +48,8 @@ export interface PDFSealMetadata {
     width: number;
     height: number;
   };
+  qrObjectName?: string; // XObject name for QR code removal
+  attestationData?: AttestationData; // Store attestation data for verification
   originalHashInfo: {
     algorithm: string;
     timestamp: string;

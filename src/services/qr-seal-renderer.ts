@@ -30,6 +30,8 @@ export interface QRSealResult {
     width: number;
     height: number;
   };
+  /** The attestation data that was encoded in the QR code */
+  attestationData: AttestationData;
 }
 
 /**
@@ -103,6 +105,7 @@ export class QRSealRenderer {
         width: sealWidth,
         height: sealHeight,
       },
+      attestationData, // Include the attestation data in the result
     }
   }
 

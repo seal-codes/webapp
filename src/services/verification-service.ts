@@ -89,8 +89,8 @@ interface UltraCompactData {
   i: string;
   /** Service key */
   s: string;
-  /** Exclusion zone [x,y,w,h,f] - required for hash verification */
-  e: (number | string)[];
+  /** Exclusion zone [x,y,w,h,f] - required for images, not used for PDFs */
+  e?: (number | string)[];
   /** Signature (base64) */
   sig?: string;
   /** User URL (optional) */
@@ -116,6 +116,100 @@ export class VerificationService {
     // Use hybrid QR reader with fallback support (jsQR while rxing-wasm loads)
     const { hybridQRReaderService } = await import('./qr-reader-hybrid')
     return hybridQRReaderService.scanImageForQR(imageFile, focusZone, options)
+  }
+
+  /**
+   * Scan a PDF file for embedded QR codes
+   * 
+   * @param pdfFile - The PDF file to scan
+   * @returns Promise resolving to scan result
+   */
+  async scanPDFForQR(pdfFile: File) {
+    console.log('🔍 Starting PDF QR code scan')
+    
+    try {
+      // Import PDF processing service
+      const { pdfVerificationService } = await import('./pdf-verification-service')
+      
+      // Extract seal metadata from PDF
+      const sealMetadata = await pdfVerificationService.extractSealMetadata(pdfFile)
+      
+      if (sealMetadata && sealMetadata.qrLocation) {
+        console.log('✅ Found seal metadata in PDF:', sealMetadata)
+        
+        // For PDFs, we need to extract the actual QR code content
+        // Since the QR code contains the attestation data, we need to:
+        // 1. Render the PDF page containing the QR code
+        // 2. Extract the QR code area as an image
+        // 3. Scan the QR code to get the attestation data
+        
+        const attestationData = await this.extractAttestationFromPDFQR(pdfFile, sealMetadata.qrLocation)
+        
+        if (attestationData) {
+          return {
+            found: true,
+            attestationData: attestationData,
+            debugInfo: {
+              processingSteps: [
+                'PDF metadata extracted',
+                'QR location identified',
+                'PDF page rendered to image',
+                'QR code area extracted',
+                'QR code decoded',
+                'Attestation data parsed'
+              ],
+              scannedRegions: 1,
+              totalRegions: 1
+            }
+          }
+        }
+      }
+      
+      console.log('❌ No QR code found in PDF')
+      return {
+        found: false,
+        attestationData: null,
+        debugInfo: {
+          processingSteps: [
+            'PDF metadata checked',
+            'No seal metadata found or QR extraction failed'
+          ],
+          scannedRegions: 0,
+          totalRegions: 1
+        }
+      }
+      
+    } catch (error) {
+      console.error('❌ Error scanning PDF for QR code:', error)
+      throw error
+    }
+  }
+
+  /**
+   * Extract attestation data from PDF QR code
+   */
+  private async extractAttestationFromPDFQR(pdfFile: File, qrLocation: any): Promise<AttestationData | null> {
+    try {
+      console.log('🎯 Extracting attestation data from PDF metadata')
+      
+      // Import PDF verification service to extract seal metadata
+      const { pdfVerificationService } = await import('./pdf-verification-service')
+      
+      // Extract seal metadata which should contain the attestation data
+      const sealMetadata = await pdfVerificationService.extractSealMetadata(pdfFile)
+      
+      if (sealMetadata && sealMetadata.attestationData) {
+        console.log('✅ Found attestation data in PDF metadata')
+        return sealMetadata.attestationData
+      }
+      
+      console.log('⚠️ No attestation data found in PDF metadata')
+      return null
+      
+    } catch (error) {
+      console.error('❌ Error extracting attestation from PDF:', error)
+      return null
+    }
   }
 
   /**
@@ -250,13 +344,14 @@ export class VerificationService {
         n: 'sc',
         k: compactData.s,
       },
-      e: {
+      // Exclusion zone - only exists for images, not PDFs
+      e: compactData.e ? {
         x: compactData.e[0] as number,
         y: compactData.e[1] as number,
         w: compactData.e[2] as number,
         h: compactData.e[3] as number,
         f: compactData.e[4] as string, // Use the original fill color for hash consistency
-      },
+      } : undefined,
     }
 
     // Add signature if present
@@ -364,7 +459,8 @@ export class VerificationService {
       const exclusionZone = attestationBuilder.extractExclusionZone(attestationData)
 
       // Calculate hashes for the uploaded document with exclusion zone
-      const calculatedHashes = await documentHashService.calculateDocumentHashes(
+      // For PDFs, this will attempt to remove the QR code before calculating hashes
+      const calculatedHashes = await documentHashService.calculateDocumentHashesForVerification(
         document,
         exclusionZone,
       )
@@ -545,12 +641,14 @@ export class VerificationService {
       data.s &&
       typeof data.s.n === 'string' &&
       typeof data.s.k === 'string' &&
-      data.e &&
-      typeof data.e.x === 'number' &&
-      typeof data.e.y === 'number' &&
-      typeof data.e.w === 'number' &&
-      typeof data.e.h === 'number' &&
-      typeof data.e.f === 'string'
+      // Exclusion zone is optional (only exists for images, not PDFs)
+      (!data.e || (
+        typeof data.e.x === 'number' &&
+        typeof data.e.y === 'number' &&
+        typeof data.e.w === 'number' &&
+        typeof data.e.h === 'number' &&
+        typeof data.e.f === 'string'
+      ))
     )
   }
 

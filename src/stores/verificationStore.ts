@@ -75,10 +75,15 @@ export const useVerificationStore = defineStore('verification', () => {
     }
     documentPreviewUrl.value = URL.createObjectURL(file)
     
-    // If we don't have attestation data yet, try to scan the image for QR code
-    if (!hasValidData.value && file.type.startsWith('image/')) {
-      console.log('No attestation data yet, scanning image for QR code...')
-      await scanImageForQR(file)
+    // If we don't have attestation data yet, try to scan the document for QR code
+    if (!hasValidData.value) {
+      if (file.type.startsWith('image/')) {
+        console.log('No attestation data yet, scanning image for QR code...')
+        await scanImageForQR(file)
+      } else if (file.type === 'application/pdf') {
+        console.log('No attestation data yet, scanning PDF for QR code...')
+        await scanPDFForQR(file)
+      }
     }
     
     // If we have attestation data, proceed with verification
@@ -119,6 +124,41 @@ export const useVerificationStore = defineStore('verification', () => {
       }
     } catch (error) {
       console.error('QR scan error:', error)
+      scanState.value = 'error'
+      scanError.value = error instanceof Error ? error.message : 'Unknown error'
+    }
+  }
+
+  const scanPDFForQR = async (pdfFile: File) => {
+    console.log('Starting QR scan for PDF:', pdfFile.name)
+    scanState.value = 'scanning'
+    scanError.value = null
+    scanDebugInfo.value = null
+    
+    try {
+      // Scan PDF for embedded QR codes
+      console.log('Scanning PDF for embedded QR codes...')
+      
+      const scanResult = await verificationService.scanPDFForQR(pdfFile)
+      console.log('PDF scan result:', scanResult)
+      
+      if (scanResult.found && scanResult.attestationData) {
+        decodedData.value = {
+          attestationData: scanResult.attestationData,
+          isValid: true,
+        }
+        scanState.value = 'success'
+        console.log('QR code successfully decoded from PDF, attestation data available')
+        console.log('Decoded attestation data from PDF QR:', scanResult.attestationData)
+        
+        // Store debug info
+        scanDebugInfo.value = scanResult.debugInfo || null
+      } else {
+        console.log('No QR code found in PDF automatic scan')
+        scanState.value = 'failed'
+      }
+    } catch (error) {
+      console.error('PDF QR scan error:', error)
       scanState.value = 'error'
       scanError.value = error instanceof Error ? error.message : 'Unknown error'
     }
@@ -216,6 +256,7 @@ export const useVerificationStore = defineStore('verification', () => {
     resetVerification,
     setUploadedDocument,
     scanImageForQR,
+    scanPDFForQR,
     scanSelectedArea,
     verifyDocument,
     setEncodedData,
