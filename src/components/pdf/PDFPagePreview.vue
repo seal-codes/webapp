@@ -17,7 +17,7 @@
       <div
         v-if="qrPosition"
         ref="qrOverlay"
-        class="absolute border-2 border-blue-500 bg-blue-100 bg-opacity-50 cursor-move"
+        class="absolute border-2 border-blue-500 bg-blue-100 bg-opacity-20 cursor-move"
         :style="qrOverlayStyle"
         @mousedown="startDrag"
         @touchstart="startDrag"
@@ -109,22 +109,11 @@ watch(() => props.pageCanvas, async () => {
 })
 
 const updatePreview = async () => {
-  console.log('🖼️ PDFPagePreview updatePreview called:', {
-    hasPageCanvas: !!props.pageCanvas,
-    hasPageCanvasRef: !!pageCanvas.value,
-    pageCanvasSize: props.pageCanvas ? `${props.pageCanvas.width}x${props.pageCanvas.height}` : 'none'
-  })
-  
-  if (!props.pageCanvas || !pageCanvas.value) {
-    console.log('❌ Missing canvas - pageCanvas:', !!props.pageCanvas, 'pageCanvasRef:', !!pageCanvas.value)
-    return
-  }
+  if (!props.pageCanvas || !pageCanvas.value) return
   
   // Calculate container size maintaining aspect ratio
   const canvas = props.pageCanvas
   const aspectRatio = canvas.width / canvas.height
-  
-  console.log('📐 Canvas dimensions:', { width: canvas.width, height: canvas.height, aspectRatio })
   
   // Set container size (max 800px width for better visibility)
   const maxWidth = 800
@@ -136,8 +125,6 @@ const updatePreview = async () => {
     containerHeight.value = canvas.height
   }
   
-  console.log('📦 Container size:', { width: containerWidth.value, height: containerHeight.value })
-  
   await nextTick()
   
   // Draw the PDF page on our canvas
@@ -146,12 +133,8 @@ const updatePreview = async () => {
     pageCanvas.value.width = containerWidth.value
     pageCanvas.value.height = containerHeight.value
     
-    console.log('🎨 Drawing PDF to canvas...')
     ctx.clearRect(0, 0, containerWidth.value, containerHeight.value)
     ctx.drawImage(canvas, 0, 0, containerWidth.value, containerHeight.value)
-    console.log('✅ PDF drawn to canvas successfully')
-  } else {
-    console.error('❌ Could not get 2D context for preview canvas')
   }
 }
 
