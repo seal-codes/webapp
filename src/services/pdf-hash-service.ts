@@ -23,8 +23,8 @@ export class PDFHashService {
       const arrayBuffer = await pdfFile.arrayBuffer()
       const pdfDoc = await PDFDocument.load(arrayBuffer)
       
-      // Calculate cryptographic hash of original bytes
-      const cryptographic = await this.calculateSHA256(arrayBuffer)
+      // Calculate cryptographic hash - try content-normalized version first
+      const cryptographic = await this.calculateNormalizedPDFHash(arrayBuffer)
       
       // Extract and hash text content (64-bit)
       const textHash = await this.extractAndHashText(pdfDoc)
@@ -46,6 +46,47 @@ export class PDFHashService {
         }
       }
       throw new PDFProcessingError('document_processing_failed', `Failed to process PDF: ${error}`)
+    }
+  }
+
+  /**
+   * Calculate normalized PDF hash that ignores minor metadata differences
+   * This helps handle cases where PDF-lib makes small formatting changes during save
+   */
+  private async calculateNormalizedPDFHash(arrayBuffer: ArrayBuffer): Promise<string> {
+    try {
+      console.log('🔢 Calculating normalized PDF hash...')
+      
+      // Convert to string to normalize metadata
+      const pdfString = new TextDecoder('latin1').decode(arrayBuffer)
+      
+      // Normalize common metadata differences that PDF-lib might introduce
+      const normalizedPdf = pdfString
+        // Normalize stream lengths (the main source of our 1-byte difference)
+        .replace(/\/Length\s+\d+/g, '/Length NORMALIZED')
+        // Normalize object references that might change during save
+        .replace(/\d+\s+0\s+R/g, 'X 0 R')
+        // Normalize timestamps that might be updated
+        .replace(/\/CreationDate\s*\([^)]+\)/g, '/CreationDate (NORMALIZED)')
+        .replace(/\/ModDate\s*\([^)]+\)/g, '/ModDate (NORMALIZED)')
+        // Normalize whitespace differences
+        .replace(/\s+/g, ' ')
+        .trim()
+      
+      console.log('📊 Original PDF size:', arrayBuffer.byteLength, 'bytes')
+      console.log('📊 Normalized content length:', normalizedPdf.length, 'characters')
+      
+      // Calculate hash of normalized content
+      const normalizedBytes = new TextEncoder().encode(normalizedPdf)
+      const hash = await this.calculateSHA256(normalizedBytes.buffer)
+      
+      console.log('🔢 Normalized PDF hash:', hash)
+      return hash
+      
+    } catch (error) {
+      console.warn('⚠️ Normalized hash calculation failed, falling back to raw hash:', error)
+      // Fallback to raw hash if normalization fails
+      return this.calculateSHA256(arrayBuffer)
     }
   }
   

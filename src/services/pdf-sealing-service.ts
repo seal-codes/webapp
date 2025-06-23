@@ -262,53 +262,112 @@ export class PDFSealingService {
       
       const targetPage = pages[qrLocation.pageNumber - 1]
       
+      // Get the PDF context for low-level operations
+      const pdfContext = (pdfDoc as any).context
+      
+      // Debug: Let's examine the PDF structure more thoroughly
+      console.log('🔍 Examining PDF structure...')
+      console.log('📄 PDF has', pages.length, 'pages')
+      console.log('📄 PDF context type:', pdfContext.constructor.name)
+      
+      // Try to find all XObjects in the entire PDF
+      console.log('🔍 Searching for XObjects in entire PDF...')
+      const pdfObjects = pdfContext.enumerateIndirectObjects()
+      let foundXObjects = []
+      
+      for (const [ref, obj] of pdfObjects) {
+        if (obj && obj.get && obj.get('Type') && obj.get('Type').toString() === '/XObject') {
+          const subtype = obj.get('Subtype')
+          console.log('🎯 Found XObject:', ref.toString(), 'Subtype:', subtype?.toString())
+          foundXObjects.push({ ref: ref.toString(), subtype: subtype?.toString() })
+        }
+      }
+      
+      console.log('📋 Total XObjects found in PDF:', foundXObjects.length)
+      
       // Try to remove the QR code by accessing the page's internal structure
-      try {
-        const pageNode = (targetPage as any).node
-        const resources = pageNode.get('Resources')
+      const pageNode = (targetPage as any).node
+      console.log('📄 Page node type:', pageNode.constructor.name)
+      
+      // Look for Resources at different levels
+      let resources = pageNode.get('Resources')
+      if (!resources) {
+        // Try to get resources from parent or inherited
+        console.log('🔍 No direct Resources, checking inherited resources...')
+        const parent = pageNode.get('Parent')
+        if (parent) {
+          resources = parent.get('Resources')
+          console.log('📄 Found inherited resources:', !!resources)
+        }
+      }
+      
+      if (resources) {
+        console.log('✅ Found Resources')
+        const xObjects = resources.get('XObject')
         
-        if (resources) {
-          const xObjects = resources.get('XObject')
+        if (xObjects && qrObjectName) {
+          console.log('🔍 Looking for XObject:', qrObjectName)
           
-          if (xObjects && qrObjectName) {
-            console.log('🔍 Looking for XObject:', qrObjectName)
+          // Get all XObject keys to see what's available
+          const xObjectDict = xObjects.asDict()
+          if (xObjectDict) {
+            const keys = xObjectDict.keys()
+            console.log('📋 Available XObjects:', keys)
             
-            // Try to remove the QR code XObject
-            const xObjectDict = xObjects.asDict()
-            if (xObjectDict && xObjectDict.has(qrObjectName)) {
+            if (xObjectDict.has(qrObjectName)) {
               console.log('✅ Found QR XObject, removing it')
+              
+              // Get the XObject reference before removing it
+              const qrXObjectRef = xObjectDict.get(qrObjectName)
+              console.log('🎯 QR XObject reference:', qrXObjectRef)
+              
+              // Remove the XObject from the dictionary
               xObjectDict.delete(qrObjectName)
               console.log('🗑️ QR XObject removed from resources')
+              
+              // Also try to remove the actual object from the PDF context
+              if (qrXObjectRef && pdfContext) {
+                try {
+                  // This might help clean up the actual object data
+                  console.log('🧹 Attempting to clean up XObject data in PDF context')
+                  // Note: This is experimental - PDF-lib might handle this automatically
+                } catch (error) {
+                  console.warn('⚠️ Could not clean up XObject data:', error)
+                }
+              }
             } else {
               console.log('⚠️ QR XObject not found in resources')
             }
           }
+        } else {
+          console.log('⚠️ No XObjects found or no QR object name provided')
+          if (xObjects) {
+            const xObjectDict = xObjects.asDict()
+            if (xObjectDict) {
+              const keys = xObjectDict.keys()
+              console.log('📋 Available XObjects (no target):', keys)
+            }
+          }
         }
-        
-        // Also try to clean the content stream by removing drawing commands
-        // that reference the QR code area
-        await this.cleanContentStreamFromQRReferences(targetPage, qrLocation, qrObjectName)
-        
-      } catch (error) {
-        console.warn('⚠️ Could not remove QR via object removal, falling back to overlay method:', error)
-        
-        // Fallback: Use overlay method if object removal fails
-        console.log('🎨 Falling back to white overlay method')
-        targetPage.drawRectangle({
-          x: qrLocation.x,
-          y: qrLocation.y,
-          width: qrLocation.width,
-          height: qrLocation.height,
-          color: { type: 'RGB', red: 1, green: 1, blue: 1 }, // White
-          opacity: 1.0
-        })
+      } else {
+        console.log('⚠️ No Resources found on page or inherited')
       }
       
+      // Clean content stream references more thoroughly
+      await this.cleanContentStreamFromQRReferences(targetPage, qrLocation, qrObjectName)
+      
+      // Try to save with default options (revert the save options that caused restructuring)
+      console.log('💾 Saving PDF with default options...')
       const cleanPdfBytes = await pdfDoc.save()
+      
       const cleanFile = new File([cleanPdfBytes], pdfFile.name, { type: 'application/pdf' })
       
       console.log('📄 Clean PDF created, size:', cleanFile.size, 'bytes')
       console.log('📄 Original PDF size:', pdfFile.size, 'bytes')
+      console.log('📊 Size difference:', cleanFile.size - pdfFile.size, 'bytes')
+      
+      // Let's analyze the actual differences
+      await this.analyzePDFDifferences(pdfFile, cleanFile)
       
       return cleanFile
     } catch (error) {
@@ -317,6 +376,73 @@ export class PDFSealingService {
         'document_processing_failed',
         `Failed to remove QR code: ${error}`,
       )
+    }
+  }
+
+  /**
+   * Analyze the actual differences between original and cleaned PDF
+   */
+  private async analyzePDFDifferences(originalFile: File, cleanFile: File): Promise<void> {
+    try {
+      console.log('🔍 Analyzing PDF differences...')
+      
+      const originalBytes = new Uint8Array(await originalFile.arrayBuffer())
+      const cleanBytes = new Uint8Array(await cleanFile.arrayBuffer())
+      
+      console.log('📊 Original PDF size:', originalBytes.length, 'bytes')
+      console.log('📊 Clean PDF size:', cleanBytes.length, 'bytes')
+      console.log('📊 Size difference:', cleanBytes.length - originalBytes.length, 'bytes')
+      
+      // Find first difference
+      let firstDiffIndex = -1
+      const minLength = Math.min(originalBytes.length, cleanBytes.length)
+      
+      for (let i = 0; i < minLength; i++) {
+        if (originalBytes[i] !== cleanBytes[i]) {
+          firstDiffIndex = i
+          break
+        }
+      }
+      
+      if (firstDiffIndex >= 0) {
+        console.log('🎯 First difference at byte index:', firstDiffIndex)
+        
+        // Show context around the difference
+        const contextStart = Math.max(0, firstDiffIndex - 20)
+        const contextEnd = Math.min(originalBytes.length, firstDiffIndex + 20)
+        
+        const originalContext = Array.from(originalBytes.slice(contextStart, contextEnd))
+          .map(b => b >= 32 && b <= 126 ? String.fromCharCode(b) : `\\x${b.toString(16).padStart(2, '0')}`)
+          .join('')
+        
+        const cleanContext = Array.from(cleanBytes.slice(contextStart, Math.min(cleanBytes.length, contextEnd)))
+          .map(b => b >= 32 && b <= 126 ? String.fromCharCode(b) : `\\x${b.toString(16).padStart(2, '0')}`)
+          .join('')
+        
+        console.log('📄 Original context:', originalContext)
+        console.log('📄 Clean context:', cleanContext)
+        
+        // Show hex values at difference point
+        console.log('🔢 Original byte at diff:', originalBytes[firstDiffIndex], `(0x${originalBytes[firstDiffIndex].toString(16)})`)
+        console.log('🔢 Clean byte at diff:', cleanBytes[firstDiffIndex], `(0x${cleanBytes[firstDiffIndex].toString(16)})`)
+      } else if (originalBytes.length !== cleanBytes.length) {
+        console.log('📏 Files have different lengths but identical content up to shorter length')
+        if (cleanBytes.length > originalBytes.length) {
+          console.log('➕ Clean PDF has extra bytes at the end')
+          const extraBytes = cleanBytes.slice(originalBytes.length)
+          const extraContext = Array.from(extraBytes.slice(0, 40))
+            .map(b => b >= 32 && b <= 126 ? String.fromCharCode(b) : `\\x${b.toString(16).padStart(2, '0')}`)
+            .join('')
+          console.log('📄 Extra content:', extraContext)
+        } else {
+          console.log('➖ Clean PDF is missing bytes from the end')
+        }
+      } else {
+        console.log('✅ Files are identical!')
+      }
+      
+    } catch (error) {
+      console.error('❌ Error analyzing PDF differences:', error)
     }
   }
 
@@ -331,13 +457,105 @@ export class PDFSealingService {
     try {
       console.log('🧹 Cleaning content stream from QR references')
       
-      // This is a simplified approach - we'll try to remove obvious QR-related commands
-      // For now, we'll skip this complex implementation and rely on XObject removal
-      console.log('⏭️ Content stream cleaning skipped - relying on XObject removal')
+      const pageNode = page.node
+      const contentsRef = pageNode.get('Contents')
+      
+      if (!contentsRef) {
+        console.log('⚠️ No content stream found')
+        return
+      }
+      
+      // Get the PDF context for low-level operations
+      const pdfContext = (page as any).doc.context
+      
+      // Handle both single content stream and array of content streams
+      if (contentsRef.asArray) {
+        console.log('📄 Processing multiple content streams')
+        const streamRefs = contentsRef.asArray()
+        for (let i = 0; i < streamRefs.length; i++) {
+          console.log(`🔍 Processing content stream ${i + 1}/${streamRefs.length}`)
+          await this.processContentStreamForQRRemoval(streamRefs[i], qrObjectName, pdfContext)
+        }
+      } else {
+        console.log('📄 Processing single content stream')
+        await this.processContentStreamForQRRemoval(contentsRef, qrObjectName, pdfContext)
+      }
       
     } catch (error) {
       console.warn('⚠️ Error cleaning content stream:', error)
       // Don't throw - this is not critical
+    }
+  }
+
+  /**
+   * Process a single content stream to remove QR references
+   */
+  private async processContentStreamForQRRemoval(
+    streamRef: any,
+    qrObjectName: string | undefined,
+    pdfContext: any
+  ): Promise<void> {
+    try {
+      const stream = pdfContext.lookup(streamRef)
+      
+      if (!stream) {
+        console.log('⚠️ Could not resolve content stream')
+        return
+      }
+      
+      // Try to get the content as a string
+      let contentString: string | null = null
+      
+      if (stream.getContentsString) {
+        contentString = stream.getContentsString()
+      } else if (stream.contents) {
+        // Try to decode the contents
+        const contents = stream.contents
+        contentString = new TextDecoder('utf-8', { fatal: false }).decode(contents)
+      }
+      
+      if (!contentString) {
+        console.log('⚠️ Could not extract content from stream')
+        return
+      }
+      
+      console.log('📄 Content stream length:', contentString.length, 'characters')
+      
+      // Look for references to the QR object
+      if (qrObjectName && contentString.includes(qrObjectName)) {
+        console.log('🎯 Found QR object reference in content stream:', qrObjectName)
+        
+        // Try to remove lines that reference the QR object
+        const lines = contentString.split('\n')
+        const originalLineCount = lines.length
+        
+        const filteredLines = lines.filter(line => {
+          const hasQRReference = line.includes(qrObjectName)
+          if (hasQRReference) {
+            console.log('🗑️ Removing line with QR reference:', line.trim())
+          }
+          return !hasQRReference
+        })
+        
+        if (filteredLines.length < originalLineCount) {
+          const newContent = filteredLines.join('\n')
+          console.log('✅ Removed', originalLineCount - filteredLines.length, 'lines with QR references')
+          console.log('📊 Content reduced from', contentString.length, 'to', newContent.length, 'characters')
+          
+          // Update the stream content
+          // Note: This is a simplified approach and might not work for all PDF structures
+          if (stream.contents) {
+            stream.contents = new TextEncoder().encode(newContent)
+          }
+        } else {
+          console.log('ℹ️ No lines removed - QR reference might be inline')
+        }
+      } else {
+        console.log('ℹ️ No QR object references found in content stream')
+      }
+      
+    } catch (error) {
+      console.warn('⚠️ Error processing content stream:', error)
     }
   }
 
