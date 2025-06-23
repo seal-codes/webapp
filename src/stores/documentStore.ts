@@ -687,7 +687,7 @@ export const useDocumentStore = defineStore('document', () => {
           qrPosition.value,
           qrSizePercent.value,
           documentDimensions,
-          'image', // Use image calculation for positioning
+          'pdf', // Use PDF calculation for proper positioning
         )
         console.log('📍 PDF pixel calculation result:', pixelCalculation)
 
@@ -759,12 +759,12 @@ export const useDocumentStore = defineStore('document', () => {
           pixelCalc.completeSealDimensions.height,
         )
       } else if (documentType.value === 'pdf') {
-        // Seal PDF document
+        // Seal PDF document using the same dimensions as image sealing
         const sealedPDF = await pdfSealingService.sealPDF({
           originalFile: uploadedDocument.value,
           qrCodeDataUrl: sealResult.dataUrl,
           position: pixelCalculation.position,
-          sizeInPixels: pixelCalculation.sizeInPixels,
+          sealDimensions: pixelCalculation.completeSealDimensions,
           pageNumber: selectedPage.value,
           attestationData: sealResult.attestationData,
         })

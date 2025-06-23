@@ -9,12 +9,11 @@ import type { AttestationData } from '@/types/qrcode'
 import { PDFProcessingError } from '@/types/errors'
 import { PDFHashService } from './pdf-hash-service'
 import { pdfSealingService } from './pdf-sealing-service'
-import { VerificationService } from './verification-service'
 
 /**
  * Service for verifying sealed PDF documents
  */
-export class PDFVerificationService extends VerificationService {
+export class PDFVerificationService {
   private pdfHashService = new PDFHashService()
 
   /**
@@ -88,13 +87,18 @@ export class PDFVerificationService extends VerificationService {
   /**
    * Extract seal metadata from PDF document
    */
-  private async extractSealMetadata(pdfFile: File): Promise<PDFSealMetadata> {
+  async extractSealMetadata(pdfFile: File): Promise<PDFSealMetadata> {
     try {
       const pdfDoc = await PDFDocument.load(await pdfFile.arrayBuffer())
-      const keywords = pdfDoc.getKeywords() || []
+      const rawKeywords = pdfDoc.getKeywords()
+      
+      // Ensure keywords is an array
+      const keywords = Array.isArray(rawKeywords) ? rawKeywords : (rawKeywords ? [rawKeywords] : [])
+      
+      console.log('📋 PDF Keywords:', keywords, 'Type:', typeof rawKeywords)
       
       // Find seal.codes metadata in keywords
-      const sealKeyword = keywords.find(k => k.startsWith('seal.codes:'))
+      const sealKeyword = keywords.find(k => typeof k === 'string' && k.startsWith('seal.codes:'))
       if (!sealKeyword) {
         throw new PDFProcessingError(
           'document_processing_failed',

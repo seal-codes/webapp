@@ -134,32 +134,56 @@ export class VerificationService {
       // Extract seal metadata from PDF
       const sealMetadata = await pdfVerificationService.extractSealMetadata(pdfFile)
       
-      if (sealMetadata && sealMetadata.qrLocation) {
+      if (sealMetadata) {
         console.log('✅ Found seal metadata in PDF:', sealMetadata)
         
-        // For PDFs, we need to extract the actual QR code content
-        // Since the QR code contains the attestation data, we need to:
-        // 1. Render the PDF page containing the QR code
-        // 2. Extract the QR code area as an image
-        // 3. Scan the QR code to get the attestation data
-        
-        const attestationData = await this.extractAttestationFromPDFQR(pdfFile, sealMetadata.qrLocation)
-        
-        if (attestationData) {
+        // First, try to use attestation data directly from metadata (preferred method)
+        if (sealMetadata.attestationData) {
+          console.log('✅ Using attestation data directly from PDF metadata')
           return {
             found: true,
-            attestationData: attestationData,
+            attestationData: sealMetadata.attestationData,
             debugInfo: {
               processingSteps: [
                 'PDF metadata extracted',
-                'QR location identified',
-                'PDF page rendered to image',
-                'QR code area extracted',
-                'QR code decoded',
-                'Attestation data parsed'
+                'Attestation data found in metadata',
+                'Using direct attestation data'
               ],
               scannedRegions: 1,
               totalRegions: 1
+            }
+          }
+        }
+        
+        // Fallback: Extract QR code image from PDF and decode it (for older sealed PDFs)
+        if (sealMetadata.qrLocation) {
+          console.log('⚠️ No attestation data in metadata, falling back to QR image extraction')
+          
+          // For PDFs, we need to extract the actual QR code content
+          // Since the QR code contains the attestation data, we need to:
+          // 1. Render the PDF page containing the QR code
+          // 2. Extract the QR code area as an image
+          // 3. Scan the QR code to get the attestation data
+          
+          const attestationData = await this.extractAttestationFromPDFQR(pdfFile, sealMetadata.qrLocation)
+          
+          if (attestationData) {
+            return {
+              found: true,
+              attestationData: attestationData,
+              debugInfo: {
+                processingSteps: [
+                  'PDF metadata extracted',
+                  'No direct attestation data',
+                  'QR location identified',
+                  'PDF page rendered to image',
+                  'QR code area extracted',
+                  'QR code decoded',
+                  'Attestation data parsed'
+                ],
+                scannedRegions: 1,
+                totalRegions: 1
+              }
             }
           }
         }
@@ -190,24 +214,108 @@ export class VerificationService {
    */
   private async extractAttestationFromPDFQR(pdfFile: File, qrLocation: any): Promise<AttestationData | null> {
     try {
-      console.log('🎯 Extracting attestation data from PDF metadata')
+      console.log('🎯 Extracting QR code image from PDF and decoding it')
       
-      // Import PDF verification service to extract seal metadata
-      const { pdfVerificationService } = await import('./pdf-verification-service')
+      // Import PDF-lib for PDF processing
+      const { PDFDocument } = await import('pdf-lib')
       
-      // Extract seal metadata which should contain the attestation data
-      const sealMetadata = await pdfVerificationService.extractSealMetadata(pdfFile)
+      // Load the PDF
+      const pdfDoc = await PDFDocument.load(await pdfFile.arrayBuffer())
+      const pages = pdfDoc.getPages()
       
-      if (sealMetadata && sealMetadata.attestationData) {
-        console.log('✅ Found attestation data in PDF metadata')
-        return sealMetadata.attestationData
+      if (qrLocation.pageNumber < 1 || qrLocation.pageNumber > pages.length) {
+        console.error('❌ Invalid page number in QR location')
+        return null
       }
       
-      console.log('⚠️ No attestation data found in PDF metadata')
-      return null
+      const targetPage = pages[qrLocation.pageNumber - 1]
+      const { width: pageWidth, height: pageHeight } = targetPage.getSize()
+      
+      console.log('📄 PDF page dimensions:', { pageWidth, pageHeight })
+      console.log('📍 QR location:', qrLocation)
+      
+      // Convert PDF page to canvas
+      const canvas = document.createElement('canvas')
+      const ctx = canvas.getContext('2d')
+      if (!ctx) {
+        throw new Error('Could not get canvas context')
+      }
+      
+      // Set canvas size to match PDF page
+      const scale = 2 // Higher resolution for better QR detection
+      canvas.width = pageWidth * scale
+      canvas.height = pageHeight * scale
+      ctx.scale(scale, scale)
+      
+      // Render PDF page to canvas using PDF.js
+      const { getDocument, GlobalWorkerOptions } = await import('pdfjs-dist')
+      
+      // Set worker source - use the CDN version for reliability
+      GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.worker.min.mjs'
+      
+      const loadingTask = getDocument(await pdfFile.arrayBuffer())
+      const pdf = await loadingTask.promise
+      const page = await pdf.getPage(qrLocation.pageNumber)
+      
+      const viewport = page.getViewport({ scale: scale })
+      
+      await page.render({
+        canvasContext: ctx,
+        viewport: viewport
+      }).promise
+      
+      console.log('✅ PDF page rendered to canvas')
+      
+      // Extract QR code area from the rendered canvas
+      const qrCanvas = document.createElement('canvas')
+      const qrCtx = qrCanvas.getContext('2d')
+      if (!qrCtx) {
+        throw new Error('Could not get QR canvas context')
+      }
+      
+      // Set QR canvas size
+      qrCanvas.width = qrLocation.width * scale
+      qrCanvas.height = qrLocation.height * scale
+      
+      // Copy QR area from main canvas to QR canvas
+      // Note: PDF coordinates are from bottom-left, canvas coordinates are from top-left
+      const canvasY = (pageHeight - qrLocation.y - qrLocation.height) * scale
+      const canvasX = qrLocation.x * scale
+      
+      qrCtx.drawImage(
+        canvas,
+        canvasX, canvasY, qrLocation.width * scale, qrLocation.height * scale,
+        0, 0, qrLocation.width * scale, qrLocation.height * scale
+      )
+      
+      console.log('✅ QR code area extracted from PDF')
+      
+      // Convert QR canvas to blob
+      const qrBlob = await new Promise<Blob>((resolve) => {
+        qrCanvas.toBlob((blob) => {
+          resolve(blob!)
+        }, 'image/png')
+      })
+      
+      // Create a File object from the blob
+      const qrImageFile = new File([qrBlob], 'qr-from-pdf.png', { type: 'image/png' })
+      
+      console.log('🔍 Scanning extracted QR code image with hybridQRReader')
+      
+      // Use hybrid QR reader to decode the extracted QR image
+      const { hybridQRReaderService } = await import('./qr-reader-hybrid')
+      const scanResult = await hybridQRReaderService.scanImageForQR(qrImageFile)
+      
+      if (scanResult.found && scanResult.attestationData) {
+        console.log('✅ QR code decoded successfully from PDF')
+        return scanResult.attestationData
+      } else {
+        console.log('❌ Failed to decode QR code from extracted PDF image')
+        return null
+      }
       
     } catch (error) {
-      console.error('❌ Error extracting attestation from PDF:', error)
+      console.error('❌ Error extracting QR from PDF:', error)
       return null
     }
   }

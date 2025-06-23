@@ -32,6 +32,7 @@ interface Emits {
     e: 'scan-selected-area',
     selection: { x: number; y: number; width: number; height: number }
   ): void;
+  (e: 'qr-input', data: string): void;
 }
 
 defineProps<Props>()
@@ -74,6 +75,7 @@ const handleScanSelectedArea = (selection: {
         :decoded-data="decodedData"
         :can-manually-select="canManuallySelect"
         @scan-selected-area="handleScanSelectedArea"
+        @qr-input="emit('qr-input', $event)"
       />
 
       <!-- Certificate Information (if we have valid attestation data) -->

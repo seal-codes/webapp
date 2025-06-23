@@ -118,6 +118,9 @@ const containerHeight = ref(600)
 const isDragging = ref(false)
 const dragOffset = ref({ x: 0, y: 0 })
 
+// Actual PDF page dimensions (not scaled for display)
+const actualPageDimensions = ref({ width: 800, height: 600 })
+
 // QR seal state
 const qrSealImage = ref<HTMLImageElement | null>(null)
 const isGeneratingQR = ref(false)
@@ -187,6 +190,12 @@ const updatePreview = async () => {
   // Calculate container size maintaining aspect ratio
   const canvas = props.pageCanvas
   const aspectRatio = canvas.width / canvas.height
+  
+  // Store actual PDF page dimensions for QR generation
+  actualPageDimensions.value = {
+    width: canvas.width,
+    height: canvas.height
+  }
   
   // Set container size (max 800px width for better visibility)
   const maxWidth = 800
@@ -312,11 +321,11 @@ const generateQRSeal = async () => {
   isGeneratingQR.value = true
   
   try {
-    // Calculate QR size in actual document pixels
+    // Calculate QR size using ACTUAL PDF page dimensions, not scaled preview dimensions
     const pixelCalc = qrCodeUICalculator.calculateEmbeddingPixels(
       props.qrPosition,
       props.qrSize,
-      { width: containerWidth.value, height: containerHeight.value },
+      actualPageDimensions.value, // ✅ Use actual PDF dimensions
       'pdf',
     )
 

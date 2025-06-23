@@ -7,6 +7,8 @@
 import type { QRCodeExclusionZone } from '@/types/qrcode'
 import type { PDFHashes } from '@/types/pdf'
 import { PDFHashService } from './pdf-hash-service'
+import { pdfSealingService } from './pdf-sealing-service'
+import { pdfVerificationService } from './pdf-verification-service'
 
 /**
  * Document hash calculation result
@@ -43,13 +45,74 @@ export class DocumentHashService {
     exclusionZone?: QRCodeExclusionZone,
   ): Promise<AllDocumentHashes> {
     if (document.type === 'application/pdf') {
-      // Use PDF-specific hashing
+      // Use standard PDF hashing (for sealing - original PDF without QR code)
       return this.pdfHashService.calculatePDFHashes(document)
     } else if (document.type.startsWith('image/')) {
       // Use existing image hashing
       return this.calculateImageHashes(document, exclusionZone)
     } else {
       throw new Error('Unsupported document type')
+    }
+  }
+
+  /**
+   * Calculate document hashes for verification (with QR code removal for PDFs)
+   * 
+   * @param document - The document file
+   * @param exclusionZone - Area to exclude from hash calculation (for images)
+   * @returns Promise resolving to calculated hashes
+   */
+  async calculateDocumentHashesForVerification(
+    document: File,
+    exclusionZone?: QRCodeExclusionZone,
+  ): Promise<AllDocumentHashes> {
+    if (document.type === 'application/pdf') {
+      // For PDF verification, we need to remove the QR code first
+      return this.calculatePDFHashesForVerification(document)
+    } else if (document.type.startsWith('image/')) {
+      // Use existing image hashing
+      return this.calculateImageHashes(document, exclusionZone)
+    } else {
+      throw new Error('Unsupported document type')
+    }
+  }
+
+  /**
+   * Calculate PDF hashes for verification by removing QR code first
+   * 
+   * @param pdfFile - The sealed PDF file
+   * @returns Promise resolving to calculated hashes
+   */
+  private async calculatePDFHashesForVerification(pdfFile: File): Promise<AllDocumentHashes> {
+    try {
+      // Extract seal metadata to get QR location
+      const sealMetadata = await pdfVerificationService.extractSealMetadata(pdfFile)
+      
+      console.log('📋 Extracted seal metadata:', sealMetadata)
+      console.log('📍 QR Location:', sealMetadata.qrLocation)
+      console.log('🎯 QR Object Name:', sealMetadata.qrObjectName)
+      
+      // Remove QR code from PDF using object name if available
+      const cleanPDF = await pdfSealingService.removeQRCodeFromPDF(
+        pdfFile, 
+        sealMetadata.qrLocation,
+        sealMetadata.qrObjectName
+      )
+      
+      console.log('✅ QR code removed from PDF')
+      console.log('📄 Original PDF size:', pdfFile.size, 'bytes')
+      console.log('📄 Clean PDF size:', cleanPDF.size, 'bytes')
+      
+      // Calculate hashes on clean PDF
+      const hashes = await this.pdfHashService.calculatePDFHashes(cleanPDF)
+      
+      console.log('🔢 Calculated hashes on clean PDF:', hashes)
+      
+      return hashes
+    } catch (error) {
+      console.warn('Failed to remove QR code from PDF, calculating hashes on original:', error)
+      // Fallback to original PDF hashing if QR removal fails
+      return this.pdfHashService.calculatePDFHashes(pdfFile)
     }
   }
 

@@ -64,6 +64,11 @@ const handleResetVerification = () => {
 const handleScanSelectedArea = async (selection: { x: number; y: number; width: number; height: number }) => {
   await verificationStore.scanSelectedArea(selection)
 }
+
+const handleQRInput = async (encodedData: string) => {
+  console.log('🔍 Manual QR input received:', encodedData)
+  verificationStore.setEncodedData(encodedData)
+}
 </script>
 
 <template>
@@ -111,6 +116,7 @@ const handleScanSelectedArea = async (selection: { x: number; y: number; width: 
             @verify-document="handleVerifyDocument"
             @reset-verification="handleResetVerification"
             @scan-selected-area="handleScanSelectedArea"
+            @qr-input="handleQRInput"
           />
         </div>
         

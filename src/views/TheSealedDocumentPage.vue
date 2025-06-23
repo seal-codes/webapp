@@ -12,6 +12,11 @@ const documentStore = useDocumentStore()
 const documentId = computed(() => route.params.documentId as string)
 const isLoading = ref(true)
 
+// Check if the sealed document is a PDF
+const isPDF = computed(() => {
+  return documentStore.documentType === 'pdf'
+})
+
 onMounted(async () => {
   try {
     if (
@@ -81,12 +86,38 @@ const sealInfo = [
               <div
                 class="bg-gray-100 p-4 rounded-lg flex items-center justify-center"
               >
+                <!-- PDF Preview -->
+                <div v-if="isPDF && documentStore.sealedDocumentUrl" class="w-full">
+                  <div class="bg-white rounded-lg shadow-sm p-4 text-center">
+                    <div class="mb-4">
+                      <svg class="w-16 h-16 mx-auto text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd" />
+                      </svg>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">
+                      PDF Document Sealed Successfully
+                    </h3>
+                    <p class="text-gray-600 mb-4">
+                      Your PDF document has been sealed with a QR code. Download it to view the sealed version.
+                    </p>
+                    <p class="text-sm text-gray-500">
+                      Original filename: {{ documentStore.uploadedDocument?.name }}
+                    </p>
+                  </div>
+                </div>
+                
+                <!-- Image Preview -->
                 <img
-                  v-if="documentStore.sealedDocumentUrl"
+                  v-else-if="documentStore.sealedDocumentUrl"
                   :src="documentStore.sealedDocumentUrl"
                   alt="Sealed Document"
                   class="max-w-full max-h-[500px] rounded shadow-sm"
                 >
+                
+                <!-- No Preview Available -->
+                <div v-else class="text-gray-500 py-8">
+                  <p>No preview available</p>
+                </div>
               </div>
             </div>
 
