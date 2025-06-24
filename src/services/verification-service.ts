@@ -372,6 +372,8 @@ export class VerificationService {
       // Compare cryptographic hash
       const storedHash = attestationData.h.c
       const calculatedHash = calculatedHashes.cryptographic
+      console.log("stored hash", storedHash)
+      console.log("calculated hash", calculatedHash)
 
       const cryptographicMatch = calculatedHash === storedHash
 

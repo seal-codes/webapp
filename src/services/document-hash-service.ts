@@ -30,7 +30,7 @@ export class DocumentHashService {
    */
   async calculateDocumentHashes(
     document: File,
-    exclusionZone?: QRCodeExclusionZone,
+    exclusionZone: QRCodeExclusionZone,
   ): Promise<DocumentHashes> {
     if (document.type.startsWith('image/')) {
       return this.calculateImageHashes(document, exclusionZone)
@@ -48,7 +48,7 @@ export class DocumentHashService {
    */
   private async calculateImageHashes(
     imageFile: File,
-    exclusionZone?: QRCodeExclusionZone,
+    exclusionZone: QRCodeExclusionZone,
   ): Promise<DocumentHashes> {
     return new Promise((resolve, reject) => {
       const img = new Image()
@@ -69,17 +69,19 @@ export class DocumentHashService {
           // Draw the original image
           ctx.drawImage(img, 0, 0)
           
-          // Apply exclusion zone if provided
-          if (exclusionZone) {
-            this.applyExclusionZone(ctx, exclusionZone)
-          }
-          
-          // Get image data for hash calculation
-          const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
-          
-          // Calculate hashes (pass exclusion zone for perceptual hash awareness)
-          const hashes = await this.calculateHashesFromImageData(imageData)
-          resolve(hashes)
+          canvas.toBlob((blob) => {
+            const reader = new FileReader()
+            reader.onload = async () => {
+              if (reader.result instanceof ArrayBuffer) {
+                const arrayBuffer = reader.result
+                const uint8Array = new Uint8Array(arrayBuffer)
+                // Calculate hashes (pass exclusion zone for perceptual hash awareness)
+                const hashes = await this.calculateHashesFromImageData(uint8Array, exclusionZone)
+                resolve(hashes)
+              }
+            }
+            reader.readAsArrayBuffer(blob!)
+          })
         } catch (error) {
           reject(error)
         }
@@ -120,17 +122,23 @@ export class DocumentHashService {
    * @returns Promise resolving to calculated hashes
    */
   protected async calculateHashesFromImageData(
-    imageData: ImageData,
+    imageArrayBuffer: Uint8Array<ArrayBuffer>,
+    exclusionZone: QRCodeExclusionZone,
   ): Promise<DocumentHashes> {
-    // Convert ImageData to a format suitable for hashing
-    const buffer = await this.imageDataToBuffer(imageData)
-    
     // Calculate cryptographic hash (SHA-256)
-    const cryptoHash = await this.calculateSHA256(buffer)
-    
+    const cryptoHash = await this.calculateSHA256(imageArrayBuffer.buffer)
+    console.log(cryptoHash)
     // Calculate perceptual hashes (exclusion zone already applied to imageData)
-    const { pHash, dHash } = await this.calculatePerceptualHashes(imageData)
-    
+    const { pHash, dHash } = await window.GetHashOfImageWithExclusionZone({
+      img: imageArrayBuffer,
+      exclusionZone: {
+        x: exclusionZone.x,
+        y: exclusionZone.y,
+        width: exclusionZone.width,
+        height: exclusionZone.height,
+      },
+    })
+
     return {
       cryptographic: cryptoHash,
       pHash,

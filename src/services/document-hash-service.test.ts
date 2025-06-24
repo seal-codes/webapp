@@ -27,7 +27,7 @@ describe('DocumentHashService', () => {
     it('should throw error for unsupported file types', async () => {
       const unsupportedFile = new File(['test'], 'test.txt', { type: 'text/plain' })
 
-      await expect(service.calculateDocumentHashes(unsupportedFile))
+      await expect(service.calculateDocumentHashes(unsupportedFile, {}))
         .rejects
         .toThrow('Unsupported document type')
     })
