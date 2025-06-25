@@ -47,12 +47,38 @@ export class WasmPreloader {
    * Check if WASM loading should be skipped
    */
   private shouldSkipWasmLoading(): boolean {
-    return (
-      typeof process !== 'undefined' && 
-      (process.env.NODE_ENV === 'test' || 
-       process.env.VITEST === 'true' ||
-       typeof (globalThis as Record<string, unknown>).describe !== 'undefined')
-    )
+    // Check if we're in a test environment
+    try {
+      // Safe check for process.env in browser environment
+      if (typeof process !== 'undefined' && process.env) {
+        if (process.env.NODE_ENV === 'test' || process.env.VITEST === 'true') {
+          return true
+        }
+      }
+      // Check for test globals (Vitest, Jest, etc.)
+      if (typeof globalThis !== 'undefined') {
+        const global = globalThis as any
+        if (typeof global.describe !== 'undefined' ||
+            typeof global.test !== 'undefined' ||
+            typeof global.it !== 'undefined' ||
+            typeof global.__vitest__ !== 'undefined' ||
+            typeof global.__jest__ !== 'undefined') {
+          return true
+        }
+      }
+      // Check for window-based test indicators
+      if (typeof window !== 'undefined') {
+        const win = window as any
+        if (win.__karma__ || win.jasmine || win.mocha) {
+          return true
+        }
+      }
+      return false
+    } catch (error) {
+      // If any error occurs in environment detection, assume production
+      console.warn('Environment detection failed, assuming production:', error)
+      return false
+    }
   }
 
   /**
