@@ -129,7 +129,7 @@ export class DocumentHashService {
     imageArrayBuffer: Uint8Array<ArrayBuffer>,
     exclusionZone: QRCodeExclusionZone
   ): Promise<DocumentHashes> {
-    // Calculate perceptual hashes (exclusion zone already applied to imageData)
+    // Calculate hashes
     const { pHash, dHash, sha256Hash } =
       await window.GetHashOfImageWithExclusionZone({
         img: imageArrayBuffer,
