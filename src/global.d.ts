@@ -1,29 +1,30 @@
 interface Hashes {
   pHash: string;
   dHash: string;
+  sha256Hash: string;
 }
 
 type ExclusionZone = {
-    x: number
-    y: number
-    width: number
-    height: number
-}
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};
 
 type Props = {
-    img: Uint8Array<ArrayBuffer>
-    exclusionZone: ExclusionZone
-}
+  img: Uint8Array<ArrayBuffer>;
+  exclusionZone: ExclusionZone;
+};
 
-export {}
+export {};
 declare global {
-    export interface Window {
-        Go: {
-            new(): {
-                run: (inst: WebAssembly.Instance) => Promise<void>
-                importObject: WebAssembly.Imports
-            }
-        }
-        GetHashOfImageWithExclusionZone: (props: Props) => Hashes
-    }
+  export interface Window {
+    Go: {
+      new (): {
+        run: (inst: WebAssembly.Instance) => Promise<void>;
+        importObject: WebAssembly.Imports;
+      };
+    };
+    GetHashOfImageWithExclusionZone: (props: Props) => Hashes;
+  }
 }
