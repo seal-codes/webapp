@@ -6,7 +6,7 @@ const breakpoints = {
   md: 768,
   lg: 1024,
   xl: 1280,
-  '2xl': 1536
+  '2xl': 1536,
 }
 
 // Create a reactive object to hold the current media query states
@@ -15,7 +15,7 @@ const mq = ref({
   md: false,
   lg: false,
   xl: false,
-  '2xl': false
+  '2xl': false,
 })
 
 // Update media query states based on window width
@@ -49,7 +49,7 @@ export default {
     
     // Provide media queries for composition API
     app.provide('mq', mq)
-  }
+  },
 }
 
 // Composition API hook

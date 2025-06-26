@@ -10,7 +10,7 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   startColor: '#961a1a', // Secondary-500 (red)
   endColor: '#2ab5b5', // Primary-500 (teal)
-  direction: 'left-to-right'
+  direction: 'left-to-right',
 })
 
 const gradientDirection = computed(() => {
@@ -29,13 +29,13 @@ const gradientStyle = computed(() => {
     WebkitBackgroundClip: 'text',
     WebkitTextFillColor: 'transparent',
     backgroundClip: 'text',
-    display: 'inline-block'
+    display: 'inline-block',
   }
 })
 </script>
 
 <template>
   <span :style="gradientStyle">
-    <slot></slot>
+    <slot />
   </span>
 </template>
