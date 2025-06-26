@@ -189,7 +189,7 @@ watch(
 
 <template>
   <div class="min-h-screen bg-gray-50">
-    <div class="container mx-auto px-4 py-8 max-w-full overflow-hidden">
+    <div class="container mx-auto px-4 py-8">
       <div class="mb-6">
         <h1 class="text-3xl font-bold">
           {{ t("document.title") }}
