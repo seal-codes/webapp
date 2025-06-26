@@ -104,7 +104,7 @@ const deserializeFile = (serializedFile: unknown): File => {
 }
 
 // Document processing steps
-type DocumentStep = 
+export type DocumentStep = 
   | 'idle'                    // No document loaded
   | 'document-loaded'         // Document loaded, ready for auth
   | 'authenticating'          // User is being redirected to OAuth

@@ -2,7 +2,7 @@
 import { ref, computed, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { useDocumentStore } from '../stores/documentStore'
+import { DocumentStep, useDocumentStore } from '../stores/documentStore'
 import { useAuthStore } from '../stores/authStore'
 import { useToast } from '@/composables/useToast'
 import { OAuthProviderError, CodedError } from '@/types/errors'

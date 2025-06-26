@@ -30,6 +30,7 @@ const updateMediaQueries = () => {
 
 // Plugin installation
 export default {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   install: (app: any) => {
     // Initialize media queries
     updateMediaQueries()
