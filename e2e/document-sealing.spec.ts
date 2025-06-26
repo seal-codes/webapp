@@ -54,18 +54,69 @@ test.describe('Document Sealing', () => {
     await expect(documentPage.documentImage).toBeVisible();
   });
 
-  test('should attempt to seal document', async ({ documentPage, page }) => {
+  test('should successfully seal document', async ({ documentPage, page }) => {
     // Verify the seal document button is present
     await expect(documentPage.sealDocumentButton).toBeVisible({ timeout: 10000 });
+    
+    // Listen for console errors to detect authentication failures
+    const consoleErrors: string[] = [];
+    page.on('console', msg => {
+      if (msg.type() === 'error') {
+        consoleErrors.push(msg.text());
+      }
+    });
     
     // When I click the "Seal Document" button
     await documentPage.sealDocumentButton.click();
     
-    // Wait to see what happens (the backend might not be fully implemented)
-    await page.waitForTimeout(2000);
+    // Wait for the sealing process to complete or fail
+    await page.waitForTimeout(5000);
     
-    // For now, just verify we attempted the action
-    // The actual sealing might require backend implementation
-    console.log('Seal document button clicked - backend implementation may be needed');
+    // Check for authentication errors in console
+    const authErrors = consoleErrors.filter(error => 
+      error.includes('Authentication failed') || 
+      error.includes('401') ||
+      error.includes('Error signing attestation package')
+    );
+    
+    if (authErrors.length > 0) {
+      throw new Error(`Document sealing failed with authentication errors: ${authErrors.join(', ')}`);
+    }
+    
+    // Check for any sealing errors in the UI
+    const errorElements = page.locator('.error, .message.error, [data-testid*="error"]');
+    const errorCount = await errorElements.count();
+    
+    if (errorCount > 0) {
+      const errorTexts = await errorElements.allTextContents();
+      throw new Error(`Document sealing failed with UI errors: ${errorTexts.join(', ')}`);
+    }
+    
+    // Verify successful sealing - look for success indicators
+    // This could be a success message, download button, or sealed document preview
+    const successIndicators = [
+      page.getByText(/sealed successfully/i),
+      page.getByText(/document sealed/i),
+      page.getByRole('button', { name: /download/i }),
+      page.locator('[data-testid*="sealed"]'),
+      page.locator('.sealed-document')
+    ];
+    
+    let foundSuccess = false;
+    for (const indicator of successIndicators) {
+      try {
+        await indicator.waitFor({ state: 'visible', timeout: 2000 });
+        foundSuccess = true;
+        break;
+      } catch {
+        // Continue checking other indicators
+      }
+    }
+    
+    if (!foundSuccess) {
+      throw new Error('Document sealing completed but no success indicators found');
+    }
+    
+    console.log('✅ Document sealing completed successfully');
   });
 });
