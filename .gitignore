@@ -25,6 +25,11 @@ dist-ssr
 *.sln
 *.sw?
 
+# Test-artifacts
+playwright-report
+test-results
+playwright/.auth
+
 # public-private key pairs created by Makefile
 ed25519
 *.pem

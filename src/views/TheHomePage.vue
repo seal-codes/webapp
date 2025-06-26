@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n'
 import { ImageUp, MapPin, ShieldCheck } from 'lucide-vue-next'
 import IconifiedStepDescription from '../components/common/IconifiedStepDescription.vue'
 import WaxSealButton from '../components/common/WaxSealButton.vue'
+import GradientText from '../components/common/GradientText.vue'
 
 const router = useRouter()
 const { t } = useI18n()
@@ -17,9 +18,9 @@ const startProcess = () => {
   <div class="min-h-screen bg-white">
     <!-- Hero Section -->
     <main class="container mx-auto px-4 py-16 text-center">
-      <h1 class="text-6xl font-bold mb-6">
+      <h1 class="text-6xl font-bold mb-6 leading-normal">
         {{ t('home.hero.title.before') }}
-        <span class="text-secondary-500">{{ t('home.hero.title.seal') }}</span>
+        <gradient-text>{{ t('home.hero.title.seal') }}</gradient-text>
         {{ t('home.hero.title.after') }}
       </h1>
       

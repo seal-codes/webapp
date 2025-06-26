@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
+import GradientText from '../common/GradientText.vue'
 
 const { t } = useI18n()
 </script>
@@ -7,19 +8,21 @@ const { t } = useI18n()
 <template>
   <footer class="bg-gray-100 border-t border-gray-200 mt-auto">
     <div class="container mx-auto px-4 py-6">
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-12">
         <!-- seal.codes Column (Left aligned) -->
         <div class="text-left">
           <div class="flex items-center">
-            <span class="text-xl font-bold text-primary-600">seal.codes</span>
+            <span class="text-xl font-bold">
+              <gradient-text>seal.codes</gradient-text>
+            </span>
           </div>
           <p class="text-sm text-gray-600 mt-1">
             Secure document sealing for everyone
           </p>
         </div>
         
-        <!-- Features Column (Center aligned) -->
-        <div class="text-center">
+        <!-- Features Column (Center aligned on desktop, left on mobile) -->
+        <div class="text-left md:text-center">
           <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wider mb-4">
             Features
           </h3>
@@ -51,8 +54,8 @@ const { t } = useI18n()
           </ul>
         </div>
         
-        <!-- Resources Column (Right aligned) -->
-        <div class="text-right">
+        <!-- Resources Column (Right aligned on desktop, left on mobile) -->
+        <div class="text-left md:text-right">
           <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wider mb-4">
             Resources
           </h3>

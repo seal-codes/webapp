@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import LanguageSwitcher from '../common/LanguageSwitcher.vue'
+import GradientText from '../common/GradientText.vue'
 
 const router = useRouter()
 const { t } = useI18n()
@@ -29,98 +30,103 @@ const navigateTo = (path: string) => {
             class="flex items-center gap-1"
             @click.prevent="navigateTo('/')"
           >
-            <img src="/logo.svg" class="h-10"/>
-            <span class="text-xl font-bold text-secondary-500">seal.codes</span>
+            <img
+              src="/logo.svg"
+              class="h-10"
+            >
+            <span class="text-xl font-bold">
+              <gradient-text>seal.codes</gradient-text>
+            </span>
           </a>
         </div>
-        
+
         <!-- Desktop Navigation -->
         <nav class="hidden md:flex items-center space-x-8">
-          <a 
-            href="/" 
+          <a
+            href="/"
             class="text-gray-700 hover:text-primary-500 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200"
             @click.prevent="navigateTo('/')"
           >
-            {{ t('navigation.home') }}
+            {{ t("navigation.home") }}
           </a>
-          <a 
-            href="/document" 
+          <a
+            href="/document"
             class="text-gray-700 hover:text-primary-500 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200"
             @click.prevent="navigateTo('/document')"
           >
-            {{ t('navigation.sealDocument') }}
+            {{ t("navigation.sealDocument") }}
           </a>
-          <a 
-            href="/verify" 
+          <a
+            href="/verify"
             class="text-gray-700 hover:text-primary-500 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200"
             @click.prevent="navigateTo('/verify')"
           >
-            {{ t('navigation.verify') }}
+            {{ t("navigation.verify") }}
           </a>
-          
+
           <LanguageSwitcher />
         </nav>
-        
+
         <!-- Mobile Menu Button -->
-        <div class="md:hidden">
-          <button 
-            class="text-gray-700 hover:text-primary-500 focus:outline-none" 
+        <div class="md:hidden flex items-center gap-3">
+          <button
+            class="text-gray-700 hover:text-primary-500 focus:outline-none"
             @click="toggleMenu"
           >
-            <svg 
-              xmlns="http://www.w3.org/2000/svg" 
-              class="h-6 w-6" 
-              fill="none" 
-              viewBox="0 0 24 24" 
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
               stroke="currentColor"
             >
-              <path 
-                v-if="!isMenuOpen" 
-                stroke-linecap="round" 
-                stroke-linejoin="round" 
-                stroke-width="2" 
+              <path
+                v-if="!isMenuOpen"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
                 d="M4 6h16M4 12h16M4 18h16"
               />
-              <path 
-                v-else 
-                stroke-linecap="round" 
-                stroke-linejoin="round" 
-                stroke-width="2" 
+              <path
+                v-else
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
                 d="M6 18L18 6M6 6l12 12"
               />
             </svg>
           </button>
         </div>
       </div>
-      
+
       <!-- Mobile Navigation -->
-      <div 
-        v-if="isMenuOpen" 
+      <div
+        v-if="isMenuOpen"
         class="md:hidden"
       >
         <div class="pt-2 pb-4 space-y-1">
-          <a 
-            href="/" 
+          <a
+            href="/"
             class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary-500 hover:bg-gray-50"
             @click.prevent="navigateTo('/')"
           >
-            {{ t('navigation.home') }}
+            {{ t("navigation.home") }}
           </a>
-          <a 
-            href="/document" 
+          <a
+            href="/document"
             class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary-500 hover:bg-gray-50"
             @click.prevent="navigateTo('/document')"
           >
-            {{ t('navigation.sealDocument') }}
+            {{ t("navigation.sealDocument") }}
           </a>
-          <a 
-            href="/verify" 
+          <a
+            href="/verify"
             class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary-500 hover:bg-gray-50"
             @click.prevent="navigateTo('/verify')"
           >
-            Verify Document
+            {{ t("navigation.verify") }}
           </a>
-          
+
           <div class="px-3 py-2">
             <LanguageSwitcher />
           </div>
