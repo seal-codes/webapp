@@ -26,9 +26,10 @@ const navigateTo = (path: string) => {
         <div class="flex items-center">
           <a
             href="/"
-            class="flex items-center"
+            class="flex items-center gap-1"
             @click.prevent="navigateTo('/')"
           >
+            <img src="/logo.svg" class="h-10"/>
             <span class="text-xl font-bold text-secondary-500">seal.codes</span>
           </a>
         </div>
