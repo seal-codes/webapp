@@ -130,7 +130,7 @@ onMounted(() => {
 // Watch for step changes to handle automatic sealing
 watch(
   () => documentStore.currentStep,
-  async (newStep, oldStep) => {
+  async (newStep: DocumentStep, oldStep: DocumentStep) => {
     console.log('📊 Document step changed:', oldStep, '→', newStep)
     
     if (newStep === 'auth-completed') {
@@ -162,7 +162,7 @@ watch(
 // Watch for successful authentication and trigger post-auth flow
 watch(
   () => authStore.isAuthenticated,
-  async (isAuthenticated) => {
+  async (isAuthenticated: boolean) => {
     if (isAuthenticated) {
       console.log('🎉 User authenticated, checking current step:', documentStore.currentStep)
       

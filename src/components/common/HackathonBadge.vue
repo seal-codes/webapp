@@ -17,7 +17,7 @@ const positionClasses = computed(() => {
     'top-left': 'fixed top-0 left-0 z-[9999]',
   }
   
-  return classes[props.position]
+  return classes[props.position as keyof typeof classes]
 })
 
 const cornerStyle = computed(() => {
@@ -28,7 +28,7 @@ const cornerStyle = computed(() => {
     'bottom-left': 'border-bottom: 180px solid rgba(0, 0, 0, 0.85); border-right: 180px solid transparent;',
   }
   
-  return styles[props.position]
+  return styles[props.position as keyof typeof styles]
 })
 
 const badgePosition = computed(() => {
@@ -39,7 +39,7 @@ const badgePosition = computed(() => {
     'bottom-left': { bottom: '40px', left: '40px' },
   }
   
-  return positions[props.position]
+  return positions[props.position as keyof typeof positions]
 })
 </script>
 

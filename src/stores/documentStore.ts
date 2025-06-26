@@ -129,7 +129,7 @@ export const useDocumentStore = defineStore('document', () => {
   const persistedStep = ref<DocumentStep>('idle')
   
   // Sync step with localStorage
-  watch(currentStep, (newStep) => {
+  watch(currentStep, (newStep: DocumentStep) => {
     persistedStep.value = newStep
     try {
       localStorage.setItem('seal-codes-step', JSON.stringify(newStep))
@@ -139,7 +139,7 @@ export const useDocumentStore = defineStore('document', () => {
     }
   })
   
-  watch(persistedStep, (newStep) => {
+  watch(persistedStep, (newStep: DocumentStep) => {
     try {
       localStorage.setItem('seal-codes-step', JSON.stringify(newStep))
     } catch (error) {
@@ -250,7 +250,7 @@ export const useDocumentStore = defineStore('document', () => {
   }
   
   // Save to localStorage when values change
-  watch(persistedDocumentData, (newValue) => {
+  watch(persistedDocumentData, (newValue: DocumentData | null) => {
     try {
       if (newValue === null) {
         localStorage.removeItem('seal-codes-document')
@@ -262,7 +262,7 @@ export const useDocumentStore = defineStore('document', () => {
     }
   })
   
-  watch(persistedQRPosition, (newValue) => {
+  watch(persistedQRPosition, (newValue: QRPosition | null) => {
     try {
       localStorage.setItem('seal-codes-qr-position', JSON.stringify(newValue))
     } catch (error) {
@@ -270,7 +270,7 @@ export const useDocumentStore = defineStore('document', () => {
     }
   })
   
-  watch(persistedQRSize, (newValue) => {
+  watch(persistedQRSize, (newValue: number) => {
     try {
       localStorage.setItem('seal-codes-qr-size', JSON.stringify(newValue))
     } catch (error) {
@@ -278,7 +278,7 @@ export const useDocumentStore = defineStore('document', () => {
     }
   })
   
-  watch(persistedOAuthState, (newValue) => {
+  watch(persistedOAuthState, (newValue: string | null) => {
     try {
       if (newValue === null) {
         localStorage.removeItem('seal-codes-oauth-state')
@@ -340,7 +340,7 @@ export const useDocumentStore = defineStore('document', () => {
   })
   
   // Watch for document changes and persist to localStorage
-  watch(uploadedDocument, async (newDoc, oldDoc) => {
+  watch(uploadedDocument, async (newDoc: File | null, oldDoc: File | null) => {
     console.log('👀 Document watcher triggered:', {
       newDoc: newDoc ? `${newDoc.name} (${newDoc.size} bytes)` : 'null',
       oldDoc: oldDoc ? `${oldDoc.name} (${oldDoc.size} bytes)` : 'null',

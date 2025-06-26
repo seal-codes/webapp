@@ -60,7 +60,7 @@ const colorClasses = computed(() => {
     },
   }
 
-  return baseClasses[props.type]
+  return baseClasses[props.type as keyof typeof baseClasses]
 })
 
 const handleClose = () => {

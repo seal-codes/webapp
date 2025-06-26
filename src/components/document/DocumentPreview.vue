@@ -17,7 +17,7 @@ const documentType = ref<'image' | null>(null)
 const isLoading = ref(true)
 
 // Determine document type when document changes
-watch(() => props.document, (newDocument) => {
+watch(() => props.document, (newDocument: File | null) => {
   if (!newDocument) {
     documentType.value = null
     isLoading.value = false

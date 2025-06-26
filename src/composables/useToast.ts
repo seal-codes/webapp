@@ -55,7 +55,7 @@ function addToast(toast: Omit<Toast, 'id'>): string {
 
 // Remove a toast
 function removeToast(id: string): void {
-  const index = toasts.value.findIndex(toast => toast.id === id)
+  const index = toasts.value.findIndex((toast: Toast) => toast.id === id)
   if (index > -1) {
     toasts.value.splice(index, 1)
   }

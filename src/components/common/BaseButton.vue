@@ -35,8 +35,8 @@ const buttonClasses = computed(() => {
   
   return [
     baseClasses,
-    sizeClasses[props.size],
-    variantClasses[props.variant],
+    sizeClasses[props.size as keyof typeof sizeClasses],
+    variantClasses[props.variant as keyof typeof variantClasses],
   ].join(' ')
 })
 </script>

@@ -83,7 +83,7 @@ onUnmounted(() => {
           :key="code"
           class="flex items-center gap-3 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
           :class="{ 'bg-primary-50 text-primary-700': getCurrentLocale() === code }"
-          @click="changeLanguage(code as SupportedLocale)"
+          @click="changeLanguage(String(code) as SupportedLocale)"
         >
           <span>{{ lang.flag }}</span>
           <span>{{ lang.name }}</span>

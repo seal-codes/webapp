@@ -30,7 +30,7 @@ const updateMediaQueries = () => {
 
 // Plugin installation
 export default {
-  install: (app) => {
+  install: (app: any) => {
     // Initialize media queries
     updateMediaQueries()
     

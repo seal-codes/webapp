@@ -8,6 +8,11 @@ declare module '*.vue' {
   export default component
 }
 
+// Ensure Vue module is properly typed
+declare module 'vue' {
+  export * from '@vue/runtime-dom'
+}
+
 // Declare global properties for TypeScript
 declare module '@vue/runtime-core' {
   interface ComponentCustomProperties {
