@@ -172,7 +172,9 @@ export class DocumentPage extends BasePage {
     // This would need to be implemented based on the actual UI implementation
     // For now, we'll use a simple drag simulation
     const qrElement = this.page.locator('.qr-code-preview');
-    await qrElement.dragTo({ x, y });
+    await qrElement.dragTo(this.page.locator('.document-preview'), {
+      targetPosition: { x, y }
+    });
   }
   
   /**
@@ -182,6 +184,7 @@ export class DocumentPage extends BasePage {
     // This would need to be implemented based on the actual UI implementation
     // For now, we'll use a simple input value setting
     const sizeInput = this.qrSizeControl.locator('input');
+    await sizeInput.waitFor({ state: 'visible', timeout: 5000 });
     await sizeInput.fill(String(sizePercent));
   }
   

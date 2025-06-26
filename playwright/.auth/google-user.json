@@ -1,4 +1,14 @@
 {
   "cookies": [],
-  "origins": []
+  "origins": [
+    {
+      "origin": "http://localhost:5173",
+      "localStorage": [
+        {
+          "name": "sb-ciabpodgryewgkhxepwb-auth-token",
+          "value": "{\"access_token\":\"mock-access-token-google-1750966396501\",\"refresh_token\":\"mock-refresh-token-google-1750966396501\",\"expires_in\":3600,\"expires_at\":1750969996,\"token_type\":\"bearer\",\"user\":{\"id\":\"mock-google-user-id\",\"aud\":\"authenticated\",\"role\":\"authenticated\",\"email\":\"test-google@example.com\",\"email_confirmed_at\":\"2025-06-26T19:33:16.501Z\",\"phone\":\"\",\"confirmed_at\":\"2025-06-26T19:33:16.502Z\",\"last_sign_in_at\":\"2025-06-26T19:33:16.502Z\",\"app_metadata\":{\"provider\":\"google\",\"providers\":[\"google\"]},\"user_metadata\":{\"avatar_url\":\"https://example.com/google-avatar.png\",\"email\":\"test-google@example.com\",\"email_verified\":true,\"full_name\":\"Test User google\",\"iss\":\"https://api.google.com\",\"name\":\"Test User google\",\"preferred_username\":\"testusergoogle\",\"provider_id\":\"mock-google-user-id\",\"sub\":\"mock-google-user-id\",\"user_name\":\"testusergoogle\"},\"created_at\":\"2025-06-26T19:33:16.502Z\",\"updated_at\":\"2025-06-26T19:33:16.502Z\"}}"
+        }
+      ]
+    }
+  ]
 }

@@ -11,8 +11,6 @@ import { HomePage } from '../pages/home-page';
 import { DocumentPage } from '../pages/document-page';
 import { SealedDocumentPage } from '../pages/sealed-document-page';
 import { VerificationPage } from '../pages/verification-page';
-import { mockSupabase } from '../mocks/supabase/mock-supabase-client';
-import { mockSession } from '../mocks/supabase/mock-supabase-client';
 
 // Get current file path in ES modules
 const __filename = fileURLToPath(import.meta.url);
@@ -68,7 +66,7 @@ export const TEST_FIXTURES = {
   INVALID_FILE_PATH: invalidFilePath,
 };
 
-// Extend Playwright test with our page objects and mocks
+// Extend Playwright test with our page objects
 export const test = base.extend({
   // Page objects
   homePage: async ({ page }, use) => {
@@ -82,36 +80,6 @@ export const test = base.extend({
   },
   verificationPage: async ({ page }, use) => {
     await use(new VerificationPage(page));
-  },
-  
-  // Mock Supabase client injection
-  mockSupabaseClient: async ({ page }, use) => {
-    // Import the mock injection script
-    const { injectMockSupabaseScript } = await import('../mocks/supabase/inject-mock-supabase');
-    
-    // Inject the mock Supabase client into the page
-    await page.addInitScript(injectMockSupabaseScript());
-    
-    // Enable verbose logging for debugging
-    page.on('console', msg => {
-      if (msg.text().includes('[MOCK]')) {
-        console.log(`[Browser] ${msg.text()}`);
-      }
-    });
-    
-    await use({});
-  },
-  
-  // Authentication helpers
-  authenticatedSession: async ({ page }, use) => {
-    // Set up mock authenticated session
-    mockSupabase.setAuthState(mockSession);
-    
-    // Use the authenticated session
-    await use({});
-    
-    // Clean up after test
-    mockSupabase.setAuthState(null);
   },
 });
 
