@@ -37,24 +37,40 @@ export default defineConfig({
 
   /* Configure projects for major browsers */
   projects: [
-    // Setup project for authentication
-    { name: 'auth-setup', testMatch: /.*\.setup\.ts/ },
+    // Setup project for mock authentication (fast, for development)
+    { name: 'mock-auth-setup', testMatch: /.*auth\.setup\.ts/ },
     
+    // Setup project for real authentication (slower, for integration testing)
+    { name: 'real-auth-setup', testMatch: /.*real-auth\.setup\.ts/ },
+    
+    // Tests using mock authentication (default for development)
     {
-      name: 'chromium',
+      name: 'chromium-mock',
       use: { ...devices['Desktop Chrome'] },
-      dependencies: ['auth-setup'],
+      dependencies: ['mock-auth-setup'],
+      testIgnore: /.*\.integration\.spec\.ts/,
+    },
+
+    // Tests using real authentication (for integration testing)
+    {
+      name: 'chromium-integration',
+      use: { ...devices['Desktop Chrome'] },
+      dependencies: ['real-auth-setup'],
+      testMatch: /.*\.integration\.spec\.ts/,
     },
 
     {
       name: 'firefox',
       use: { ...devices['Desktop Firefox'] },
-      dependencies: ['auth-setup'],
+      dependencies: ['mock-auth-setup'],
+      testIgnore: /.*\.integration\.spec\.ts/,
     },
 
     {
       name: 'webkit',
       use: { ...devices['Desktop Safari'] },
+      dependencies: ['mock-auth-setup'],
+      testIgnore: /.*\.integration\.spec\.ts/,
     },
 
     /* Test against mobile viewports. */

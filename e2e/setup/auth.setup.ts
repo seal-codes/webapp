@@ -4,7 +4,6 @@
  */
 
 import { test as setup, expect } from '@playwright/test';
-import { createSupabaseCookie } from '../utils/supabase-auth';
 import fs from 'fs';
 import path from 'path';
 
@@ -16,52 +15,94 @@ if (!fs.existsSync(authDir)) {
 
 // Setup authenticated state for Google
 setup('authenticate as Google user', async ({ page }) => {
-  // Go to the app
-  await page.goto('http://localhost:5173/');
-  
-  // Create mock session data
-  const userId = 'test-google-user-id';
-  const userEmail = 'test-google@example.com';
-  const provider = 'google';
-  
-  // Set up localStorage with the mock session and trigger auth state change event
-  await page.evaluate(({ sessionData, provider, userId, userEmail }) => {
-    // Set the session in localStorage
-    localStorage.setItem('supabase.auth.token', sessionData);
+  // Inject comprehensive Supabase mock before navigating to the app
+  await page.addInitScript(() => {
+    console.log('[MOCK] Setting up Google authentication mock');
     
-    // Create a mock session object to dispatch with the event
+    // Create mock session data
     const mockSession = {
-      access_token: 'mock-access-token',
-      refresh_token: 'mock-refresh-token',
+      access_token: 'mock-access-token-google',
+      refresh_token: 'mock-refresh-token-google',
       expires_in: 3600,
       expires_at: Math.floor(Date.now() / 1000) + 3600,
       user: {
-        id: userId,
-        email: userEmail,
+        id: 'test-google-user-id',
+        email: 'test-google@example.com',
         app_metadata: {
-          provider: provider
+          provider: 'google',
+          providers: ['google']
         },
         user_metadata: {
           avatar_url: 'https://example.com/avatar.png',
-          full_name: 'Test User',
-          user_name: 'testuser'
+          full_name: 'Test User Google',
+          user_name: 'testusergoogle'
         }
       }
     };
     
-    // Dispatch the auth state change event that the application is listening for
-    const event = new CustomEvent('supabase.auth.state-changed', {
-      detail: { event: 'SIGNED_IN', session: mockSession }
-    });
-    window.dispatchEvent(event);
+    // Mock the Supabase client methods that the auth service uses
+    const mockSupabaseAuth = {
+      getSession: async () => {
+        console.log('[MOCK] getSession called - returning mock session');
+        return {
+          data: { session: mockSession },
+          error: null
+        };
+      },
+      getUser: async () => {
+        console.log('[MOCK] getUser called - returning mock user');
+        return {
+          data: { user: mockSession.user },
+          error: null
+        };
+      },
+      signInWithOAuth: async (options) => {
+        console.log('[MOCK] signInWithOAuth called with:', options);
+        return {
+          data: { url: 'https://mock-oauth-url.com/' + options.provider },
+          error: null
+        };
+      },
+      signOut: async () => {
+        console.log('[MOCK] signOut called');
+        return { error: null };
+      },
+      onAuthStateChange: (callback) => {
+        console.log('[MOCK] onAuthStateChange listener registered');
+        // Immediately call the callback with signed in state
+        setTimeout(() => {
+          callback('SIGNED_IN', mockSession);
+        }, 100);
+        
+        return {
+          data: {
+            subscription: {
+              unsubscribe: () => console.log('[MOCK] Auth listener unsubscribed')
+            }
+          }
+        };
+      }
+    };
     
-    console.log('Auth state change event dispatched for provider:', provider);
-  }, { 
-    sessionData: createSupabaseCookie(userEmail, userId, provider), 
-    provider, 
-    userId, 
-    userEmail 
+    // Store the mock globally so it can be accessed by the Supabase client
+    window.__MOCK_SUPABASE_AUTH__ = mockSupabaseAuth;
+    window.__MOCK_SUPABASE_SESSION__ = mockSession;
+    
+    // Override the createClient function if it gets called
+    const originalCreateClient = window.createClient;
+    window.createClient = function(url, key, options) {
+      console.log('[MOCK] createClient intercepted');
+      return {
+        auth: mockSupabaseAuth
+      };
+    };
   });
+  
+  // Go to the app
+  await page.goto('http://localhost:5173/');
+  
+  // Wait for the app to initialize and auth to be set up
+  await page.waitForTimeout(2000);
   
   // Save the state to be used in tests
   await page.context().storageState({ path: path.join(authDir, 'google-user.json') });
@@ -69,52 +110,94 @@ setup('authenticate as Google user', async ({ page }) => {
 
 // Setup authenticated state for GitHub
 setup('authenticate as GitHub user', async ({ page }) => {
-  // Go to the app
-  await page.goto('http://localhost:5173/');
-  
-  // Create mock session data
-  const userId = 'test-github-user-id';
-  const userEmail = 'test-github@example.com';
-  const provider = 'github';
-  
-  // Set up localStorage with the mock session and trigger auth state change event
-  await page.evaluate(({ sessionData, provider, userId, userEmail }) => {
-    // Set the session in localStorage
-    localStorage.setItem('supabase.auth.token', sessionData);
+  // Inject comprehensive Supabase mock before navigating to the app
+  await page.addInitScript(() => {
+    console.log('[MOCK] Setting up GitHub authentication mock');
     
-    // Create a mock session object to dispatch with the event
+    // Create mock session data
     const mockSession = {
-      access_token: 'mock-access-token',
-      refresh_token: 'mock-refresh-token',
+      access_token: 'mock-access-token-github',
+      refresh_token: 'mock-refresh-token-github',
       expires_in: 3600,
       expires_at: Math.floor(Date.now() / 1000) + 3600,
       user: {
-        id: userId,
-        email: userEmail,
+        id: 'test-github-user-id',
+        email: 'test-github@example.com',
         app_metadata: {
-          provider: provider
+          provider: 'github',
+          providers: ['github']
         },
         user_metadata: {
           avatar_url: 'https://example.com/avatar.png',
-          full_name: 'Test User',
-          user_name: 'testuser'
+          full_name: 'Test User GitHub',
+          user_name: 'testusergithub'
         }
       }
     };
     
-    // Dispatch the auth state change event that the application is listening for
-    const event = new CustomEvent('supabase.auth.state-changed', {
-      detail: { event: 'SIGNED_IN', session: mockSession }
-    });
-    window.dispatchEvent(event);
+    // Mock the Supabase client methods that the auth service uses
+    const mockSupabaseAuth = {
+      getSession: async () => {
+        console.log('[MOCK] getSession called - returning mock session');
+        return {
+          data: { session: mockSession },
+          error: null
+        };
+      },
+      getUser: async () => {
+        console.log('[MOCK] getUser called - returning mock user');
+        return {
+          data: { user: mockSession.user },
+          error: null
+        };
+      },
+      signInWithOAuth: async (options) => {
+        console.log('[MOCK] signInWithOAuth called with:', options);
+        return {
+          data: { url: 'https://mock-oauth-url.com/' + options.provider },
+          error: null
+        };
+      },
+      signOut: async () => {
+        console.log('[MOCK] signOut called');
+        return { error: null };
+      },
+      onAuthStateChange: (callback) => {
+        console.log('[MOCK] onAuthStateChange listener registered');
+        // Immediately call the callback with signed in state
+        setTimeout(() => {
+          callback('SIGNED_IN', mockSession);
+        }, 100);
+        
+        return {
+          data: {
+            subscription: {
+              unsubscribe: () => console.log('[MOCK] Auth listener unsubscribed')
+            }
+          }
+        };
+      }
+    };
     
-    console.log('Auth state change event dispatched for provider:', provider);
-  }, { 
-    sessionData: createSupabaseCookie(userEmail, userId, provider), 
-    provider, 
-    userId, 
-    userEmail 
+    // Store the mock globally so it can be accessed by the Supabase client
+    window.__MOCK_SUPABASE_AUTH__ = mockSupabaseAuth;
+    window.__MOCK_SUPABASE_SESSION__ = mockSession;
+    
+    // Override the createClient function if it gets called
+    const originalCreateClient = window.createClient;
+    window.createClient = function(url, key, options) {
+      console.log('[MOCK] createClient intercepted');
+      return {
+        auth: mockSupabaseAuth
+      };
+    };
   });
+  
+  // Go to the app
+  await page.goto('http://localhost:5173/');
+  
+  // Wait for the app to initialize and auth to be set up
+  await page.waitForTimeout(2000);
   
   // Save the state to be used in tests
   await page.context().storageState({ path: path.join(authDir, 'github-user.json') });

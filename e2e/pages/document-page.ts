@@ -56,7 +56,7 @@ export class DocumentPage extends BasePage {
     // QR positioning locators
     this.qrPositionControls = page.locator('.qr-position-controls');
     this.qrSizeControl = page.locator('.qr-size-control');
-    this.sealDocumentButton = page.getByRole('button', { name: /Dokument versiegeln|Seal document/i });
+    this.sealDocumentButton = page.getByRole('button', { name: /Dokument versiegeln|Seal document|🔒 Seal This Document/i });
   }
   
   /**

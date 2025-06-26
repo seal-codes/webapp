@@ -1,14 +1,4 @@
 {
   "cookies": [],
-  "origins": [
-    {
-      "origin": "http://localhost:5173",
-      "localStorage": [
-        {
-          "name": "supabase.auth.token",
-          "value": "{\"currentSession\":{\"access_token\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzUwMTU5NDI1LCJzdWIiOiJ0ZXN0LWdvb2dsZS11c2VyLWlkIiwiZW1haWwiOiJ0ZXN0LWdvb2dsZUBleGFtcGxlLmNvbSIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6Imdvb2dsZSIsInByb3ZpZGVycyI6WyJnb29nbGUiXX0sInVzZXJfbWV0YWRhdGEiOnsiYXZhdGFyX3VybCI6Imh0dHBzOi8vZXhhbXBsZS5jb20vYXZhdGFyLnBuZyIsImZ1bGxfbmFtZSI6IlRlc3QgVXNlciIsInVzZXJfbmFtZSI6InRlc3R1c2VyIn0sInJvbGUiOiJhdXRoZW50aWNhdGVkIn0.wKJ0escsXKDJAq7N_C8VxQ3XU7P0VtKUe8f_60jCz6A\",\"refresh_token\":\"mock-refresh-token-1750155825243\",\"expires_in\":3600,\"expires_at\":1750159425,\"user\":{\"id\":\"test-google-user-id\",\"email\":\"test-google@example.com\",\"app_metadata\":{\"provider\":\"google\",\"providers\":[\"google\"]},\"user_metadata\":{\"avatar_url\":\"https://example.com/avatar.png\",\"full_name\":\"Test User\",\"user_name\":\"testuser\"}}},\"expiresAt\":1750159425}"
-        }
-      ]
-    }
-  ]
+  "origins": []
 }
