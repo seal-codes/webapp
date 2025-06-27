@@ -388,5 +388,162 @@
     "title": "Seite nicht gefunden",
     "subtitle": "Die gesuchte Seite existiert nicht.",
     "backHome": "Zurück zur Startseite"
+  },
+  "faq": {
+    "title": "Häufig gestellte Fragen",
+    "subtitle": "Finden Sie Antworten auf häufige Fragen zu seal.codes",
+    "searchPlaceholder": "FAQ durchsuchen...",
+    "filterByCategory": "Nach Kategorie filtern",
+    "allCategories": "Alle Kategorien",
+    "noResults": "Keine FAQ-Einträge gefunden, die Ihren Kriterien entsprechen.",
+    "categories": {
+      "gettingStarted": {
+        "title": "Erste Schritte",
+        "description": "Grundlegende Einführung in seal.codes"
+      },
+      "businessValue": {
+        "title": "Was macht seal.codes für mich?",
+        "description": "Schutz und geschäftliche Vorteile verstehen"
+      },
+      "howItWorks": {
+        "title": "Wie es funktioniert",
+        "description": "Technische Details verständlich erklärt"
+      },
+      "securityPrivacy": {
+        "title": "Sicherheit & Datenschutz",
+        "description": "Vertrauensmodell, Grenzen, Datenverarbeitung"
+      },
+      "troubleshooting": {
+        "title": "Fehlerbehebung",
+        "description": "Häufige Probleme und Lösungen"
+      }
+    },
+    "entries": {
+      "whatIsSealCodes": {
+        "question": "Was ist seal.codes?",
+        "analogy": "Stellen Sie sich seal.codes wie eine digitale Version der Wachssiegel vor, die Könige und Adlige zur Authentifizierung ihrer Dokumente verwendeten. Genau wie ein königliches Siegel sofort zeigte, wer ein Dokument erstellt hat und es vor Manipulation schützte, tun unsere QR-Code-Siegel dasselbe für Ihre digitalen Dateien.",
+        "technical": "seal.codes ist eine Webanwendung, die überprüfbare Nachweise für Dokumenteneigentum mittels sozialer Authentifizierung erstellt. Sie generiert QR-Codes mit kryptographischen Hashes, Informationen zur sozialen Identität, Zeitstempeln und digitalen Signaturen, die direkt in Ihre Dokumente eingebettet werden können."
+      },
+      "howToGetStarted": {
+        "question": "Wie versiegle ich mein erstes Dokument?",
+        "analogy": "Es ist so einfach wie das Anbringen eines Wachssiegels an einem Brief: Laden Sie Ihr Dokument hoch, wählen Sie aus, wo das Siegel platziert werden soll, authentifizieren Sie sich mit einem sozialen Konto, das Sie bereits haben, und wir erstellen Ihr digitales Siegel.",
+        "technical": "Navigieren Sie zur Seite 'Dokument versiegeln', laden Sie Ihre Datei hoch (PDF, Bild, etc.), wählen Sie die QR-Code-Platzierung, authentifizieren Sie sich mit einem sozialen Anbieter (Google, GitHub, etc.), und das System generiert und bettet einen QR-Code-Nachweis in Ihr Dokument ein."
+      },
+      "supportedFormats": {
+        "question": "Welche Dokumentformate werden unterstützt?",
+        "analogy": "Genau wie Sie ein Wachssiegel auf verschiedene Arten von Papier und Pergament anbringen können, unterstützen wir verschiedene digitale Dokumentformate.",
+        "technical": "Wir unterstützen PDF-Dokumente (mit ebenenbasierter Einbettung), gängige Bildformate (PNG, JPEG, WebP, GIF, BMP, TIFF) mit Ausschlusszoneneinbettung und können andere Formate zur Versiegelung in PDF konvertieren. Jedes Format verwendet optimierte Einbettungstechniken, um sowohl Integrität als auch Überprüfbarkeit zu gewährleisten."
+      },
+      "accountRequirements": {
+        "question": "Muss ich ein Konto erstellen?",
+        "analogy": "Keine neuen Konten erforderlich! Genau wie die Verwendung Ihres bestehenden königlichen Siegels anstatt ein neues zu erstellen, verwenden Sie soziale Konten, die Sie bereits haben und denen Sie vertrauen.",
+        "technical": "Keine Kontoerstellung erforderlich. Sie authentifizieren sich über bestehende soziale Identitätsanbieter wie Google, GitHub, Microsoft oder andere. Dies nutzt Konten, die Sie bereits pflegen und denen Sie vertrauen, und eliminiert die Notwendigkeit für zusätzliche Passwort-Verwaltung."
+      },
+      "sealTamperingProtection": {
+        "question": "Was passiert, wenn jemand das Siegel entfernt oder beschädigt?",
+        "analogy": "Genau wie das Brechen eines physischen Wachssiegels offensichtliche Spuren von Manipulation hinterlässt, ist das Entfernen oder Verändern unseres QR-Code-Siegels sofort sichtbar und erkennbar. Das Dokument wird deutlich zeigen, dass es verändert wurde.",
+        "technical": "Der QR-Code wird mit formatspezifischen Techniken eingebettet, die eine Entfernung sichtbar machen. Bei PDFs existiert er auf einer separaten Ebene mit aufgezeichneten Koordinaten. Bei Bildern wird er in einer definierten Ausschlusszone mit gespeicherten Metadaten platziert. Jede Manipulation des Siegelbereichs oder Versuche, es zu entfernen, werden bei der Inspektion offensichtlich."
+      },
+      "ownershipDisputes": {
+        "question": "Was ist, wenn jemand mein Dokument versiegelt und behauptet, es gehöre ihm?",
+        "analogy": "Wie ein königliches Siegel, das das einzigartige Zeichen und die Autorität seines Besitzers trägt, enthält Ihr Siegel Ihre verifizierte soziale Identität und einen präzisen Zeitstempel von unseren Servern, wodurch ein unveränderbarer Nachweis erstellt wird, wer was wann versiegelt hat.",
+        "technical": "Der Nachweis enthält Ihre authentifizierte soziale Identität, eine kryptographische Signatur von unseren Servern und einen präzisen Zeitstempel. Dies schafft eine überprüfbare Beweiskette, die das Dokument zu einem bestimmten Zeitpunkt mit Ihrer Identität verknüpft. Der Zeitstempel wird vom Server generiert und kann nicht gefälscht werden."
+      },
+      "documentIntegrity": {
+        "question": "Wie beweise ich, dass mein Dokument nicht verändert wurde?",
+        "analogy": "Wie ein gebrochenes Wachssiegel sofort verrät, dass ein Brief geöffnet wurde, kann unser System erkennen, ob Ihr Dokument seit der Versiegelung verändert wurde.",
+        "technical": "Wir verwenden sowohl kryptographische Hashes (SHA-256) für exakte Verifikation als auch perzeptuelle Hashes für Komprimierungsresilienz. Der Verifikationsprozess vergleicht den aktuellen Dokument-Hash mit dem im QR-Code gespeicherten. Jede Änderung am Dokumentinhalt führt zu einem anderen Hash und zeigt eine Modifikation an."
+      },
+      "compressionResilience": {
+        "question": "Was passiert, wenn mein Dokument beim Teilen komprimiert wird?",
+        "analogy": "Wie ein flexibles Siegel, das sich an leichte Veränderungen im Papier anpassen kann, ohne zu brechen, kann unser System geringfügige Komprimierung und Qualitätsänderungen handhaben, die beim Online-Teilen von Dateien oft auftreten.",
+        "technical": "Wir verwenden einen mehrschichtigen Hash-Ansatz, der kryptographische Hashes für exakte Übereinstimmungen und perzeptuelle Hashes für Komprimierungsresilienz kombiniert. Dies ermöglicht eine erfolgreiche Verifikation, auch wenn das Dokument komprimiert wurde oder geringfügige Qualitätsänderungen beim Teilen oder Speichern erfahren hat."
+      },
+      "legalStanding": {
+        "question": "Kann ich das für rechtliche Dokumente verwenden?",
+        "analogy": "Denken Sie daran wie an einen Zeugen für Ihr Dokument und nicht wie an einen Notar. Es liefert Beweise für Zugehörigkeit und Zeitpunkt, ist aber nicht dasselbe wie eine rechtlich bindende Unterschrift.",
+        "technical": "seal.codes liefert Beweise für die Zuordnung eines Dokuments zu einer sozialen Identität zu einem bestimmten Zeitpunkt, ist aber keine rechtlich bindende digitale Signatur. Es ist darauf ausgelegt, Eigentum, Priorität und Integrität zu etablieren, anstatt formale rechtliche Signaturanforderungen zu ersetzen. Konsultieren Sie immer einen Rechtsanwalt für Dokumente, die rechtliche Signaturen erfordern."
+      },
+      "socialVsCertificates": {
+        "question": "Warum soziale Konten statt Zertifikate verwenden?",
+        "analogy": "Es ist wie der Unterschied zwischen der Bürgschaft durch jemanden, den jeder kennt, und dem Mitführen offizieller Papiere. Soziale Konten sind zugänglich, vertraut und werden von den Menschen, mit denen Sie täglich interagieren, als vertrauenswürdig eingestuft.",
+        "technical": "Soziale Authentifizierung eliminiert Barrieren wie technische Komplexität, Infrastrukturbelastung, Kosten und Zugänglichkeitsprobleme, die mit traditionellen digitalen Zertifikaten verbunden sind. Die meisten Menschen pflegen und sichern bereits soziale Konten, was diesen Ansatz zugänglicher macht und dennoch eine sinnvolle Identitätsverifikation bietet."
+      },
+      "sealingProcess": {
+        "question": "Wie funktioniert der Versiegelungsprozess?",
+        "analogy": "Wie das Anbringen eines Wachssiegels: Wir erhitzen das Wachs (verarbeiten Ihr Dokument), drücken das Siegel (fügen Ihre Identität hinzu) und lassen es aushärten (erstellen das endgültige versiegelte Dokument).",
+        "technical": "Der Prozess umfasst: 1) Clientseitige Dokument-Hash-Berechnung, 2) Soziale Authentifizierung, 3) Serverseitige Nachweis-Erstellung mit Zeitstempel und Signatur, 4) QR-Code-Generierung mit allen Verifikationsdaten, 5) Formatspezifische Einbettung des QR-Codes in das Dokument."
+      },
+      "qrCodeContents": {
+        "question": "Welche Informationen sind im QR-Code gespeichert?",
+        "analogy": "Wie ein Wachssiegel, das das einzigartige Zeichen, Datum und die offizielle Autorität des Besitzers enthält, enthält unser QR-Code Ihre Identität, den Fingerabdruck des Dokuments, Zeitstempel und unsere Verifikationssignatur.",
+        "technical": "Der QR-Code enthält: Dokument-Hash (SHA-256), perzeptueller Hash für Komprimierungsresilienz, verifizierte soziale Identitätsinformationen, Server-Zeitstempel, kryptographische Signatur von seal.codes und optional eine benutzerdefinierte URL (wie Instagram-Profil)."
+      },
+      "verificationProcess": {
+        "question": "Wie funktioniert die Verifikation?",
+        "analogy": "Wie die Untersuchung eines Wachssiegels zur Verifikation seiner Echtheit - Sie prüfen das Siegelmuster, die Abdruckqualität und vergleichen es mit bekannten authentischen Siegeln.",
+        "technical": "Die Verifikation umfasst: 1) Scannen/Lesen des QR-Codes, 2) Extrahieren der Nachweis-Daten, 3) Neuberechnung des Dokument-Hashs, 4) Vergleich mit gespeichertem Hash, 5) Verifikation der kryptographischen Signatur, 6) Prüfung von Zeitstempel und sozialen Identitätsinformationen."
+      },
+      "offlineVerification": {
+        "question": "Können Personen meine Dokumente ohne Internet verifizieren?",
+        "analogy": "Wie Sie die Echtheit eines Wachssiegels untersuchen können, ohne den Königshof anzurufen, kann die grundlegende Verifikation offline durchgeführt werden, indem der Inhalt und die Integrität des Siegels untersucht werden.",
+        "technical": "Grundlegende Verifikation (Hash-Vergleich, QR-Code-Integrität) kann offline durchgeführt werden. Vollständige Verifikation einschließlich kryptographischer Signaturvalidierung und sozialer Identitätsbestätigung erfordert jedoch Internetzugang zur Verifikation gegen unsere Server und soziale Anbieter."
+      },
+      "hashCalculation": {
+        "question": "Wie wird die Dokumentintegrität berechnet?",
+        "analogy": "Wie die Erstellung eines einzigartigen Fingerabdrucks Ihres Dokuments - jedes Dokument hat ein charakteristisches Muster, das sich ändert, wenn auch nur ein einziges Zeichen modifiziert wird.",
+        "technical": "Wir berechnen kryptographische Hashes (SHA-256) des Dokumentinhalts unter Verwendung formatspezifischer Normalisierung. Für Bilder generieren wir auch perzeptuelle Hashes, die unter Komprimierung stabil bleiben. Die Hash-Berechnung schließt den Siegelbereich selbst aus, um die Verifikation zu ermöglichen."
+      },
+      "dataPrivacy": {
+        "question": "Welche Daten speichern Sie über meine Dokumente?",
+        "analogy": "Wie ein Siegelmacher, der niemals die Briefe liest, die er versiegelt, sehen wir nur den einzigartigen Fingerabdruck Ihres Dokuments, nicht seinen Inhalt. Ihr tatsächliches Dokument verlässt niemals Ihr Gerät.",
+        "technical": "Wir speichern nur den Dokument-Hash, nicht das Dokument selbst. Die gesamte Dokumentverarbeitung erfolgt clientseitig in Ihrem Browser. Wir speichern: den Hash, Ihre sozialen Identitätsinformationen, Zeitstempel und unsere kryptographische Signatur. Ihr tatsächlicher Dokumentinhalt wird niemals an unsere Server übertragen oder dort gespeichert."
+      },
+      "socialAccountSecurity": {
+        "question": "Wie sicher ist die Verwendung sozialer Konten?",
+        "analogy": "Es ist so sicher wie das soziale Konto selbst - wie die Verwendung Ihres vertrauenswürdigen Familiensiegels anstatt ein neues, unbekanntes zu erstellen.",
+        "technical": "Die Sicherheit hängt von den Sicherheitsmaßnahmen des zugrunde liegenden sozialen Anbieters und Ihren Kontosicherheitspraktiken ab. Wir verwenden OAuth 2.0-Flows und greifen nur auf grundlegende Identitätsinformationen zu. Die Gültigkeit des Nachweises ist an Ihren fortgesetzten Zugang zu dem für die Authentifizierung verwendeten sozialen Konto gebunden."
+      },
+      "serverTrust": {
+        "question": "Muss ich Ihren Servern vertrauen?",
+        "analogy": "Sie müssen uns vertrauen wie einem Siegelmacher - authentische Siegel zu erstellen und unseren Ruf zu wahren, aber das Siegel selbst kann unabhängig verifiziert werden.",
+        "technical": "Sie müssen unseren Servern für die anfängliche Nachweis-Erstellung und Signatur-Generierung vertrauen. Einmal erstellt, enthält der QR-Code jedoch alle notwendigen Verifikationsdaten und kann unabhängig validiert werden. Unsere kryptographischen Signaturen können ohne fortlaufende Server-Abhängigkeit verifiziert werden."
+      },
+      "revocation": {
+        "question": "Kann ich ein Siegel nach der Erstellung widerrufen?",
+        "analogy": "Wie ein Wachssiegel, das permanent wird, sobald es angebracht ist, können unsere Siegel nicht widerrufen werden. Wenn Sie jedoch den Zugang zu Ihrem sozialen Konto verlieren, wird die Verbindung des Siegels zu Ihrer Identität geschwächt.",
+        "technical": "Einzelne Siegel können nicht widerrufen werden, da sie in sich geschlossen sind. Wenn Sie jedoch den Zugang zu dem für die Authentifizierung verwendeten sozialen Konto verlieren, wird der Identitätsverifikationsaspekt ungültig. Der Dokument-Hash und Zeitstempel bleiben verifizierbar, aber die Identitätsverknüpfung ist kompromittiert."
+      },
+      "limitations": {
+        "question": "Was sind die Grenzen dieses Ansatzes?",
+        "analogy": "Wie ein Wachssiegel Beweise liefert, aber nicht dasselbe wie ein Rechtsvertrag ist, bieten unsere Siegel Nachweis der Zugehörigkeit, haben aber Grenzen in dem, was sie garantieren können.",
+        "technical": "Grenzen umfassen: Abhängigkeit von der Sicherheit sozialer Konten, nicht rechtlich bindend wie formale digitale Signaturen, Vertrauensanforderung in seal.codes-Server, potenzieller Verlust des Zugangs zu sozialen Konten und Verifikation begrenzt auf die Stärke der Authentifizierung des sozialen Identitätsanbieters."
+      },
+      "browserCompatibility": {
+        "question": "Welche Browser werden unterstützt?",
+        "analogy": "Wie verschiedene Werkzeuge besser für verschiedene Arten von Siegelwachs funktionieren, arbeiten einige Browser besser als andere für unseren digitalen Versiegelungsprozess.",
+        "technical": "Wir unterstützen moderne Browser mit aktiviertem JavaScript: Chrome 90+, Firefox 88+, Safari 14+, Edge 90+. Die Anwendung erfordert WebAssembly-Unterstützung für QR-Code-Verarbeitung und moderne JavaScript-Features. Mobile Browser werden mit responsivem Design unterstützt."
+      },
+      "fileSizeLimits": {
+        "question": "Gibt es Dateigrößenbeschränkungen?",
+        "analogy": "Wie größere Dokumente mehr Wachs und Zeit zum ordnungsgemäßen Versiegeln benötigen, erfordern größere Dateien mehr Verarbeitungszeit und können praktische Grenzen haben.",
+        "technical": "Dateigrößenbeschränkungen hängen von Browser-Speicherbeschränkungen und Verarbeitungskapazitäten ab. Im Allgemeinen funktionieren Dateien bis zu 50MB gut. Größere Dateien können langsamere Verarbeitung oder Speicherprobleme erfahren. Die Verarbeitung erfolgt vollständig in Ihrem Browser, daher bestimmen die Fähigkeiten Ihres Geräts die praktischen Grenzen."
+      },
+      "qrNotScanning": {
+        "question": "Warum scannt mein QR-Code nicht?",
+        "analogy": "Wie ein beschädigtes oder schlecht gedrucktes Siegel schwer zu lesen sein könnte, müssen QR-Codes klar und richtig dimensioniert sein, um zuverlässig zu scannen.",
+        "technical": "Häufige Probleme umfassen: unzureichende Bildauflösung, schlechte Lichtverhältnisse, QR-Code zu klein oder groß für Scanner, Dokumentkomprimierung, die die QR-Code-Klarheit beeinträchtigt, oder Scanner-App-Beschränkungen. Versuchen Sie, Beleuchtung, Entfernung anzupassen oder eine andere QR-Scanner-App zu verwenden."
+      },
+      "verificationFailed": {
+        "question": "Warum ist die Verifikation fehlgeschlagen?",
+        "analogy": "Wie ein gebrochenes oder manipuliertes Wachssiegel die Inspektion nicht besteht, kann die Verifikation fehlschlagen, wenn das Dokument oder Siegel verändert wurde oder technische Probleme vorliegen.",
+        "technical": "Verifikation kann fehlschlagen aufgrund von: Dokumentmodifikation nach Versiegelung, QR-Code-Korruption oder -Manipulation, Netzwerkproblemen, die Signaturvalidierung verhindern, abgelaufenen oder ungültigen sozialen Konto-Token oder technischen Fehlern im Verifikationsprozess. Prüfen Sie die Dokumentintegrität und versuchen Sie es erneut."
+      },
+      "mobileIssues": {
+        "question": "Probleme bei der Verwendung auf mobilen Geräten?",
+        "analogy": "Wie das Versiegeln von Dokumenten auf verschiedenen Oberflächen unterschiedliche Techniken erfordern könnte, benötigen mobile Geräte manchmal besondere Berücksichtigung für optimale Leistung.",
+        "technical": "Häufige mobile Probleme umfassen: begrenzter Speicher für große Dateien, Touch-Interface-Herausforderungen, Kamera-Berechtigungen für QR-Scannen, langsamere Verarbeitungsgeschwindigkeiten und Netzwerkverbindungsprobleme. Stellen Sie ausreichenden Gerätespeicher und stabile Internetverbindung für beste Ergebnisse sicher."
+      }
+    }
   }
 }

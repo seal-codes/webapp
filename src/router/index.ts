@@ -6,6 +6,7 @@ import TheDocumentPage from '../views/TheDocumentPage.vue'
 import TheSealedDocumentPage from '../views/TheSealedDocumentPage.vue'
 import TheVerificationPage from '../views/TheVerificationPage.vue'
 import AuthCallbackPage from '../views/AuthCallbackPage.vue'
+import FaqPage from '../views/FaqPage.vue'
 import NotFoundPage from '../views/NotFoundPage.vue'
 
 const routes: RouteRecordRaw[] = [
@@ -23,6 +24,14 @@ const routes: RouteRecordRaw[] = [
     component: TheDocumentPage,
     meta: {
       title: 'Load Your Document - seal.codes',
+    },
+  },
+  {
+    path: '/faq',
+    name: 'faq',
+    component: FaqPage,
+    meta: {
+      title: 'FAQ - seal.codes',
     },
   },
   {

@@ -1,9 +1,9 @@
 {
   "mcpServers": {
-    "git": {
-      "command": "uvx",
+    "responsible-vibe-mcp": {
+      "command": "node",
       "args": [
-        "mcp-server-git"
+        "/Users/oliverjaegle/projects/privat/mcp-server/responsible-vibe/dist/index.js"
       ]
     },
     "playwright": {

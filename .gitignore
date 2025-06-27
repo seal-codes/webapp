@@ -30,6 +30,12 @@ playwright-report
 test-results
 playwright/.auth
 
-# public-private key pairs created by Makefile
-ed25519
-*.pem
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/
+
+# vide coding
+.vibe/*.sqlite

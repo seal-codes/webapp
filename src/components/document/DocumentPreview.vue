@@ -42,7 +42,10 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <div class="bg-gray-100 rounded-lg">
+  <div
+    class="bg-gray-100 rounded-lg"
+    data-testid="document-preview-container"
+  >
     <!-- Loading indicator -->
     <div
       v-if="isLoading"

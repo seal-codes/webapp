@@ -1,0 +1,261 @@
+categories:
+  - id: "getting-started"
+    title: "faq.categories.gettingStarted.title"
+    description: "faq.categories.gettingStarted.description"
+    icon: "HelpCircle"
+    order: 1
+    
+  - id: "business-value"
+    title: "faq.categories.businessValue.title"
+    description: "faq.categories.businessValue.description"
+    icon: "Shield"
+    order: 2
+    
+  - id: "how-it-works"
+    title: "faq.categories.howItWorks.title"
+    description: "faq.categories.howItWorks.description"
+    icon: "Cog"
+    order: 3
+    
+  - id: "security-privacy"
+    title: "faq.categories.securityPrivacy.title"
+    description: "faq.categories.securityPrivacy.description"
+    icon: "Lock"
+    order: 4
+    
+  - id: "troubleshooting"
+    title: "faq.categories.troubleshooting.title"
+    description: "faq.categories.troubleshooting.description"
+    icon: "AlertCircle"
+    order: 5
+
+faqs:
+  # Getting Started
+  - id: "what-is-seal-codes"
+    category: "getting-started"
+    question: "faq.entries.whatIsSealCodes.question"
+    analogy: "faq.entries.whatIsSealCodes.analogy"
+    technical: "faq.entries.whatIsSealCodes.technical"
+    tags: ["basics", "introduction", "overview"]
+    related_ui_steps: ["home-page"]
+    order: 1
+    
+  - id: "how-to-get-started"
+    category: "getting-started"
+    question: "faq.entries.howToGetStarted.question"
+    analogy: "faq.entries.howToGetStarted.analogy"
+    technical: "faq.entries.howToGetStarted.technical"
+    tags: ["basics", "tutorial", "first-steps"]
+    related_ui_steps: ["document-upload"]
+    order: 2
+    
+  - id: "supported-formats"
+    category: "getting-started"
+    question: "faq.entries.supportedFormats.question"
+    analogy: "faq.entries.supportedFormats.analogy"
+    technical: "faq.entries.supportedFormats.technical"
+    tags: ["formats", "compatibility", "documents"]
+    related_ui_steps: ["document-upload", "file-selection"]
+    order: 3
+    
+  - id: "account-requirements"
+    category: "getting-started"
+    question: "faq.entries.accountRequirements.question"
+    analogy: "faq.entries.accountRequirements.analogy"
+    technical: "faq.entries.accountRequirements.technical"
+    tags: ["account", "social-login", "requirements"]
+    related_ui_steps: ["social-auth"]
+    order: 4
+
+  # Business Value
+  - id: "seal-tampering-protection"
+    category: "business-value"
+    question: "faq.entries.sealTamperingProtection.question"
+    analogy: "faq.entries.sealTamperingProtection.analogy"
+    technical: "faq.entries.sealTamperingProtection.technical"
+    tags: ["protection", "tampering", "security", "detection"]
+    related_ui_steps: ["qr-placement", "document-sealing"]
+    order: 1
+    
+  - id: "ownership-disputes"
+    category: "business-value"
+    question: "faq.entries.ownershipDisputes.question"
+    analogy: "faq.entries.ownershipDisputes.analogy"
+    technical: "faq.entries.ownershipDisputes.technical"
+    tags: ["ownership", "disputes", "timestamp", "identity"]
+    related_ui_steps: ["social-auth", "attestation-creation"]
+    order: 2
+    
+  - id: "document-integrity"
+    category: "business-value"
+    question: "faq.entries.documentIntegrity.question"
+    analogy: "faq.entries.documentIntegrity.analogy"
+    technical: "faq.entries.documentIntegrity.technical"
+    tags: ["integrity", "verification", "proof", "changes"]
+    related_ui_steps: ["verification-page"]
+    order: 3
+    
+  - id: "compression-resilience"
+    category: "business-value"
+    question: "faq.entries.compressionResilience.question"
+    analogy: "faq.entries.compressionResilience.analogy"
+    technical: "faq.entries.compressionResilience.technical"
+    tags: ["compression", "sharing", "resilience", "quality"]
+    related_ui_steps: ["document-sharing"]
+    order: 4
+    
+  - id: "legal-standing"
+    category: "business-value"
+    question: "faq.entries.legalStanding.question"
+    analogy: "faq.entries.legalStanding.analogy"
+    technical: "faq.entries.legalStanding.technical"
+    tags: ["legal", "contracts", "limitations", "evidence"]
+    related_ui_steps: ["document-sealing"]
+    order: 5
+    
+  - id: "social-vs-certificates"
+    category: "business-value"
+    question: "faq.entries.socialVsCertificates.question"
+    analogy: "faq.entries.socialVsCertificates.analogy"
+    technical: "faq.entries.socialVsCertificates.technical"
+    tags: ["social-auth", "certificates", "accessibility", "comparison"]
+    related_ui_steps: ["social-auth"]
+    order: 6
+
+  # How It Works
+  - id: "sealing-process"
+    category: "how-it-works"
+    question: "faq.entries.sealingProcess.question"
+    analogy: "faq.entries.sealingProcess.analogy"
+    technical: "faq.entries.sealingProcess.technical"
+    tags: ["process", "workflow", "steps"]
+    related_ui_steps: ["document-sealing", "qr-generation"]
+    order: 1
+    
+  - id: "qr-code-contents"
+    category: "how-it-works"
+    question: "faq.entries.qrCodeContents.question"
+    analogy: "faq.entries.qrCodeContents.analogy"
+    technical: "faq.entries.qrCodeContents.technical"
+    tags: ["qr-code", "data", "contents", "information"]
+    related_ui_steps: ["qr-generation"]
+    order: 2
+    
+  - id: "verification-process"
+    category: "how-it-works"
+    question: "faq.entries.verificationProcess.question"
+    analogy: "faq.entries.verificationProcess.analogy"
+    technical: "faq.entries.verificationProcess.technical"
+    tags: ["verification", "process", "checking"]
+    related_ui_steps: ["verification-page"]
+    order: 3
+    
+  - id: "offline-verification"
+    category: "how-it-works"
+    question: "faq.entries.offlineVerification.question"
+    analogy: "faq.entries.offlineVerification.analogy"
+    technical: "faq.entries.offlineVerification.technical"
+    tags: ["offline", "verification", "internet", "independence"]
+    related_ui_steps: ["verification-page"]
+    order: 4
+    
+  - id: "hash-calculation"
+    category: "how-it-works"
+    question: "faq.entries.hashCalculation.question"
+    analogy: "faq.entries.hashCalculation.analogy"
+    technical: "faq.entries.hashCalculation.technical"
+    tags: ["hash", "calculation", "integrity", "fingerprint"]
+    related_ui_steps: ["document-processing"]
+    order: 5
+
+  # Security & Privacy
+  - id: "data-privacy"
+    category: "security-privacy"
+    question: "faq.entries.dataPrivacy.question"
+    analogy: "faq.entries.dataPrivacy.analogy"
+    technical: "faq.entries.dataPrivacy.technical"
+    tags: ["privacy", "data", "storage", "client-side"]
+    related_ui_steps: ["document-upload"]
+    order: 1
+    
+  - id: "social-account-security"
+    category: "security-privacy"
+    question: "faq.entries.socialAccountSecurity.question"
+    analogy: "faq.entries.socialAccountSecurity.analogy"
+    technical: "faq.entries.socialAccountSecurity.technical"
+    tags: ["security", "social-accounts", "authentication"]
+    related_ui_steps: ["social-auth"]
+    order: 2
+    
+  - id: "server-trust"
+    category: "security-privacy"
+    question: "faq.entries.serverTrust.question"
+    analogy: "faq.entries.serverTrust.analogy"
+    technical: "faq.entries.serverTrust.technical"
+    tags: ["trust", "servers", "verification", "independence"]
+    related_ui_steps: ["attestation-creation"]
+    order: 3
+    
+  - id: "revocation"
+    category: "security-privacy"
+    question: "faq.entries.revocation.question"
+    analogy: "faq.entries.revocation.analogy"
+    technical: "faq.entries.revocation.technical"
+    tags: ["revocation", "cancellation", "social-accounts"]
+    related_ui_steps: ["social-auth"]
+    order: 4
+    
+  - id: "limitations"
+    category: "security-privacy"
+    question: "faq.entries.limitations.question"
+    analogy: "faq.entries.limitations.analogy"
+    technical: "faq.entries.limitations.technical"
+    tags: ["limitations", "boundaries", "expectations"]
+    related_ui_steps: ["document-sealing"]
+    order: 5
+
+  # Troubleshooting
+  - id: "browser-compatibility"
+    category: "troubleshooting"
+    question: "faq.entries.browserCompatibility.question"
+    analogy: "faq.entries.browserCompatibility.analogy"
+    technical: "faq.entries.browserCompatibility.technical"
+    tags: ["browsers", "compatibility", "support"]
+    related_ui_steps: ["app-loading"]
+    order: 1
+    
+  - id: "file-size-limits"
+    category: "troubleshooting"
+    question: "faq.entries.fileSizeLimits.question"
+    analogy: "faq.entries.fileSizeLimits.analogy"
+    technical: "faq.entries.fileSizeLimits.technical"
+    tags: ["file-size", "limits", "performance"]
+    related_ui_steps: ["document-upload"]
+    order: 2
+    
+  - id: "qr-not-scanning"
+    category: "troubleshooting"
+    question: "faq.entries.qrNotScanning.question"
+    analogy: "faq.entries.qrNotScanning.analogy"
+    technical: "faq.entries.qrNotScanning.technical"
+    tags: ["qr-code", "scanning", "issues", "mobile"]
+    related_ui_steps: ["verification-page"]
+    order: 3
+    
+  - id: "verification-failed"
+    category: "troubleshooting"
+    question: "faq.entries.verificationFailed.question"
+    analogy: "faq.entries.verificationFailed.analogy"
+    technical: "faq.entries.verificationFailed.technical"
+    tags: ["verification", "failed", "errors", "troubleshooting"]
+    related_ui_steps: ["verification-page"]
+    order: 4
+    
+  - id: "mobile-issues"
+    category: "troubleshooting"
+    question: "faq.entries.mobileIssues.question"
+    analogy: "faq.entries.mobileIssues.analogy"
+    technical: "faq.entries.mobileIssues.technical"
+    tags: ["mobile", "responsive", "touch", "issues"]
+    related_ui_steps: ["mobile-usage"]
+    order: 5

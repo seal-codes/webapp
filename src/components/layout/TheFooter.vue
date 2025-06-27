@@ -69,12 +69,12 @@ const { t } = useI18n()
               </a>
             </li>
             <li>
-              <a
-                href="#"
+              <router-link
+                to="/faq"
                 class="text-sm text-gray-600 hover:text-primary-600 transition-colors duration-200"
               >
                 FAQ
-              </a>
+              </router-link>
             </li>
             <li>
               <a

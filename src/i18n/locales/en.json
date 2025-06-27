@@ -407,5 +407,162 @@
     "title": "Page Not Found",
     "subtitle": "The page you're looking for doesn't exist.",
     "backHome": "Back to Home"
+  },
+  "faq": {
+    "title": "Frequently Asked Questions",
+    "subtitle": "Find answers to common questions about seal.codes",
+    "searchPlaceholder": "Search FAQ...",
+    "filterByCategory": "Filter by category",
+    "allCategories": "All Categories",
+    "noResults": "No FAQ entries found matching your criteria.",
+    "categories": {
+      "gettingStarted": {
+        "title": "Getting Started",
+        "description": "Basic introduction to seal.codes"
+      },
+      "businessValue": {
+        "title": "What does seal.codes do for me?",
+        "description": "Understanding protection and business benefits"
+      },
+      "howItWorks": {
+        "title": "How It Works",
+        "description": "Technical details made accessible"
+      },
+      "securityPrivacy": {
+        "title": "Security & Privacy",
+        "description": "Trust model, limitations, data handling"
+      },
+      "troubleshooting": {
+        "title": "Troubleshooting",
+        "description": "Common issues and solutions"
+      }
+    },
+    "entries": {
+      "whatIsSealCodes": {
+        "question": "What is seal.codes?",
+        "analogy": "Think of seal.codes like a digital version of the wax seals that kings and nobles used to authenticate their documents. Just as a royal seal instantly showed who created a document and protected it from tampering, our QR code seals do the same for your digital files.",
+        "technical": "seal.codes is a web application that creates verifiable attestations of document ownership using social authentication. It generates QR codes containing cryptographic hashes, social identity information, timestamps, and digital signatures that can be embedded directly into your documents."
+      },
+      "howToGetStarted": {
+        "question": "How do I seal my first document?",
+        "analogy": "It's as simple as applying a wax seal to a letter: upload your document, choose where to place the seal, authenticate with a social account you already have, and we'll create your digital seal.",
+        "technical": "Navigate to the 'Seal Document' page, upload your file (PDF, image, etc.), select the QR code placement, authenticate with a social provider (Google, GitHub, etc.), and the system will generate and embed a QR code attestation into your document."
+      },
+      "supportedFormats": {
+        "question": "What document formats are supported?",
+        "analogy": "Just like you can apply a wax seal to different types of paper and parchment, we support various digital document formats.",
+        "technical": "We support PDF documents (with layer-based embedding), common image formats (PNG, JPEG, WebP, GIF, BMP, TIFF) with exclusion zone embedding, and can convert other formats to PDF for sealing. Each format uses optimized embedding techniques to ensure both integrity and verifiability."
+      },
+      "accountRequirements": {
+        "question": "Do I need to create an account?",
+        "analogy": "No new accounts needed! Just like using your existing royal seal instead of creating a new one, you use social accounts you already have and trust.",
+        "technical": "No account creation required. You authenticate using existing social identity providers like Google, GitHub, Microsoft, or others. This leverages accounts you already maintain and trust, eliminating the need for additional password management."
+      },
+      "sealTamperingProtection": {
+        "question": "What if somebody cuts or removes the seal I added?",
+        "analogy": "Just like breaking a physical wax seal leaves obvious evidence of tampering, removing or altering our QR code seal is immediately visible and detectable. The document will clearly show it has been modified.",
+        "technical": "The QR code is embedded using format-specific techniques that make removal visible. For PDFs, it exists on a separate layer with recorded coordinates. For images, it's placed in a defined exclusion zone with stored metadata. Any tampering with the seal area or attempts to remove it will be evident upon inspection."
+      },
+      "ownershipDisputes": {
+        "question": "What if somebody seals my document and claims it's theirs?",
+        "analogy": "Like a royal seal that bears the unique mark and authority of its owner, your seal contains your verified social identity and a precise timestamp from our servers, creating an unalterable record of who sealed what and when.",
+        "technical": "The attestation includes your authenticated social identity, a cryptographic signature from our servers, and a precise timestamp. This creates a verifiable chain of evidence linking the document to your identity at a specific moment in time. The timestamp is server-generated and cannot be forged."
+      },
+      "documentIntegrity": {
+        "question": "How do I prove my document hasn't been changed?",
+        "analogy": "Like how a broken wax seal immediately reveals that a letter has been opened, our system can detect if your document has been altered since sealing.",
+        "technical": "We use both cryptographic hashes (SHA-256) for exact verification and perceptual hashes for compression resilience. The verification process compares the current document hash with the one stored in the QR code. Any changes to the document content will result in a different hash, indicating modification."
+      },
+      "compressionResilience": {
+        "question": "What if my document gets compressed when shared?",
+        "analogy": "Like a flexible seal that can adapt to slight changes in the paper without breaking, our system can handle minor compression and quality changes that often happen when sharing files online.",
+        "technical": "We use a multi-layered hash approach combining cryptographic hashes for exact matches and perceptual hashes for compression resilience. This allows verification to succeed even if the document has been compressed or undergone minor quality changes during sharing or storage."
+      },
+      "legalStanding": {
+        "question": "Can I use this for legal documents?",
+        "analogy": "Think of this like having a witness to your document rather than a notary. It provides evidence of association and timing, but isn't the same as a legally binding signature.",
+        "technical": "seal.codes provides evidence of document association with a social identity at a specific time, but it's not a legally binding digital signature. It's designed for establishing ownership, priority, and integrity rather than replacing formal legal signature requirements. Always consult legal counsel for documents requiring legal signatures."
+      },
+      "socialVsCertificates": {
+        "question": "Why use social accounts instead of certificates?",
+        "analogy": "It's like the difference between being vouched for by someone everyone knows versus carrying official papers. Social accounts are accessible, familiar, and trusted by the people you interact with daily.",
+        "technical": "Social authentication eliminates barriers like technical complexity, infrastructure burden, cost, and accessibility issues associated with traditional digital certificates. Most people already maintain and secure social accounts, making this approach more accessible while still providing meaningful identity verification."
+      },
+      "sealingProcess": {
+        "question": "How does the sealing process work?",
+        "analogy": "Like applying a wax seal: we heat the wax (process your document), press the seal (add your identity), and let it set (create the final sealed document).",
+        "technical": "The process involves: 1) Client-side document hash calculation, 2) Social authentication, 3) Server-side attestation creation with timestamp and signature, 4) QR code generation containing all verification data, 5) Format-specific embedding of the QR code into the document."
+      },
+      "qrCodeContents": {
+        "question": "What information is stored in the QR code?",
+        "analogy": "Like a wax seal that contains the owner's unique mark, date, and official authority, our QR code contains your identity, the document's fingerprint, timestamp, and our verification signature.",
+        "technical": "The QR code contains: document hash (SHA-256), perceptual hash for compression resilience, verified social identity information, server timestamp, cryptographic signature from seal.codes, and optionally a user-provided URL (like Instagram profile)."
+      },
+      "verificationProcess": {
+        "question": "How does verification work?",
+        "analogy": "Like examining a wax seal to verify its authenticity - you check the seal's pattern, the impression quality, and compare it against known authentic seals.",
+        "technical": "Verification involves: 1) Scanning/reading the QR code, 2) Extracting attestation data, 3) Recalculating document hash, 4) Comparing with stored hash, 5) Verifying cryptographic signature, 6) Checking timestamp and social identity information."
+      },
+      "offlineVerification": {
+        "question": "Can people verify my documents without internet?",
+        "analogy": "Like how you can examine a wax seal's authenticity without calling the king's court, basic verification can be done offline by examining the seal's contents and integrity.",
+        "technical": "Basic verification (hash comparison, QR code integrity) can be performed offline. However, full verification including cryptographic signature validation and social identity confirmation requires internet access to verify against our servers and social providers."
+      },
+      "hashCalculation": {
+        "question": "How is document integrity calculated?",
+        "analogy": "Like creating a unique fingerprint of your document - every document has a distinct pattern that changes if even a single character is modified.",
+        "technical": "We calculate cryptographic hashes (SHA-256) of the document content using format-specific normalization. For images, we also generate perceptual hashes that remain stable under compression. The hash calculation excludes the seal area itself to enable verification."
+      },
+      "dataPrivacy": {
+        "question": "What data do you store about my documents?",
+        "analogy": "Like a seal maker who never reads the letters they seal, we only see your document's unique fingerprint, not its contents. Your actual document never leaves your device.",
+        "technical": "We only store the document hash, not the document itself. All document processing happens client-side in your browser. We store: the hash, your social identity information, timestamp, and our cryptographic signature. Your actual document content is never transmitted to or stored on our servers."
+      },
+      "socialAccountSecurity": {
+        "question": "How secure is using social accounts?",
+        "analogy": "It's as secure as the social account itself - like using your trusted family seal rather than creating a new, unknown one.",
+        "technical": "Security depends on the underlying social provider's security measures and your account security practices. We use OAuth 2.0 flows and only access basic identity information. The attestation's validity is tied to your continued access to the social account used for authentication."
+      },
+      "serverTrust": {
+        "question": "Do I need to trust your servers?",
+        "analogy": "You need to trust us like you'd trust a seal maker - to create authentic seals and maintain our reputation, but the seal itself can be verified independently.",
+        "technical": "You need to trust our servers for initial attestation creation and signature generation. However, once created, the QR code contains all necessary verification data and can be validated independently. Our cryptographic signatures can be verified without ongoing server dependency."
+      },
+      "revocation": {
+        "question": "Can I revoke a seal after creating it?",
+        "analogy": "Like a wax seal that becomes permanent once applied, our seals cannot be revoked. However, if you lose access to your social account, the seal's connection to your identity is weakened.",
+        "technical": "Individual seals cannot be revoked as they are self-contained. However, if you lose access to the social account used for authentication, the identity verification aspect becomes invalid. The document hash and timestamp remain verifiable, but the identity link is compromised."
+      },
+      "limitations": {
+        "question": "What are the limitations of this approach?",
+        "analogy": "Like how a wax seal provides evidence but isn't the same as a legal contract, our seals provide proof of association but have boundaries in what they can guarantee.",
+        "technical": "Limitations include: dependence on social account security, not legally binding like formal digital signatures, trust requirement in seal.codes servers, potential social account access loss, and verification limited to the strength of the social identity provider's authentication."
+      },
+      "browserCompatibility": {
+        "question": "Which browsers are supported?",
+        "analogy": "Like how different tools work better for different types of sealing wax, some browsers work better than others for our digital sealing process.",
+        "technical": "We support modern browsers with JavaScript enabled: Chrome 90+, Firefox 88+, Safari 14+, Edge 90+. The application requires WebAssembly support for QR code processing and modern JavaScript features. Mobile browsers are supported with responsive design."
+      },
+      "fileSizeLimits": {
+        "question": "Are there file size limits?",
+        "analogy": "Like how larger documents take more wax and time to seal properly, larger files require more processing time and may have practical limits.",
+        "technical": "File size limits depend on browser memory constraints and processing capabilities. Generally, files up to 50MB work well. Larger files may experience slower processing or memory issues. Processing happens entirely in your browser, so your device's capabilities determine practical limits."
+      },
+      "qrNotScanning": {
+        "question": "Why won't my QR code scan?",
+        "analogy": "Like how a damaged or poorly printed seal might be hard to read, QR codes need to be clear and properly sized to scan reliably.",
+        "technical": "Common issues include: insufficient image resolution, poor lighting conditions, QR code too small or large for scanner, document compression affecting QR code clarity, or scanner app limitations. Try adjusting lighting, distance, or using a different QR scanner app."
+      },
+      "verificationFailed": {
+        "question": "Why did verification fail?",
+        "analogy": "Like how a broken or tampered wax seal fails inspection, verification can fail if the document or seal has been altered, or if there are technical issues.",
+        "technical": "Verification can fail due to: document modification after sealing, QR code corruption or tampering, network issues preventing signature validation, expired or invalid social account tokens, or technical errors in the verification process. Check document integrity and try again."
+      },
+      "mobileIssues": {
+        "question": "Issues using on mobile devices?",
+        "analogy": "Like how sealing documents might require different techniques on different surfaces, mobile devices sometimes need special consideration for optimal performance.",
+        "technical": "Common mobile issues include: limited memory for large files, touch interface challenges, camera permissions for QR scanning, slower processing speeds, and network connectivity issues. Ensure adequate device memory and stable internet connection for best results."
+      }
+    }
   }
 }

@@ -23,9 +23,11 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.39.0",
+    "@types/js-yaml": "4.0.9",
     "@vueuse/core": "^12.0.0",
     "cbor-x": "^1.5.9",
     "defu": "^6.1.0",
+    "js-yaml": "4.1.0",
     "jsqr": "1.4.0",
     "lucide-vue-next": "^0.513.0",
 
