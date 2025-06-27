@@ -3,7 +3,7 @@
  * Uses browser automation to complete OAuth flow with GitHub PAT
  */
 
-import { test as setup, expect } from '@playwright/test'
+import { test as setup } from '@playwright/test'
 import fs from 'fs'
 import path from 'path'
 import dotenv from 'dotenv'
@@ -137,7 +137,7 @@ setup('authenticate with GitHub OAuth using PAT', async ({ page, context }) => {
             tokenStart: authData.access_token?.substring(0, 30) + '...',
             isJWT: authData.access_token?.includes('.'), // JWTs contain dots
           }
-        } catch (e) {
+        } catch {
           return { error: 'Failed to parse auth data' }
         }
       }
@@ -162,7 +162,7 @@ setup('authenticate with GitHub OAuth using PAT', async ({ page, context }) => {
       const authIndicator = page.getByText(/authenticated as/i)
       await authIndicator.waitFor({ state: 'visible', timeout: 10000 })
       console.log('✅ UI shows authenticated state')
-    } catch (e) {
+    } catch {
       console.log('⚠️  UI authentication indicator not found, but session exists')
     }
     

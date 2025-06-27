@@ -4,7 +4,6 @@
  */
 import { Page, Locator } from '@playwright/test'
 import { BasePage } from './base-page'
-import path from 'path'
 
 export class DocumentPage extends BasePage {
   // Locators
@@ -121,7 +120,7 @@ export class DocumentPage extends BasePage {
     try {
       await this.documentImage.waitFor({ state: 'visible', timeout: 5000 })
       return true
-    } catch (error) {
+    } catch {
       return false
     }
   }

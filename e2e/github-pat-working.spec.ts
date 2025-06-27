@@ -147,7 +147,7 @@ test.describe('GitHub PAT Working Access Tests', () => {
           let parsedContent = null
           try {
             parsedContent = JSON.parse(content)
-          } catch (e) {
+          } catch {
             // Not JSON, that's fine
           }
           

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Supabase client configuration for seal.codes
  * Provides configured Supabase client instance for authentication and API calls

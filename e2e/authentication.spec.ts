@@ -94,7 +94,7 @@ test.describe('Authentication', () => {
         // Try to find the seal button first (document already loaded)
         await expect(documentPage.sealDocumentButton).toBeVisible({ timeout: 5000 })
         console.log('Session persisted - seal button visible')
-      } catch (error) {
+      } catch {
         // If no seal button, upload a document and then check
         console.log('No document loaded, uploading new document to verify session')
         await documentPage.uploadDocument(testImagePath)

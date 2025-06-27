@@ -3,7 +3,7 @@
  * This test helps identify the root cause of PAT access issues
  */
 
-import { test, expect } from '@playwright/test'
+import { test } from '@playwright/test'
 import dotenv from 'dotenv'
 
 // Load test environment variables

@@ -69,7 +69,7 @@ export class VerificationPage extends BasePage {
         this.verificationStatus.waitFor({ state: 'visible', timeout: 10000 }),
         this.errorMessage.waitFor({ state: 'visible', timeout: 10000 }),
       ])
-    } catch (error) {
+    } catch {
       console.log('Verification result elements not found within timeout')
     }
   }
@@ -100,7 +100,7 @@ export class VerificationPage extends BasePage {
     try {
       await this.verificationStatus.waitFor({ state: 'visible', timeout: 5000 })
       return await this.verificationStatus.textContent() || ''
-    } catch (error) {
+    } catch {
       return ''
     }
   }
@@ -137,7 +137,7 @@ export class VerificationPage extends BasePage {
     try {
       await this.errorMessage.waitFor({ state: 'visible', timeout: 5000 })
       return await this.errorMessage.textContent()
-    } catch (error) {
+    } catch {
       return null
     }
   }

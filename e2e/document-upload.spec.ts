@@ -11,7 +11,7 @@ test.describe('Document Upload', () => {
     await documentPage.goto()
   })
 
-  test('should upload image via button click', async ({ documentPage, page }) => {
+  test('should upload image via button click', async ({ documentPage }) => {
     // When I click on the file selection button
     // And I select a valid image file (JPEG, PNG, or WebP)
     await documentPage.uploadDocument(TEST_FIXTURES.VALID_IMAGE_PATH)

@@ -3,7 +3,7 @@
  * 
  * Tests for document verification functionality based on BDD scenarios
  */
-import { test, expect } from './fixtures/test-fixtures'
+import { test } from './fixtures/test-fixtures'
 
 test.describe('Document Verification', () => {
   test.beforeEach(async ({ verificationPage }) => {
@@ -13,7 +13,7 @@ test.describe('Document Verification', () => {
     await verificationPage.page.waitForLoadState('networkidle')
   })
 
-  test('should verify document via QR code scan', async ({ verificationPage, page }) => {
+  test('should verify document via QR code scan', async ({ verificationPage }) => {
     // In the current UI, we need to upload a document for verification
     // For this test, we'll simulate a QR code scan result directly
     
@@ -40,7 +40,7 @@ test.describe('Document Verification', () => {
     // The test passes if no exceptions are thrown
   })
 
-  test('should verify document via URL', async ({ verificationPage, page }) => {
+  test('should verify document via URL', async ({ verificationPage }) => {
     // In the current UI, verification via URL might work differently
     // We'll simulate this by navigating to a verification URL
     
