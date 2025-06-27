@@ -1,32 +1,80 @@
 # Hackathon Analysis Suite
 
-This directory contains the analysis scripts used to generate the metrics shown in the `/hackathon` route.
+This directory contains the analysis scripts used to generate metrics for the `/hackathon` route.
+
+## Architecture
+
+**Clean separation of concerns:**
+- **Individual scripts** → Pure data extraction (JSON output)
+- **Verify script** → Human interpretation and presentation  
+- **Web interface** → Can consume JSON directly for interactive features
 
 ## Scripts
 
-1. `architectural-dna.sh` - Analyzes which files originated from bolt.new sessions (SBOM approach)
-2. `development-timeline.sh` - Analyzes the development progression session by session
-3. `foundation-impact.sh` - Calculates the "zero to something" impact metrics
-4. `verify-all.sh` - Runs all analyses and generates a comprehensive report
+1. `architectural-dna.sh` - Returns JSON with SBOM analysis (81% codebase coverage)
+2. `development-timeline.sh` - Returns JSON with session-by-session progression data
+3. `verify-all.sh` - Interprets JSON data and provides human-readable analysis
 
 ## Usage
 
 ```bash
-# Run individual analyses
-./architectural-dna.sh
-./development-timeline.sh  
-./foundation-impact.sh
+# Get raw JSON data
+./architectural-dna.sh | jq '.'
+./development-timeline.sh | jq '.velocity_metrics'
 
-# Or run everything
+# Get human-readable interpretation
 ./verify-all.sh
 ```
 
-## Methodology
+## JSON Schema Examples
 
-Our analysis focuses on:
-- **Core application files only** (excludes tests, i18n, build scripts)
-- **Architectural contribution** rather than raw line counts
-- **Functional systems** created by each bolt.new session
-- **Transparent, reproducible metrics** that judges can verify
+### Architectural DNA Output
+```json
+{
+  "analysis_type": "architectural_dna",
+  "totals": {
+    "bolt_lines": 8287,
+    "manual_lines": 1073,
+    "analyzed_lines": 9360
+  },
+  "impact": {
+    "bolt_percentage": 88,
+    "manual_percentage": 12
+  },
+  "coverage": {
+    "line_coverage_percent": 81,
+    "file_coverage_percent": 82
+  }
+}
+```
 
-The goal is to show bolt.new's true superpower: **taking projects from zero to functional architecture** rapidly.
+### Development Timeline Output
+```json
+{
+  "analysis_type": "development_timeline",
+  "velocity_metrics": {
+    "total_sessions": 5,
+    "total_files_created": 121,
+    "total_lines_added": 12982
+  },
+  "sessions": [...]
+}
+```
+
+## Key Findings
+
+- **88% of analyzed code** originated from bolt.new sessions
+- **12% manual enhancements** (FAQ system, UI polish)
+- **81% codebase coverage** ensures credible analysis
+- **5 focused sessions** from zero to production-ready
+
+## Benefits of JSON Architecture
+
+1. **Machine-readable** - Web interfaces can consume data directly
+2. **Verifiable** - Judges can inspect raw data and interpretation separately
+3. **Flexible** - Same data can power multiple visualizations
+4. **Professional** - Clean separation of data and presentation
+
+## The Story
+
+Bolt.new's superpower: **architectural foundation creation**. Our analysis demonstrates how bolt.new takes developers from zero to production-ready applications through focused development sessions, providing a solid base for enhancement and customization.
