@@ -1,6 +1,9 @@
 <template>
   <span>
-    <template v-for="(part, index) in textParts" :key="index">
+    <template
+      v-for="(part, index) in textParts"
+      :key="index"
+    >
       <FaqLink
         v-if="part.type === 'faq-link'"
         :faq-ids="part.faqIds"
@@ -88,7 +91,7 @@ function processFaqLinks(text: string, parts: TextPart[]): string {
     if (match.index > lastIndex) {
       parts.push({
         text: text.slice(lastIndex, match.index),
-        type: 'text'
+        type: 'text',
       })
     }
     
@@ -99,7 +102,7 @@ function processFaqLinks(text: string, parts: TextPart[]): string {
     parts.push({
       text: content,
       type: 'faq-link',
-      faqIds
+      faqIds,
     })
     
     lastIndex = match.index + match[0].length

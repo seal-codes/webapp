@@ -38,91 +38,91 @@
           @mouseenter="handlePopoverMouseEnter"
           @mouseleave="handlePopoverMouseLeave"
         >
-        <!-- Arrow -->
-        <div
-          class="absolute w-3 h-3 bg-white border-l border-t border-gray-200 transform rotate-45"
-          :style="arrowStyle"
-        />
-
-        <!-- Content -->
-        <div class="relative bg-white rounded-lg p-4 max-h-96 overflow-y-auto">
-          <!-- Header -->
-          <div class="flex items-center justify-between mb-3">
-            <h3 class="text-sm font-semibold text-gray-900">
-              {{ $t('faq.helpTitle', 'Help') }}
-            </h3>
-            <button
-              class="text-gray-400 hover:text-gray-600 transition-colors"
-              :aria-label="$t('common.close')"
-              @click="hidePopover"
-            >
-              <X class="w-4 h-4" />
-            </button>
-          </div>
-
-          <!-- Loading State -->
+          <!-- Arrow -->
           <div
-            v-if="isLoading"
-            class="text-center py-4"
-          >
-            <div class="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-primary-500" />
-            <p class="mt-2 text-xs text-gray-600">
-              {{ $t('common.loading') }}
-            </p>
-          </div>
+            class="absolute w-3 h-3 bg-white border-l border-t border-gray-200 transform rotate-45"
+            :style="arrowStyle"
+          />
 
-          <!-- Error State -->
-          <div
-            v-else-if="error"
-            class="text-center py-4"
-          >
-            <p class="text-xs text-red-600">
-              {{ error }}
-            </p>
-          </div>
-
-          <!-- FAQ Entries -->
-          <div
-            v-else-if="faqEntries.length > 0"
-            class="space-y-4"
-          >
-            <div
-              v-for="faq in faqEntries"
-              :key="faq.id"
-              class="border-b border-gray-100 last:border-b-0 pb-4 last:pb-0"
-            >
-              <h4 class="text-sm font-medium text-gray-900 mb-2">
-                {{ $t(faq.question) }}
-              </h4>
-              
-              <!-- Analogy (simplified for popover) -->
-              <div class="bg-amber-50 border border-amber-200 rounded p-2 mb-2">
-                <p class="text-xs text-amber-800 leading-relaxed">
-                  {{ $t(faq.analogy) }}
-                </p>
-              </div>
-
-              <!-- Link to full FAQ -->
-              <router-link
-                :to="`/faq#${faq.id}`"
-                class="inline-flex items-center text-xs text-primary-600 hover:text-primary-800 transition-colors"
+          <!-- Content -->
+          <div class="relative bg-white rounded-lg p-4 max-h-96 overflow-y-auto">
+            <!-- Header -->
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="text-sm font-semibold text-gray-900">
+                {{ $t('faq.helpTitle', 'Help') }}
+              </h3>
+              <button
+                class="text-gray-400 hover:text-gray-600 transition-colors"
+                :aria-label="$t('common.close')"
                 @click="hidePopover"
               >
-                {{ $t('faq.readMore', 'Read more') }}
-                <ExternalLink class="w-3 h-3 ml-1" />
-              </router-link>
+                <X class="w-4 h-4" />
+              </button>
             </div>
-          </div>
 
-          <!-- No entries found -->
-          <div
-            v-else
-            class="text-center py-4"
-          >
-            <p class="text-xs text-gray-600">
-              {{ $t('faq.noHelpAvailable', 'No help available for this topic.') }}
-            </p>
-          </div>
+            <!-- Loading State -->
+            <div
+              v-if="isLoading"
+              class="text-center py-4"
+            >
+              <div class="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-primary-500" />
+              <p class="mt-2 text-xs text-gray-600">
+                {{ $t('common.loading') }}
+              </p>
+            </div>
+
+            <!-- Error State -->
+            <div
+              v-else-if="error"
+              class="text-center py-4"
+            >
+              <p class="text-xs text-red-600">
+                {{ error }}
+              </p>
+            </div>
+
+            <!-- FAQ Entries -->
+            <div
+              v-else-if="faqEntries.length > 0"
+              class="space-y-4"
+            >
+              <div
+                v-for="faq in faqEntries"
+                :key="faq.id"
+                class="border-b border-gray-100 last:border-b-0 pb-4 last:pb-0"
+              >
+                <h4 class="text-sm font-medium text-gray-900 mb-2">
+                  {{ $t(faq.question) }}
+                </h4>
+              
+                <!-- Analogy (simplified for popover) -->
+                <div class="bg-amber-50 border border-amber-200 rounded p-2 mb-2">
+                  <p class="text-xs text-amber-800 leading-relaxed">
+                    {{ $t(faq.analogy) }}
+                  </p>
+                </div>
+
+                <!-- Link to full FAQ -->
+                <router-link
+                  :to="`/faq#${faq.id}`"
+                  class="inline-flex items-center text-xs text-primary-600 hover:text-primary-800 transition-colors"
+                  @click="hidePopover"
+                >
+                  {{ $t('faq.readMore', 'Read more') }}
+                  <ExternalLink class="w-3 h-3 ml-1" />
+                </router-link>
+              </div>
+            </div>
+
+            <!-- No entries found -->
+            <div
+              v-else
+              class="text-center py-4"
+            >
+              <p class="text-xs text-gray-600">
+                {{ $t('faq.noHelpAvailable', 'No help available for this topic.') }}
+              </p>
+            </div>
           </div>
         </div>
       </div>

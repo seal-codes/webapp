@@ -14,7 +14,10 @@
             {{ $t(faq.question) }}
           </h3>
           <!-- One-line preview from analogy (only when collapsed) -->
-          <p v-if="!isExpanded" class="text-sm text-gray-600 line-clamp-1">
+          <p
+            v-if="!isExpanded"
+            class="text-sm text-gray-600 line-clamp-1"
+          >
             {{ $t(faq.analogy) }}
           </p>
         </div>

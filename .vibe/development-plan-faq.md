@@ -321,8 +321,16 @@ faqs:
 - [x] Created SmartText component for translation markup processing
 - [x] Integrated FAQ links throughout application (home, document, verification pages)
 - [x] Maintained full internationalization support
+- [x] Fixed all UX issues identified by user:
+  - [x] Fixed popover hover behavior with invisible bridge solution
+  - [x] Simplified FAQ entries (removed unnecessary click-to-expand)
+  - [x] Streamlined category filter (removed overloaded tag filter)
+  - [x] Improved visual hierarchy (hide one-liner when expanded, remove tag clutter)
+- [x] Updated German translations to informal "Du" language throughout
 - [x] All FAQ functionality tested and working perfectly
-- [x] Code committed with detailed commit message
+- [x] Code committed with comprehensive commit messages
+- [x] Final quality review completed
+- [x] Production-ready FAQ system delivered
 
 ## Key Decisions
 - **Tech Stack**: Vue 3 + TypeScript + Vite + Vue Router + Pinia + Tailwind CSS
@@ -333,7 +341,9 @@ faqs:
 - **FAQ Categories**: Business-focused approach with "What does seal.codes do for me?" emphasis
 - **Contextual FAQ Approach**: SmartText component processes translation markup
 - **FAQ Link Syntax**: `<faq-link faq-ids='id1,id2'>text</faq-link>` in translation files
-- **Popover System**: Hover-triggered popovers with multiple related FAQ entries
+- **Popover System**: Hover-triggered popovers with invisible bridge for better UX
+- **UX Improvements**: Simplified FAQ entries, streamlined filtering, improved visual hierarchy
+- **Language Choice**: Informal German ("Du") for approachable, modern feel
 - **Extensibility**: SmartText is generic and can handle future markup types beyond FAQ links
 
 ## Final Implementation Summary

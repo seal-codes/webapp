@@ -52,7 +52,7 @@
       >
         <!-- Category Filter (Simplified) -->
         <div class="mb-8 bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <div class="max-w-md">
+          <div class="max-w">
             <label
               for="category-filter"
               class="block text-sm font-medium text-gray-700 mb-2"

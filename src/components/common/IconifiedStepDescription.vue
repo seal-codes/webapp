@@ -21,7 +21,9 @@ defineProps<{
     </h2>
     <div class="text-gray-600">
       <slot v-if="$slots.default" />
-      <p v-else-if="description">{{ description }}</p>
+      <p v-else-if="description">
+        {{ description }}
+      </p>
     </div>
   </div>
 </template>
