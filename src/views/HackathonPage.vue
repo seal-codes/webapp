@@ -14,7 +14,6 @@
       <section class="timeline-section">
         <DevelopmentTimeline />
       </section>
-      
       <!-- Verification Dashboard -->
       <section class="verification-section">
         <VerificationDashboard />
@@ -27,7 +26,6 @@
 import HackathonHero from '../components/hackathon/HackathonHero.vue'
 import ArchitecturalDNA from '../components/hackathon/ArchitecturalDNA.vue'
 import DevelopmentTimeline from '../components/hackathon/DevelopmentTimeline.vue'
-import VerificationDashboard from '../components/hackathon/VerificationDashboard.vue'
 </script>
 
 <style scoped>
