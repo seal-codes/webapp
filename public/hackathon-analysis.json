@@ -1,0 +1,233 @@
+{
+  "analysis_type": "architectural_dna",
+  "timestamp": "2025-06-27T14:16:58Z",
+  "git_commit": "b3805b3",
+  "git_branch": "hackathon",
+  "bolt_sessions": [
+  {
+    "session_number": 1,
+    "hash": "1d9182f",
+    "message": "bolt.new session 1: Scaffolding + document selection",
+    "date": "2025-06-06",
+    "author": "Oliver Jägle",
+    "summary": "Initial project scaffolding with Vue 3, TypeScript, and core document handling architecture",
+    "key_achievements": [
+      "Set up Vue 3 + TypeScript + Vite foundation",
+      "Implemented document store with Pinia",
+      "Created routing structure and main views",
+      "Built document dropzone and preview components",
+      "Established layout components (navbar, footer)"
+    ],
+    "files_created": 42,
+    "lines_added": 5399,
+    "impact": "Created the entire application foundation and architecture"
+  },
+  {
+    "session_number": 2,
+    "hash": "ca97162",
+    "message": "bolt.new session 2: verification page",
+    "date": "2025-06-09",
+    "author": "Oliver Jägle",
+    "summary": "Comprehensive document verification system with QR code scanning and validation",
+    "key_achievements": [
+      "Built complete verification page with multi-step process",
+      "Implemented QR code reading with multiple libraries",
+      "Created document hash verification services",
+      "Added verification result components with detailed feedback",
+      "Integrated verification store for state management"
+    ],
+    "files_created": 23,
+    "lines_added": 3004,
+    "impact": "Enabled end-to-end document verification workflow"
+  },
+  {
+    "session_number": 3,
+    "hash": "09293c2",
+    "message": "bolt.new session 3: backend",
+    "date": "2025-06-13",
+    "author": "Oliver Jägle",
+    "summary": "Authentication system and backend services integration",
+    "key_achievements": [
+      "Implemented OAuth social authentication flow",
+      "Created Supabase backend integration",
+      "Built document signing services",
+      "Added authentication store and state management",
+      "Integrated toast notification system"
+    ],
+    "files_created": 28,
+    "lines_added": 3692,
+    "impact": "Connected frontend to backend services with secure authentication"
+  },
+  {
+    "session_number": 4,
+    "hash": "5ea6e11",
+    "message": "bolt.new session 4: online signature verification",
+    "date": "2025-06-14",
+    "author": "Oliver Jägle",
+    "summary": "Advanced signature verification with cryptographic validation",
+    "key_achievements": [
+      "Added cryptographic signature verification",
+      "Enhanced verification results with signature status",
+      "Improved error handling and user feedback",
+      "Optimized verification performance",
+      "Added signature metadata display"
+    ],
+    "files_created": 27,
+    "lines_added": 860,
+    "impact": "Elevated verification system to production-grade security"
+  },
+  {
+    "session_number": 5,
+    "hash": "f1619dc",
+    "message": "bolt.new session 5: UI polishing",
+    "date": "2025-06-27",
+    "author": "Oliver Jägle",
+    "summary": "UI/UX enhancements and visual polish for production readiness",
+    "key_achievements": [
+      "Added gradient text components for visual appeal",
+      "Created hackathon badge component",
+      "Implemented responsive media queries",
+      "Enhanced component styling and animations",
+      "Improved overall user experience"
+    ],
+    "files_created": 15,
+    "lines_added": 372,
+    "impact": "Transformed functional app into polished, production-ready product"
+  }
+],
+  "categories": {
+    "foundation": {
+  "files": {
+    "src/App.vue": 72,
+    "src/main.ts": 30,
+    "src/router/index.ts": 87,
+    "src/stores/documentStore.ts": 1017,
+    "src/views/TheHomePage.vue": 60,
+    "src/views/TheDocumentPage.vue": 385,
+    "src/views/TheSealedDocumentPage.vue": 148,
+    "src/views/NotFoundPage.vue": 33,
+    "src/components/layout/TheNavbar.vue": 137,
+    "src/components/layout/TheFooter.vue": 101,
+    "src/components/document/DocumentDropzone.vue": 153,
+    "src/components/document/DocumentPreview.vue": 78,
+    "src/components/document/HowItWorks.vue": 66,
+    "src/components/common/WaxSealButton.vue": 47,
+    "src/components/common/IconifiedStepDescription.vue": 28,
+    "src/types/auth.ts": 80
+  },
+  "total_lines": 2522,
+  "file_count": 16,
+  "session": 1,
+  "session_name": "Foundation Architecture",
+  "description": "Core application structure, routing, and document handling"
+},
+    "verification": {
+  "files": {
+    "src/views/TheVerificationPage.vue": 124,
+    "src/services/verification-service.ts": 606,
+    "src/services/document-hash-service.ts": 286,
+    "src/services/qr-reader-hybrid.ts": 436,
+    "src/services/qrcode-service.ts": 348,
+    "src/services/qrcode-ui-calculator.ts": 205,
+    "src/components/verification/VerificationResults.vue": 498,
+    "src/components/verification/VerificationSidebar.vue": 78,
+    "src/components/verification/VerificationDocumentPreview.vue": 241,
+    "src/components/verification/VerificationSealInfo.vue": 110,
+    "src/components/verification/EnhancedVerificationResult.vue": 179,
+    "src/components/verification/VerificationContent.vue": 119,
+    "src/components/verification/VerificationUploadPrompt.vue": 66,
+    "src/components/verification/VerificationHeader.vue": 17,
+    "src/components/verification/VerificationActions.vue": 45,
+    "src/components/verification/ExclusionZoneOverlay.vue": 43,
+    "src/components/common/LabeledText.vue": 30,
+    "src/composables/useVerificationMessages.ts": 201,
+    "src/stores/verificationStore.ts": 223,
+    "src/services/debug-verification.ts": 140
+  },
+  "total_lines": 3995,
+  "file_count": 20,
+  "session": 2,
+  "session_name": "Verification System",
+  "description": "Document verification, QR scanning, and validation logic"
+},
+    "authentication": {
+  "files": {
+    "src/stores/authStore.ts": 152,
+    "src/services/auth-service.ts": 313,
+    "src/services/auth-providers-service.ts": 107,
+    "src/services/signing-service.ts": 164,
+    "src/services/supabase-client.ts": 75,
+    "src/components/auth/SocialAuthSelector.vue": 156,
+    "src/views/AuthCallbackPage.vue": 81,
+    "src/composables/useToast.ts": 117,
+    "src/components/common/ToastComponent.vue": 117,
+    "src/components/common/ToastContainer.vue": 50
+  },
+  "total_lines": 1332,
+  "file_count": 10,
+  "session": 3,
+  "session_name": "Authentication & Backend",
+  "description": "OAuth integration, backend services, and user management"
+},
+    "signature": {
+  "files": {
+    "src/services/signature-verification-service.ts": 202
+  },
+  "total_lines": 202,
+  "file_count": 1,
+  "session": 4,
+  "session_name": "Signature Verification",
+  "description": "Cryptographic signature validation and security features"
+},
+    "ui": {
+  "files": {
+    "src/components/common/GradientText.vue": 40,
+    "src/components/common/HackathonBadge.vue": 147,
+    "src/plugins/mediaQueries.ts": 58
+  },
+  "total_lines": 245,
+  "file_count": 3,
+  "session": 5,
+  "session_name": "UI Polishing",
+  "description": "Visual enhancements, responsive design, and user experience"
+},
+    "manual": {
+  "files": {
+    "src/types/faq.ts": 39,
+    "src/components/faq/FaqPopover.vue": 357,
+    "src/components/faq/FaqLink.vue": 66,
+    "src/components/faq/FaqEntry.vue": 102,
+    "src/components/faq/SmartText.vue": 114,
+    "src/views/FaqPage.vue": 215,
+    "src/services/faqService.ts": 180
+  },
+  "total_lines": 1073,
+  "file_count": 7,
+  "session": "manual",
+  "session_name": "Manual Enhancements",
+  "description": "FAQ system, additional features, and custom refinements"
+}
+  },
+  "totals": {
+    "bolt_lines": 8296,
+    "manual_lines": 1073,
+    "analyzed_lines": 9369,
+    "analyzed_files": 57
+  },
+  "coverage": {
+    "total_codebase_files":       71,
+    "total_codebase_lines": 11675,
+    "file_coverage_percent": 80,
+    "line_coverage_percent": 80
+  },
+  "impact": {
+    "bolt_percentage": 88,
+    "manual_percentage": 11
+  },
+  "methodology": {
+    "approach": "Software Bill of Materials (SBOM) analysis",
+    "focus": "Core application functionality (excludes tests, i18n, build tools)",
+    "measurement": "Architectural contribution rather than raw line counts",
+    "verification": "All metrics derived from actual codebase analysis"
+  }
+}

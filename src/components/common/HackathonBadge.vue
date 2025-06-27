@@ -56,8 +56,7 @@ const badgePosition = computed(() => {
     
     <!-- Badge image positioned within the triangle -->
     <a
-      href="https://bolt.new"
-      target="_blank"
+      href="/hackathon"
       rel="noopener noreferrer"
       title="Built with Bolt - Hackathon Entry"
       class="badge-link"
