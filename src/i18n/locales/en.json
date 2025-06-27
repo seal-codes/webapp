@@ -304,7 +304,12 @@
     },
     "errors": {
       "invalidQr": "Invalid QR code",
-      "networkError": "Network error during verification",
+      "networkError": {
+        "title": "Connection Error",
+        "subtitle": "Unable to complete verification",
+        "description": "Cannot connect to the verification service. The document's integrity and identity cannot be verified at this time.",
+        "recommendation": "Check your internet connection and try again."
+      },
       "documentModified": "Document has been modified since sealing",
       "sealExpired": "Seal has expired",
       "signatureMismatch": {
@@ -314,16 +319,10 @@
         "recommendation": "⚠️ Caution: While the document itself appears genuine, the identity claim is suspicious. Verify the source through other means."
       },
       "serverError": {
-        "title": "Verification Service Unavailable", 
+        "title": "Verification Service Unavailable",
         "subtitle": "Cannot verify identity at this time",
         "description": "There is an issue with the verification service. We can confirm the document hasn't been tampered with, but cannot verify the claimed identity right now.",
         "recommendation": "Document integrity: ✅ Confirmed | Identity verification: ❓ Try again later"
-      },
-      "networkError": {
-        "title": "Connection Error",
-        "subtitle": "Unable to complete verification",
-        "description": "Cannot connect to the verification service. The document's integrity and identity cannot be verified at this time.",
-        "recommendation": "Check your internet connection and try again."
       },
       "missingData": {
         "title": "Incomplete Verification Data",
@@ -563,6 +562,10 @@
         "analogy": "Like how sealing documents might require different techniques on different surfaces, mobile devices sometimes need special consideration for optimal performance.",
         "technical": "Common mobile issues include: limited memory for large files, touch interface challenges, camera permissions for QR scanning, slower processing speeds, and network connectivity issues. Ensure adequate device memory and stable internet connection for best results."
       }
-    }
+    },
+    "helpTitle": "About this topic",
+    "readMore": "Read more",
+    "analogyTitle": "Simple Explanation",
+    "technicalTitle": "Technical Details"
   }
 }

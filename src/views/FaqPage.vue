@@ -50,60 +50,31 @@
         v-else
         class="max-w-4xl mx-auto"
       >
-        <!-- Filters -->
+        <!-- Category Filter (Simplified) -->
         <div class="mb-8 bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <div class="flex flex-col sm:flex-row gap-4">
-            <!-- Category Filter -->
-            <div class="flex-1">
-              <label
-                for="category-filter"
-                class="block text-sm font-medium text-gray-700 mb-2"
+          <div class="max-w-md">
+            <label
+              for="category-filter"
+              class="block text-sm font-medium text-gray-700 mb-2"
+            >
+              {{ $t('faq.filterByCategory') }}
+            </label>
+            <select
+              id="category-filter"
+              v-model="selectedCategory"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+            >
+              <option value="">
+                {{ $t('faq.allCategories') }}
+              </option>
+              <option
+                v-for="category in categories"
+                :key="category.id"
+                :value="category.id"
               >
-                {{ $t('faq.filterByCategory') }}
-              </label>
-              <select
-                id="category-filter"
-                v-model="selectedCategory"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-              >
-                <option value="">
-                  {{ $t('faq.allCategories') }}
-                </option>
-                <option
-                  v-for="category in categories"
-                  :key="category.id"
-                  :value="category.id"
-                >
-                  {{ $t(category.title) }}
-                </option>
-              </select>
-            </div>
-
-            <!-- Tag Filter -->
-            <div class="flex-1">
-              <label
-                for="tag-filter"
-                class="block text-sm font-medium text-gray-700 mb-2"
-              >
-                {{ $t('faq.filterByTag', 'Filter by tag') }}
-              </label>
-              <select
-                id="tag-filter"
-                v-model="selectedTag"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-              >
-                <option value="">
-                  {{ $t('faq.allTags', 'All tags') }}
-                </option>
-                <option
-                  v-for="tag in allTags"
-                  :key="tag"
-                  :value="tag"
-                >
-                  {{ tag }}
-                </option>
-              </select>
-            </div>
+                {{ $t(category.title) }}
+              </option>
+            </select>
           </div>
         </div>
 
@@ -182,11 +153,9 @@ const isLoading = ref(true)
 const error = ref<string | null>(null)
 const categories = ref<FaqCategory[]>([])
 const faqs = ref<FaqEntryType[]>([])
-const allTags = ref<string[]>([])
 
-// Filters
+// Filters (simplified - only category)
 const selectedCategory = ref('')
-const selectedTag = ref('')
 
 // Icon mapping
 const iconComponents = {
@@ -199,17 +168,10 @@ const iconComponents = {
 
 // Computed
 const filteredFaqs = computed(() => {
-  let filtered = [...faqs.value]
-
-  if (selectedCategory.value) {
-    filtered = filtered.filter(faq => faq.category === selectedCategory.value)
+  if (!selectedCategory.value) {
+    return faqs.value
   }
-
-  if (selectedTag.value) {
-    filtered = filtered.filter(faq => faq.tags.includes(selectedTag.value))
-  }
-
-  return filtered
+  return faqs.value.filter(faq => faq.category === selectedCategory.value)
 })
 
 const visibleCategories = computed(() => {
@@ -231,15 +193,13 @@ const loadFaqData = async () => {
     isLoading.value = true
     error.value = null
 
-    const [categoriesData, faqsData, tagsData] = await Promise.all([
+    const [categoriesData, faqsData] = await Promise.all([
       faqService.getCategories(),
       faqService.getFaqs(),
-      faqService.getAllTags(),
     ])
 
     categories.value = categoriesData
     faqs.value = faqsData
-    allTags.value = tagsData
   } catch (err) {
     console.error('Error loading FAQ data:', err)
     error.value = t('faq.loadError', 'Failed to load FAQ data. Please try again.')

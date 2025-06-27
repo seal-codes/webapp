@@ -9,7 +9,7 @@
       :aria-expanded="isVisible"
       :aria-describedby="isVisible ? popoverId : undefined"
       @mouseenter="handleMouseEnter"
-      @mouseleave="handleMouseLeave"
+      @mouseleave="handleTriggerMouseLeave"
       @click="handleClick"
       @keydown.enter="handleClick"
       @keydown.escape="hidePopover"
@@ -19,14 +19,25 @@
 
     <!-- Popover Portal -->
     <Teleport to="body">
-      <div
-        v-if="isVisible"
-        :id="popoverId"
-        ref="popoverRef"
-        class="fixed z-50 max-w-sm bg-white border border-gray-200 rounded-lg shadow-lg"
-        :style="popoverStyle"
-        role="tooltip"
-      >
+      <div v-if="isVisible">
+        <!-- Invisible bridge to connect trigger and popover -->
+        <div
+          class="fixed z-40"
+          :style="bridgeStyle"
+          @mouseenter="handleBridgeMouseEnter"
+          @mouseleave="handleBridgeMouseLeave"
+        />
+        
+        <!-- Main popover -->
+        <div
+          :id="popoverId"
+          ref="popoverRef"
+          class="fixed z-50 max-w-sm bg-white border border-gray-200 rounded-lg shadow-lg"
+          :style="popoverStyle"
+          role="tooltip"
+          @mouseenter="handlePopoverMouseEnter"
+          @mouseleave="handlePopoverMouseLeave"
+        >
         <!-- Arrow -->
         <div
           class="absolute w-3 h-3 bg-white border-l border-t border-gray-200 transform rotate-45"
@@ -112,6 +123,7 @@
               {{ $t('faq.noHelpAvailable', 'No help available for this topic.') }}
             </p>
           </div>
+          </div>
         </div>
       </div>
     </Teleport>
@@ -151,6 +163,8 @@ const triggerRef = ref<HTMLElement>()
 const popoverRef = ref<HTMLElement>()
 const popoverStyle = ref({})
 const arrowStyle = ref({})
+const bridgeStyle = ref({})
+const hideTimeout = ref<number | null>(null)
 
 // Computed
 const popoverId = computed(() => `faq-popover-${Math.random().toString(36).substr(2, 9)}`)
@@ -225,6 +239,20 @@ const calculatePosition = async () => {
     top: `${arrowTop}px`,
     left: `${Math.max(6, Math.min(arrowLeft, popover.width - 18))}px`,
   }
+
+  // Calculate bridge area to connect trigger and popover
+  const bridgeTop = Math.min(trigger.bottom, top)
+  const bridgeBottom = Math.max(trigger.bottom, top)
+  const bridgeLeft = Math.min(trigger.left, left)
+  const bridgeRight = Math.max(trigger.right, left + popover.width)
+  
+  bridgeStyle.value = {
+    top: `${bridgeTop}px`,
+    left: `${bridgeLeft}px`,
+    width: `${bridgeRight - bridgeLeft}px`,
+    height: `${bridgeBottom - bridgeTop + 8}px`, // Add some padding
+    pointerEvents: 'auto',
+  }
 }
 
 const showPopover = async () => {
@@ -243,13 +271,47 @@ const hidePopover = () => {
 
 const handleMouseEnter = () => {
   if (props.trigger === 'hover' || props.trigger === 'both') {
+    clearHideTimeout()
     showPopover()
   }
 }
 
-const handleMouseLeave = () => {
+const handleTriggerMouseLeave = () => {
   if (props.trigger === 'hover' || props.trigger === 'both') {
+    scheduleHide()
+  }
+}
+
+const handlePopoverMouseEnter = () => {
+  clearHideTimeout()
+}
+
+const handlePopoverMouseLeave = () => {
+  if (props.trigger === 'hover' || props.trigger === 'both') {
+    scheduleHide()
+  }
+}
+
+const handleBridgeMouseEnter = () => {
+  clearHideTimeout()
+}
+
+const handleBridgeMouseLeave = () => {
+  if (props.trigger === 'hover' || props.trigger === 'both') {
+    scheduleHide()
+  }
+}
+
+const scheduleHide = () => {
+  hideTimeout.value = window.setTimeout(() => {
     hidePopover()
+  }, 100) // Small delay to allow moving between elements
+}
+
+const clearHideTimeout = () => {
+  if (hideTimeout.value) {
+    clearTimeout(hideTimeout.value)
+    hideTimeout.value = null
   }
 }
 
@@ -290,5 +352,6 @@ onMounted(() => {
 onUnmounted(() => {
   document.removeEventListener('click', handleClickOutside)
   document.removeEventListener('keydown', handleEscape)
+  clearHideTimeout()
 })
 </script>
