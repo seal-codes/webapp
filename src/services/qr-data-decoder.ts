@@ -32,7 +32,7 @@ export function decodeQRData(qrData: string): DecodedQRResult {
   } catch (error) {
     return {
       isValid: false,
-      error: error instanceof Error ? error.message : 'Unknown decoding error'
+      error: error instanceof Error ? error.message : 'Unknown decoding error',
     }
   }
 }
@@ -56,7 +56,7 @@ function decodeFromBase64(encodedData: string): DecodedQRResult {
     if (!decoded || typeof decoded !== 'object') {
       return {
         isValid: false,
-        error: 'Invalid decoded data structure'
+        error: 'Invalid decoded data structure',
       }
     }
 
@@ -64,18 +64,18 @@ function decodeFromBase64(encodedData: string): DecodedQRResult {
     if (!decoded.documentHash || !decoded.identity || !decoded.timestamp) {
       return {
         isValid: false,
-        error: 'Missing required attestation fields'
+        error: 'Missing required attestation fields',
       }
     }
 
     return {
       isValid: true,
-      attestationData: decoded
+      attestationData: decoded,
     }
   } catch (error) {
     return {
       isValid: false,
-      error: error instanceof Error ? error.message : 'CBOR decoding failed'
+      error: error instanceof Error ? error.message : 'CBOR decoding failed',
     }
   }
 }
