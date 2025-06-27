@@ -14,4 +14,8 @@ export default defineConfig({
   build: {
     target: 'esnext', // Support top-level await
   },
+  optimizeDeps: {
+    include: ['jsqr'], // Ensure jsQR is properly optimized
+    exclude: ['@rxing/wasm'], // Exclude WASM from optimization
+  },
 })

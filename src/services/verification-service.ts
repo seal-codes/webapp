@@ -10,6 +10,7 @@ import { signatureVerificationService } from './signature-verification-service'
 import type { AttestationData, QRCodeExclusionZone } from '@/types/qrcode'
 import type { SignatureVerificationResult } from './signature-verification-service'
 import { debugVerification } from './debug-verification'
+import { hybridQRReaderService } from './qr-reader-hybrid'
 
 export type VerificationStatus =
   | 'verified_exact'           // Exact cryptographic match
@@ -114,7 +115,6 @@ export class VerificationService {
     options?: { waitForWasm?: boolean; wasmTimeout?: number },
   ) {
     // Use hybrid QR reader with fallback support (jsQR while rxing-wasm loads)
-    const { hybridQRReaderService } = await import('./qr-reader-hybrid')
     return hybridQRReaderService.scanImageForQR(imageFile, focusZone, options)
   }
 
