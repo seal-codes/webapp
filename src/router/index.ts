@@ -7,6 +7,7 @@ import TheSealedDocumentPage from '../views/TheSealedDocumentPage.vue'
 import TheVerificationPage from '../views/TheVerificationPage.vue'
 import AuthCallbackPage from '../views/AuthCallbackPage.vue'
 import FaqPage from '../views/FaqPage.vue'
+import HackathonPage from '../views/HackathonPage.vue'
 import NotFoundPage from '../views/NotFoundPage.vue'
 
 const routes: RouteRecordRaw[] = [
@@ -64,6 +65,14 @@ const routes: RouteRecordRaw[] = [
     component: TheVerificationPage,
     meta: {
       title: 'Document Verification - seal.codes',
+    },
+  },
+  {
+    path: '/hackathon',
+    name: 'hackathon',
+    component: HackathonPage,
+    meta: {
+      title: 'Hackathon Showcase - seal.codes',
     },
   },
   {

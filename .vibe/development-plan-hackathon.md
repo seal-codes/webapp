@@ -51,6 +51,15 @@ Adapt the seal.codes project for participation in the World's Largest Hackathon 
 - [x] Technical approach for adapting seal.codes to Bolt.new is clear
 - [x] Scope is defined (what features to include/exclude for hackathon)
 
+## Code
+
+### Phase Entrance Criteria:
+- [x] Implementation plan is complete and detailed
+- [x] Technical architecture is defined
+- [x] Bolt.new project structure is planned
+- [x] Badge integration approach is documented
+- [x] User stories and core features are prioritized
+
 ### Implementation Strategy
 
 #### **1. Route & Navigation Setup**
@@ -75,20 +84,26 @@ Adapt the seal.codes project for participation in the World's Largest Hackathon 
 - [ ] Include executive summary of the story
 
 ##### **Architectural DNA Viewer (SBOM Component)**
-- [ ] Create `ArchitecturalDNA.vue` component
-- [ ] Implement interactive file tree visualization
-- [ ] Add session-based color coding (Foundation=blue, Verification=green, etc.)
-- [ ] Create expandable categories with file lists
-- [ ] Add hover effects showing file details
-- [ ] Implement coverage metrics display (81% coverage badge)
+- [ ] Create `ArchitecturalDNA.vue` component with terminal aesthetic
+- [ ] Implement terminal-style file tree with ASCII art connectors
+- [ ] Add session-based color coding using ANSI terminal colors
+- [ ] Create expandable/collapsible tree nodes
+- [ ] Add file details on hover (lines of code, session attribution)
+- [ ] Implement typewriter animation for tree reveal
+- [ ] Add session summary statistics at bottom
+- [ ] Include coverage metrics display (81% coverage badge)
+- [ ] Add terminal prompt styling and blinking cursor effects
 
 ##### **Development Timeline (Process Component)**
-- [ ] Create `DevelopmentTimeline.vue` component
-- [ ] Implement horizontal timeline with 5 session cards
-- [ ] Add session details (files created, lines added, key features)
-- [ ] Create before/after state indicators
-- [ ] Add interactive session exploration (click to expand)
-- [ ] Implement velocity metrics visualization
+- [ ] Create `DevelopmentTimeline.vue` component with git graph style
+- [ ] Implement horizontal commit graph with session nodes
+- [ ] Add session details cards (files created, lines added, key features)
+- [ ] Create commit-style hover tooltips with metadata
+- [ ] Add interactive session exploration (click to expand details)
+- [ ] Implement branch-style connecting lines between sessions
+- [ ] Add velocity metrics visualization
+- [ ] Include commit hash and date information
+- [ ] Add diff-style preview for major changes
 
 ##### **Verification Dashboard**
 - [ ] Create `VerificationDashboard.vue` component
@@ -101,11 +116,14 @@ Adapt the seal.codes project for participation in the World's Largest Hackathon 
 #### **4. Visual Design & Styling**
 
 ##### **Theme & Aesthetics**
-- [ ] Design "nerdy developer" theme (terminal/matrix aesthetic vs modern dev tools)
-- [ ] Create color palette for session attribution
+- [ ] Design terminal aesthetic for SBOM component (green on black, monospace)
+- [ ] Design modern git graph aesthetic for timeline component
+- [ ] Create session-based color palette (consistent across both components)
 - [ ] Design interactive hover states and animations
 - [ ] Implement responsive layout for mobile/tablet/desktop
 - [ ] Add loading states and skeleton screens
+- [ ] Create terminal-style typing animations and cursor effects
+- [ ] Design git-style commit node styling and branch connectors
 
 ##### **Data Visualization**
 - [ ] Implement percentage visualizations (donut charts, progress bars)
@@ -152,19 +170,41 @@ Adapt the seal.codes project for participation in the World's Largest Hackathon 
 ```
 HackathonPage.vue
 ├── HackathonHero.vue
-├── ArchitecturalDNA.vue
-│   ├── SessionCategory.vue
-│   ├── FileTree.vue
+├── ArchitecturalDNA.vue (Terminal File Tree)
+│   ├── TerminalWindow.vue
+│   ├── FileTreeNode.vue
+│   ├── SessionLegend.vue
 │   └── CoverageMetrics.vue
-├── DevelopmentTimeline.vue
-│   ├── SessionCard.vue
-│   ├── VelocityChart.vue
-│   └── ProgressIndicator.vue
+├── DevelopmentTimeline.vue (Git Graph)
+│   ├── GitGraph.vue
+│   ├── CommitNode.vue
+│   ├── SessionDetails.vue
+│   └── VelocityChart.vue
 └── VerificationDashboard.vue
     ├── ScriptRunner.vue
     ├── JSONViewer.vue
     └── DataExporter.vue
 ```
+
+#### **Visual Design Specifications**
+
+##### **Terminal File Tree (SBOM)**
+- **Background**: `#0d1117` (GitHub dark)
+- **Text**: `#00ff00` (classic terminal green)
+- **Session Colors**: 
+  - Foundation: `#ffff00` (yellow)
+  - Verification: `#00ffff` (cyan) 
+  - Authentication: `#ff00ff` (magenta)
+  - Manual: `#ffffff` (white)
+- **Font**: `'Fira Code', 'Monaco', monospace`
+- **Animations**: Typewriter reveal, blinking cursor
+
+##### **Git Graph Timeline**
+- **Background**: `#f6f8fa` (GitHub light) with dark mode toggle
+- **Commit nodes**: Circular with session colors
+- **Branch lines**: `#d0d7de` with hover highlights
+- **Text**: Modern sans-serif for readability
+- **Animations**: Smooth transitions, hover effects
 
 #### **Data Flow**
 1. **Page Load** → Fetch cached analysis data or trigger fresh analysis
@@ -194,17 +234,20 @@ HackathonPage.vue
 - [ ] SEO considerations for dynamic content
 
 #### **Future Enhancements** (Post-MVP)
-- [ ] Enhanced JSON output with file-level details
-- [ ] Interactive code diff viewer
-- [ ] 3D visualization of architectural relationships
-- [ ] Real-time collaboration features
-- [ ] Integration with GitHub API for live data
+- [ ] Enhanced JSON output with file-level details for richer interactions
+- [ ] Cross-component highlighting (hover timeline → highlight files)
+- [ ] Interactive code diff viewer showing bolt.new vs manual changes
+- [ ] DNA helix visualization as advanced 3D architectural view
+- [ ] Real-time collaboration features for team exploration
+- [ ] Integration with GitHub API for live repository data
+- [ ] Export functionality (PDF reports, presentation slides)
+- [ ] Easter eggs and hidden features (Konami code, terminal commands)
 
 ### Tasks
-- [ ] Set up basic route and page structure
-- [ ] Implement data service layer
-- [ ] Create hero section with key metrics
-- [ ] Build architectural DNA viewer
+- [x] Set up basic route and page structure
+- [x] Implement data service layer
+- [x] Create hero section with key metrics
+- [x] Build architectural DNA viewer
 - [ ] Develop timeline component
 - [ ] Add verification dashboard
 - [ ] Implement responsive design
@@ -213,22 +256,16 @@ HackathonPage.vue
 - [ ] Test across different devices and browsers
 
 ### Completed
-*None yet*
-
-## Code
-
-### Phase Entrance Criteria:
-- [ ] Implementation plan is complete and detailed
-- [ ] Technical architecture is defined
-- [ ] Bolt.new project structure is planned
-- [ ] Badge integration approach is documented
-- [ ] User stories and core features are prioritized
-
-### Tasks
-- [ ] *To be added when this phase becomes active*
-
-### Completed
-*None yet*
+- [x] Added /hackathon route to Vue Router
+- [x] Created HackathonPage.vue main container component
+- [x] Implemented hackathon-analysis-service.ts with TypeScript interfaces
+- [x] Created HackathonHero.vue with animated metrics (refined layout)
+- [x] Built AnimatedCounter.vue component with smooth easing
+- [x] Created ArchitecturalDNA.vue with terminal-style SBOM viewer
+- [x] Built TerminalWindow.vue with authentic terminal aesthetics
+- [x] Implemented FileTreeCategory.vue with session-based file organization
+- [x] Added placeholder components for timeline and verification dashboard
+- [x] Refined hero metrics: 5 sessions as primary metric, coverage as hover info
 
 ## Commit
 
@@ -254,6 +291,9 @@ HackathonPage.vue
 - **Transparency**: Judges can execute analysis scripts to verify all metrics
 - **Nerd Appeal**: "As nerdy and interactive as possible" with stunning visuals
 - **Architecture**: JSON-based scripts for machine-readable data, verify script for interpretation
+- **Visual Design**: Terminal file tree (SBOM) + Git graph visualization (Timeline)
+- **Implementation Strategy**: Build components separately first, add cross-highlighting later
+- **Future Evolution**: DNA helix visualization as advanced enhancement
 
 ## Notes
 ## Notes
