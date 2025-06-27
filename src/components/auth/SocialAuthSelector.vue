@@ -25,7 +25,7 @@ const handleProviderClick = (providerId: string) => {
 onMounted(async () => {
   try {
     console.log('📡 Loading authentication providers...')
-    providers.value = await authProvidersService.getEnabledProviders()
+    providers.value = await authProvidersService.getAllProviders()
     console.log(`✅ Loaded ${providers.value.length} providers`)
   } catch (err) {
     console.error('❌ Failed to load providers:', err)
@@ -96,7 +96,7 @@ onMounted(async () => {
       <button
         v-for="provider in providers"
         :key="provider.id"
-        :disabled="isProcessing"
+        :disabled="isProcessing || !provider.enabled"
         class="aspect-square flex flex-col items-center justify-center p-4 border border-gray-200 
           rounded-xl hover:bg-gray-50 transition-colors relative group disabled:opacity-50 
           disabled:cursor-not-allowed"
