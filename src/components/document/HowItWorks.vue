@@ -1,24 +1,25 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
+import SmartText from '../faq/SmartText.vue'
 
 const { t } = useI18n()
 
 const steps = [
   {
     number: 1,
-    text: t('document.howItWorks.steps.upload.description'),
+    translationKey: 'document.howItWorks.steps.upload.description',
   },
   {
     number: 2,
-    text: t('document.howItWorks.steps.position.description'),
+    translationKey: 'document.howItWorks.steps.position.description',
   },
   {
     number: 3,
-    text: t('document.howItWorks.steps.authenticate.description'),
+    translationKey: 'document.howItWorks.steps.authenticate.description',
   },
   {
     number: 4,
-    text: t('document.howItWorks.steps.download.description'),
+    translationKey: 'document.howItWorks.steps.download.description',
   },
 ]
 
@@ -42,7 +43,7 @@ const fileTypes = ['PNG', 'JPG/JPEG', 'WebP']
           {{ step.number }}
         </div>
         <p class="text-gray-700">
-          {{ step.text }}
+          <SmartText :translation-key="step.translationKey" />
         </p>
       </div>
     </div>

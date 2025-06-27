@@ -5,6 +5,7 @@ import { ImageUp, MapPin, ShieldCheck } from 'lucide-vue-next'
 import IconifiedStepDescription from '../components/common/IconifiedStepDescription.vue'
 import WaxSealButton from '../components/common/WaxSealButton.vue'
 import GradientText from '../components/common/GradientText.vue'
+import SmartText from '../components/faq/SmartText.vue'
 
 const router = useRouter()
 const { t } = useI18n()
@@ -38,8 +39,9 @@ const startProcess = () => {
         <IconifiedStepDescription
           :icon="ImageUp"
           :title="t('home.steps.loadDocument.title')"
-          :description="t('home.steps.loadDocument.description')"
-        />
+        >
+          <SmartText translation-key="home.steps.loadDocument.description" />
+        </IconifiedStepDescription>
         
         <IconifiedStepDescription
           :icon="MapPin"
@@ -50,8 +52,9 @@ const startProcess = () => {
         <IconifiedStepDescription
           :icon="ShieldCheck"
           :title="t('home.steps.sealIt.title')"
-          :description="t('home.steps.sealIt.description')"
-        />
+        >
+          <SmartText translation-key="home.steps.sealIt.description" />
+        </IconifiedStepDescription>
       </div>
     </main>
   </div>

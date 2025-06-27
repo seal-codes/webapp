@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
+import SmartText from '../faq/SmartText.vue'
 
 const { t } = useI18n()
 </script>
@@ -20,7 +21,7 @@ const { t } = useI18n()
             {{ t('verification.sidebar.step1.title') }}
           </h4>
           <p class="text-sm text-gray-600">
-            {{ t('verification.sidebar.step1.description') }}
+            <SmartText translation-key="verification.sidebar.step1.description" />
           </p>
         </div>
       </div>
@@ -34,7 +35,7 @@ const { t } = useI18n()
             {{ t('verification.sidebar.step2.title') }}
           </h4>
           <p class="text-sm text-gray-600">
-            {{ t('verification.sidebar.step2.description') }}
+            <SmartText translation-key="verification.sidebar.step2.description" />
           </p>
         </div>
       </div>
@@ -48,7 +49,7 @@ const { t } = useI18n()
             {{ t('verification.sidebar.step3.title') }}
           </h4>
           <p class="text-sm text-gray-600">
-            {{ t('verification.sidebar.step3.description') }}
+            <SmartText translation-key="verification.sidebar.step3.description" />
           </p>
         </div>
       </div>
@@ -62,7 +63,7 @@ const { t } = useI18n()
             {{ t('verification.sidebar.step4.title') }}
           </h4>
           <p class="text-sm text-gray-600">
-            {{ t('verification.sidebar.step4.description') }}
+            <SmartText translation-key="verification.sidebar.step4.description" />
           </p>
         </div>
       </div>
@@ -70,7 +71,7 @@ const { t } = useI18n()
     
     <div class="mt-6 p-4 bg-blue-50 rounded-lg">
       <p class="text-sm text-blue-700">
-        <strong>{{ t('common.privacy') }}:</strong> {{ t('verification.sidebar.privacy') }}
+        <strong>{{ t('common.privacy') }}:</strong> <SmartText translation-key="verification.sidebar.privacy" />
       </p>
     </div>
   </div>

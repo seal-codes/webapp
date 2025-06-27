@@ -4,7 +4,7 @@ import { type Component } from 'vue'
 defineProps<{
   icon: Component;
   title: string;
-  description: string;
+  description?: string;
 }>()
 </script>
 
@@ -19,8 +19,9 @@ defineProps<{
     <h2 class="text-xl font-bold mb-3">
       {{ title }}
     </h2>
-    <p class="text-gray-600">
-      {{ description }}
-    </p>
+    <div class="text-gray-600">
+      <slot v-if="$slots.default" />
+      <p v-else-if="description">{{ description }}</p>
+    </div>
   </div>
 </template>

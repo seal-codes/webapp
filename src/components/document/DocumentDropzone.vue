@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import BaseButton from '../common/BaseButton.vue'
 import BaseMessage from '../common/BaseMessage.vue'
+import SmartText from '../faq/SmartText.vue'
 
 const emit = defineEmits<{
   (e: 'fileLoaded', file: File): void;
@@ -131,7 +132,20 @@ const validateAndEmitFile = (file: File) => {
         {{ t('document.dropzone.subtitle') }}
       </p>
       
-      <BaseButton variant="primary">
+      <!-- Supported formats and file size info -->
+      <div class="text-sm text-gray-400 mb-4 space-y-1">
+        <p>
+          <SmartText translation-key="document.dropzone.supportedFormats" />
+        </p>
+        <p>
+          <SmartText translation-key="document.dropzone.maxSize" />
+        </p>
+      </div>
+      
+      <BaseButton 
+        data-testid="select-file-button"
+        variant="primary"
+      >
         {{ t('document.dropzone.selectFile') }}
       </BaseButton>
     </div>

@@ -11,6 +11,7 @@ import DocumentPreview from '../components/document/DocumentPreview.vue'
 import SocialAuthSelector from '../components/auth/SocialAuthSelector.vue'
 import HowItWorks from '../components/document/HowItWorks.vue'
 import BaseButton from '../components/common/BaseButton.vue'
+import SmartText from '../components/faq/SmartText.vue'
 import { QRCodeUIPosition } from '@/types/qrcode'
 
 const router = useRouter()
@@ -363,7 +364,7 @@ watch(
                     {{ t("document.controls.authenticateWith") }}
                   </h3>
                   <p class="text-gray-600 mb-4">
-                    {{ t('document.auth.chooseProvider') }}
+                    <SmartText translation-key="document.auth.chooseProvider" />
                   </p>
                   <SocialAuthSelector
                     :is-processing="isProcessing || documentStore.currentStep === 'authenticating'"

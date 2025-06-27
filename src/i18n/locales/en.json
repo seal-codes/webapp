@@ -38,7 +38,7 @@
     "steps": {
       "loadDocument": {
         "title": "Load Document",
-        "description": "Load any image file you want to protect with a seal."
+        "description": "Load any <faq-link faq-ids='what-is-seal-codes'>image file</faq-link> you want to protect with a seal."
       },
       "positionSeal": {
         "title": "Position Your Seal",
@@ -46,7 +46,7 @@
       },
       "sealIt": {
         "title": "Seal it",
-        "description": "seal.codes creates a cryptographic seal that clearly proves your ownership."
+        "description": "seal.codes creates a <faq-link faq-ids='sealing-process,document-integrity'>cryptographic seal</faq-link> that clearly <faq-link faq-ids='ownership-disputes'>proves your ownership</faq-link>."
       }
     }
   },
@@ -55,8 +55,8 @@
     "dropzone": {
       "title": "Drop your document here",
       "subtitle": "or click to browse",
-      "supportedFormats": "Supported formats: PNG, JPG, JPEG, WebP",
-      "maxSize": "Maximum file size: 10MB",
+      "supportedFormats": "Supported formats: <faq-link faq-ids='supported-formats,compression-resilience'>PNG, JPG, JPEG, WebP</faq-link>",
+      "maxSize": "Maximum file size: <faq-link faq-ids='file-size-limits'>10MB</faq-link>",
       "dragActive": "Drop the file here...",
       "processing": "Processing document...",
       "error": "Error processing document. Please try again.",
@@ -90,7 +90,7 @@
       "via": "via {provider}",
       "signOut": "Sign Out & Choose Different Account",
       "differentAccount": "Want to use a different account?",
-      "chooseProvider": "Choose how you want to authenticate your identity for this seal:",
+      "chooseProvider": "Choose how you want to <faq-link faq-ids='social-vs-certificates,social-account-security,account-requirements'>authenticate your identity</faq-link> for this seal:",
       "sealButton": "🔒 Seal This Document",
       "sealDescription": "This will create a permanent seal with your current authentication"
     },
@@ -103,11 +103,11 @@
         },
         "position": {
           "title": "Position QR Code",
-          "description": "Choose where to place your authentication seal on the document."
+          "description": "Choose where to place your <faq-link faq-ids='seal-tampering-protection'>authentication seal</faq-link> on the document."
         },
         "authenticate": {
           "title": "Authenticate",
-          "description": "Sign in with your social account to create the seal."
+          "description": "Sign in with your <faq-link faq-ids='social-account-security,data-privacy,revocation'>social account</faq-link> to create the seal."
         },
         "download": {
           "title": "Download",
@@ -150,7 +150,7 @@
   },
   "verification": {
     "title": "Document Verification",
-    "subtitle": "Verify the authenticity and integrity of a sealed document",
+    "subtitle": "Verify the <faq-link faq-ids='verification-process,document-integrity'>authenticity and integrity</faq-link> of a sealed document",
     "scanning": "Verifying document...",
     "verified": "Document Verified",
     "invalid": "Invalid Seal",
@@ -279,21 +279,21 @@
       "title": "How Verification Works",
       "step1": {
         "title": "Get Attestation Data",
-        "description": "Either scan a QR code or upload a sealed document to get the attestation data that proves authenticity."
+        "description": "Either scan a QR code or upload a sealed document to get the <faq-link faq-ids='qr-code-contents,verification-process'>attestation data</faq-link> that proves authenticity."
       },
       "step2": {
         "title": "QR Code Detection",
-        "description": "If automatic detection fails, click and drag on the image to manually select the QR code area."
+        "description": "If <faq-link faq-ids='qr-not-scanning,verification-failed'>automatic detection fails</faq-link>, click and drag on the image to manually select the QR code area."
       },
       "step3": {
         "title": "Hash Comparison",
-        "description": "We calculate the document's fingerprint (excluding the QR area) and compare it with the sealed version."
+        "description": "We calculate the <faq-link faq-ids='hash-calculation,document-integrity'>document's fingerprint</faq-link> (excluding the QR area) and compare it with the sealed version."
       },
       "step4": {
         "title": "Result",
-        "description": "Get confirmation whether the document matches the original sealed version."
+        "description": "Get confirmation whether the document <faq-link faq-ids='verification-failed,document-integrity'>matches the original</faq-link> sealed version."
       },
-      "privacy": "Privacy: Document verification happens entirely in your browser. Your files are never uploaded to our servers."
+      "privacy": "Privacy: <faq-link faq-ids='data-privacy,offline-verification'>Document verification happens entirely in your browser</faq-link>. Your files are never uploaded to our servers."
     },
     "details": {
       "authentic": "This document is authentic",

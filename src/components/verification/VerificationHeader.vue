@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
+import SmartText from '../faq/SmartText.vue'
 
 const { t } = useI18n()
 </script>
@@ -10,7 +11,7 @@ const { t } = useI18n()
       {{ t('verification.title') }}
     </h1>
     <p class="text-gray-600">
-      {{ t('verification.subtitle') }}
+      <SmartText translation-key="verification.subtitle" />
     </p>
   </div>
 </template>

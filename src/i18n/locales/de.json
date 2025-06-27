@@ -38,7 +38,7 @@
     "steps": {
       "loadDocument": {
         "title": "Dokument laden",
-        "description": "Lade eine beliebige Bilddatei, die du mit einem Siegel schützen möchtest."
+        "description": "Lade eine beliebige <faq-link faq-ids='what-is-seal-codes'>Bilddatei</faq-link>, die du mit einem Siegel schützen möchtest."
       },
       "positionSeal": {
         "title": "Siegel positionieren",
@@ -46,7 +46,7 @@
       },
       "sealIt": {
         "title": "Versiegeln",
-        "description": "seal.codes erstellt ein kryptographisches Siegel, das eindeutig dein Eigentum beweist."
+        "description": "seal.codes erstellt ein <faq-link faq-ids='sealing-process,document-integrity'>kryptographisches Siegel</faq-link>, das eindeutig <faq-link faq-ids='ownership-disputes'>dein Eigentum beweist</faq-link>."
       }
     }
   },
@@ -55,8 +55,8 @@
     "dropzone": {
       "title": "Dokument hier ablegen",
       "subtitle": "oder klicken zum Durchsuchen",
-      "supportedFormats": "Unterstützte Formate: PNG, JPG, JPEG, WebP",
-      "maxSize": "Maximale Dateigröße: 10MB",
+      "supportedFormats": "Unterstützte Formate: <faq-link faq-ids='supported-formats,compression-resilience'>PNG, JPG, JPEG, WebP</faq-link>",
+      "maxSize": "Maximale Dateigröße: <faq-link faq-ids='file-size-limits'>10MB</faq-link>",
       "dragActive": "Datei hier ablegen...",
       "processing": "Dokument wird verarbeitet...",
       "error": "Fehler beim Verarbeiten des Dokuments. Bitte versuche es erneut.",
@@ -86,11 +86,11 @@
         },
         "position": {
           "title": "QR-Code positionieren",
-          "description": "Wähle aus, wo du dein Authentifizierungssiegel auf dem Dokument platzieren möchtest."
+          "description": "Wähle aus, wo du dein <faq-link faq-ids='seal-tampering-protection'>Authentifizierungssiegel</faq-link> auf dem Dokument platzieren möchtest."
         },
         "authenticate": {
           "title": "Authentifizieren",
-          "description": "Melde dich mit deinem Social-Media-Konto an, um das Siegel zu erstellen."
+          "description": "Melde dich mit deinem <faq-link faq-ids='social-account-security,data-privacy,revocation'>Social-Media-Konto</faq-link> an, um das Siegel zu erstellen."
         },
         "download": {
           "title": "Herunterladen",
@@ -133,7 +133,7 @@
   },
   "verification": {
     "title": "Dokumentverifizierung",
-    "subtitle": "Überprüfe die Authentizität und Integrität eines versiegelten Dokuments",
+    "subtitle": "Überprüfe die <faq-link faq-ids='verification-process,document-integrity'>Authentizität und Integrität</faq-link> eines versiegelten Dokuments",
     "scanning": "Dokument wird verifiziert...",
     "verified": "Dokument verifiziert",
     "invalid": "Ungültiges Siegel",
@@ -262,21 +262,21 @@
       "title": "So funktioniert die Verifizierung",
       "step1": {
         "title": "Attestierungsdaten erhalten",
-        "description": "Scanne entweder einen QR-Code oder lade ein versiegeltes Dokument hoch, um die Attestierungsdaten zu erhalten, die die Authentizität beweisen."
+        "description": "Scanne entweder einen QR-Code oder lade ein versiegeltes Dokument hoch, um die <faq-link faq-ids='qr-code-contents,verification-process'>Attestierungsdaten</faq-link> zu erhalten, die die Authentizität beweisen."
       },
       "step2": {
         "title": "QR-Code-Erkennung",
-        "description": "Falls die automatische Erkennung fehlschlägt, klicke und ziehe auf dem Bild, um den QR-Code-Bereich manuell auszuwählen."
+        "description": "Falls die <faq-link faq-ids='qr-not-scanning,verification-failed'>automatische Erkennung fehlschlägt</faq-link>, klicke und ziehe auf dem Bild, um den QR-Code-Bereich manuell auszuwählen."
       },
       "step3": {
         "title": "Hash-Vergleich",
-        "description": "Wir berechnen den Fingerabdruck des Dokuments (ohne QR-Bereich) und vergleichen ihn mit der versiegelten Version."
+        "description": "Wir berechnen den <faq-link faq-ids='hash-calculation,document-integrity'>Fingerabdruck des Dokuments</faq-link> (ohne QR-Bereich) und vergleichen ihn mit der versiegelten Version."
       },
       "step4": {
         "title": "Ergebnis",
-        "description": "Erhalte eine Bestätigung, ob das Dokument mit der ursprünglich versiegelten Version übereinstimmt."
+        "description": "Erhalte eine Bestätigung, ob das Dokument mit der <faq-link faq-ids='verification-failed,document-integrity'>ursprünglich versiegelten Version übereinstimmt</faq-link>."
       },
-      "privacy": "Datenschutz: Die Dokumentverifizierung erfolgt vollständig in deinem Browser. Deine Dateien werden niemals auf unsere Server hochgeladen."
+      "privacy": "Datenschutz: <faq-link faq-ids='data-privacy,offline-verification'>Die Dokumentverifizierung erfolgt vollständig in deinem Browser</faq-link>. Deine Dateien werden niemals auf unsere Server hochgeladen."
     },
     "details": {
       "authentic": "Dieses Dokument ist authentisch",
