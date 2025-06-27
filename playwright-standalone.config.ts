@@ -1,4 +1,4 @@
-import { defineConfig, devices } from '@playwright/test';
+import { defineConfig, devices } from '@playwright/test'
 
 /**
  * Standalone Playwright config for testing GitHub PAT access
@@ -27,4 +27,4 @@ export default defineConfig({
       },
     },
   ],
-});
+})
