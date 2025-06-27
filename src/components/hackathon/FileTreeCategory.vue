@@ -3,7 +3,7 @@
     <div class="category-header" @click="toggleExpanded" :data-tooltip="getTooltipText()">
       <span class="tree-connector">├──</span>
       <span class="category-icon">{{ icon }}</span>
-      <span class="category-title" :class="colorClass">{{ title }}</span>
+      <span class="category-title" :style="{ color: getCategoryColor(color) }">{{ title }}</span>
       <span class="category-summary">({{ totalLines.toLocaleString() }} LOC)</span>
       <span class="expand-indicator" :class="{ expanded }">{{ expanded ? '▼' : '▶' }}</span>
     </div>
@@ -20,12 +20,12 @@
         <span class="file-connector">│   ├──</span>
         <span class="file-icon">📄</span>
         <span class="file-path">{{ getFileName(filePath) }}</span>
-        <span class="file-lines" :class="colorClass">{{ lines }} LOC</span>
+        <span class="file-lines" :style="{ color: getCategoryColor(color) }">{{ lines }} LOC</span>
       </div>
       
       <div class="category-total">
         <span class="file-connector">│   └──</span>
-        <span class="total-text" :class="colorClass">
+        <span class="total-text" :style="{ color: getCategoryColor(color) }">
           Total: {{ Object.keys(files).length }} files, {{ totalLines.toLocaleString() }} lines
         </span>
       </div>
@@ -35,6 +35,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
+import { getCategoryColor } from '../../constants/session-colors'
 
 interface Props {
   title: string
@@ -59,8 +60,6 @@ const props = withDefaults(defineProps<Props>(), {
 const visible = ref(false)
 const expanded = ref(false)
 const highlightedFile = ref<string | null>(null)
-
-const colorClass = computed(() => `color-${props.color}`)
 
 const getFileName = (filePath: string): string => {
   return filePath.split('/').pop() || filePath

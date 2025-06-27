@@ -11,7 +11,7 @@
       <!-- Chart Container -->
       <div class="chart-container">
         <div class="chart-header">
-          <div class="chart-title">Development Velocity by Session</div>
+          <div class="chart-title">Development Activity by Session</div>
           <div class="chart-stats">
             <div class="stat">
               <span class="stat-value">{{ Math.max(...(timelineData.sessions.map(s => s.lines_added) || [0])).toLocaleString() }}</span>
@@ -67,55 +67,36 @@
               </text>
             </g>
 
-            <!-- Continuous noise signal (background) -->
-            <path 
-              :d="continuousNoiseAreaPath" 
-              fill="rgba(48, 54, 61, 0.1)"
-              class="continuous-noise-area"
-            />
-            <path 
-              :d="continuousNoisePath" 
-              stroke="#30363d"
-              stroke-width="1" 
-              fill="none" 
-              opacity="0.4"
-              class="continuous-noise-line"
-            />
-
-            <!-- Session humps -->
-            <g class="session-humps">
-              <path 
-                v-for="hump in sessionHumps" 
-                :key="`area-${hump.session.session_number}`"
-                :d="hump.areaPath" 
-                :fill="hoveredSession === hump.session.session_number ? hump.color : 'rgba(0, 255, 136, 0.1)'"
-                :fill-opacity="hoveredSession === hump.session.session_number ? '0.3' : '0.1'"
-                class="session-area"
-              />
-              <path 
-                v-for="hump in sessionHumps" 
-                :key="`line-${hump.session.session_number}`"
-                :d="hump.linePath" 
-                :stroke="hoveredSession === hump.session.session_number ? hump.color : '#00ff88'"
-                stroke-width="3" 
-                fill="none" 
-                class="session-line"
+            <!-- Noise bars (background) -->
+            <g class="noise-bars">
+              <rect 
+                v-for="(bar, index) in noiseBars" 
+                :key="`noise-${index}`"
+                :x="bar.x" 
+                :y="bar.y"
+                :width="bar.width"
+                :height="bar.height"
+                :fill="bar.color"
+                fill-opacity="0.3"
+                class="noise-bar"
+                @mouseenter="handleNoiseHover($event)"
               />
             </g>
 
-            <!-- Data points -->
-            <g class="data-points">
-              <circle 
-                v-for="hump in sessionHumps" 
-                :key="hump.session.session_number"
-                :cx="hump.centerX" 
-                :cy="hump.peakY" 
-                :r="hoveredSession === hump.session.session_number ? '8' : '6'"
-                :fill="hump.color"
-                :stroke="hoveredSession === hump.session.session_number ? '#fff' : 'rgba(255, 255, 255, 0.3)'"
-                :stroke-width="hoveredSession === hump.session.session_number ? '2' : '1'"
-                class="data-point"
-                @mouseenter="handlePointHover(hump.session.session_number, $event)"
+            <!-- Session bars -->
+            <g class="session-bars">
+              <rect 
+                v-for="bar in sessionBars" 
+                :key="`bar-${bar.session.session_number}`"
+                :x="bar.x" 
+                :y="bar.y"
+                :width="bar.width"
+                :height="bar.height"
+                :fill="hoveredSession === bar.session.session_number ? bar.color : 'rgba(0, 255, 136, 0.8)'"
+                :stroke="hoveredSession === bar.session.session_number ? '#fff' : 'rgba(255, 255, 255, 0.3)'"
+                :stroke-width="hoveredSession === bar.session.session_number ? '2' : '1'"
+                class="session-bar"
+                @mouseenter="handleBarHover(bar.session.session_number, $event)"
               />
             </g>
 
@@ -182,6 +163,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { hackathonAnalysisService, type TimelineData } from '../../services/hackathon-analysis-service'
+import { getSessionColor, getSessionTitle, NOISE_COLOR } from '../../constants/session-colors'
 
 const timelineData = ref<TimelineData | null>(null)
 const loading = ref(true)
@@ -195,31 +177,6 @@ const tooltipData = ref<{ x: number; y: number } | null>(null)
 const chartWidth = 1000
 const chartHeight = 400
 const padding = { top: 60, right: 60, bottom: 60, left: 60 }
-
-// Session colors matching terminal categories
-const sessionColors: Record<number, string> = {
-  1: '#00ff88', // Foundation - green
-  2: '#4ecdc4', // Verification - teal  
-  3: '#ff6b6b', // Authentication - red
-  4: '#ffd93d', // Signature - yellow
-  5: '#a78bfa', // UI - purple
-}
-
-const sessionTitles: Record<number, string> = {
-  1: 'Foundation Architecture',
-  2: 'Verification System', 
-  3: 'Authentication & Backend',
-  4: 'Signature Verification',
-  5: 'UI Polishing'
-}
-
-const getSessionColor = (sessionNumber: number): string => {
-  return sessionColors[sessionNumber] || '#8b949e'
-}
-
-const getSessionTitle = (sessionNumber: number): string => {
-  return sessionTitles[sessionNumber] || `Session ${sessionNumber}`
-}
 
 const getSessionData = (sessionNumber: number) => {
   return timelineData.value?.sessions.find(s => s.session_number === sessionNumber)
@@ -445,24 +402,78 @@ const xAxisTicks = computed(() => {
   return ticks
 })
 
-const sessionHumps = computed(() => {
+// Calculate bar width to prevent overlap
+const calculateBarWidth = (sessionIndex: number): number => {
+  if (!timelineData.value) return 40
+  
+  const sessions = timelineData.value.sessions
+  const currentDate = new Date(sessions[sessionIndex].date)
+  
+  let minDistance = Infinity
+  
+  // Check distance to previous session
+  if (sessionIndex > 0) {
+    const prevDate = new Date(sessions[sessionIndex - 1].date)
+    const daysDiff = (currentDate.getTime() - prevDate.getTime()) / (1000 * 60 * 60 * 24)
+    minDistance = Math.min(minDistance, daysDiff)
+  }
+  
+  // Check distance to next session
+  if (sessionIndex < sessions.length - 1) {
+    const nextDate = new Date(sessions[sessionIndex + 1].date)
+    const daysDiff = (nextDate.getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24)
+    minDistance = Math.min(minDistance, daysDiff)
+  }
+  
+  // Calculate width based on available space (max 60px, min 20px)
+  const availableWidth = (minDistance / 7) * 30 // Scale based on weeks
+  return Math.max(20, Math.min(60, availableWidth))
+}
+
+const sessionBars = computed(() => {
   if (!timelineData.value) return []
+  
+  const baselineY = getYPosition(0)
   
   return timelineData.value.sessions.map((session, index) => {
     const centerX = getXPositionByTime(new Date(session.date))
-    const peakY = getYPosition(session.lines_added)
-    const width = calculateHumpWidth(index)
-    const isFirstHump = index === 0
+    const topY = getYPosition(session.lines_added)
+    const width = calculateBarWidth(index)
+    const height = baselineY - topY
+    const x = centerX - width / 2
     
     return {
       session,
       centerX,
-      peakY,
+      x,
+      y: topY,
       width,
-      isFirstHump,
-      linePath: createHumpPath(centerX, peakY, width, isFirstHump),
-      areaPath: createHumpAreaPath(centerX, peakY, width, isFirstHump),
+      height,
       color: getSessionColor(session.session_number)
+    }
+  })
+})
+
+const noiseBars = computed(() => {
+  const noisePoints = generateContinuousNoise()
+  const baselineY = getYPosition(0)
+  
+  return noisePoints.map(point => {
+    const centerX = getXPositionByTime(point.date)
+    const topY = getYPosition(point.value)
+    const width = 8 + Math.random() * 12 // Variable width 8-20px
+    const height = baselineY - topY
+    const x = centerX - width / 2
+    
+    return {
+      x,
+      y: topY,
+      width,
+      height,
+      centerX,
+      date: point.date,
+      value: point.value,
+      color: NOISE_COLOR
     }
   })
 })
@@ -499,20 +510,20 @@ const handleMouseMove = (event: MouseEvent) => {
   
   hoverX.value = x
   
-  // Check if hovering over a session hump first
+  // Check if hovering over a session bar first
   let closestSession = null
   let minDistance = Infinity
   
-  sessionHumps.value.forEach((hump) => {
-    const distance = Math.abs(x - hump.centerX)
-    if (distance < minDistance && distance < hump.width / 2) {
+  sessionBars.value.forEach((bar) => {
+    const distance = Math.abs(x - bar.centerX)
+    if (distance < minDistance && distance < bar.width / 2) {
       minDistance = distance
-      closestSession = hump.session.session_number
+      closestSession = bar.session.session_number
     }
   })
   
   if (closestSession) {
-    // Hovering over a session hump
+    // Hovering over a session bar
     hoveredSession.value = closestSession
     tooltipData.value = {
       x: event.clientX - rect.left + 10,
@@ -539,7 +550,7 @@ const handleMouseMove = (event: MouseEvent) => {
   }
 }
 
-const handlePointHover = (sessionNumber: number, event: MouseEvent) => {
+const handleBarHover = (sessionNumber: number, event: MouseEvent) => {
   hoveredSession.value = sessionNumber
   
   if (chartSvg.value) {
@@ -547,6 +558,19 @@ const handlePointHover = (sessionNumber: number, event: MouseEvent) => {
     tooltipData.value = {
       x: event.clientX - rect.left + 10,
       y: event.clientY - rect.top - 10
+    }
+  }
+}
+
+const handleNoiseHover = (event: MouseEvent) => {
+  hoveredSession.value = null
+  
+  if (chartSvg.value) {
+    const rect = chartSvg.value.getBoundingClientRect()
+    tooltipData.value = {
+      x: event.clientX - rect.left + 10,
+      y: event.clientY - rect.top - 10,
+      isNoise: true
     }
   }
 }
@@ -685,13 +709,21 @@ onMounted(async () => {
   filter: drop-shadow(0 0 4px currentColor);
 }
 
-.data-point {
+.session-bar {
   transition: all 0.3s ease;
   cursor: pointer;
 }
 
-.data-point:hover {
+.session-bar:hover {
   filter: drop-shadow(0 0 8px currentColor);
+}
+
+.continuous-noise-area {
+  pointer-events: all;
+}
+
+.continuous-noise-line {
+  pointer-events: all;
 }
 
 .hover-line {
