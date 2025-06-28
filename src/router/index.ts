@@ -10,6 +10,12 @@ import FaqPage from '../views/FaqPage.vue'
 import HackathonPage from '../views/HackathonPage.vue'
 import NotFoundPage from '../views/NotFoundPage.vue'
 
+// Import legal pages
+import ImpressumPage from '../views/legal/ImpressumPage.vue'
+import PrivacyPolicyPage from '../views/legal/PrivacyPolicyPage.vue'
+import TermsOfServicePage from '../views/legal/TermsOfServicePage.vue'
+import DisclaimerPage from '../views/legal/DisclaimerPage.vue'
+
 const routes: RouteRecordRaw[] = [
   {
     path: '/',
@@ -73,6 +79,38 @@ const routes: RouteRecordRaw[] = [
     component: HackathonPage,
     meta: {
       title: 'Hackathon Showcase - seal.codes',
+    },
+  },
+  {
+    path: '/legal/impressum',
+    name: 'legal-impressum',
+    component: ImpressumPage,
+    meta: {
+      title: 'Impressum - seal.codes',
+    },
+  },
+  {
+    path: '/legal/privacy',
+    name: 'legal-privacy',
+    component: PrivacyPolicyPage,
+    meta: {
+      title: 'Privacy Policy - seal.codes',
+    },
+  },
+  {
+    path: '/legal/terms',
+    name: 'legal-terms',
+    component: TermsOfServicePage,
+    meta: {
+      title: 'Terms of Service - seal.codes',
+    },
+  },
+  {
+    path: '/legal/disclaimer',
+    name: 'legal-disclaimer',
+    component: DisclaimerPage,
+    meta: {
+      title: 'Disclaimer - seal.codes',
     },
   },
   {

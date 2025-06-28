@@ -21,35 +21,43 @@ const { t } = useI18n()
           </p>
         </div>
         
-        <!-- Features Column (Center aligned on desktop, left on mobile) -->
+        <!-- Legal Column (Center aligned on desktop, left on mobile) -->
         <div class="text-left md:text-center">
           <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wider mb-4">
-            Features
+            {{ t('legal.otherLegalPages') }}
           </h3>
           <ul class="space-y-3">
             <li>
-              <a
-                href="#"
+              <router-link
+                to="/legal/impressum"
                 class="text-sm text-gray-600 hover:text-primary-600 transition-colors duration-200"
               >
-                Document Sealing
-              </a>
+                {{ t('legal.impressum.title') }}
+              </router-link>
             </li>
             <li>
-              <a
-                href="#"
+              <router-link
+                to="/legal/privacy"
                 class="text-sm text-gray-600 hover:text-primary-600 transition-colors duration-200"
               >
-                QR Code Verification
-              </a>
+                {{ t('legal.privacy.title') }}
+              </router-link>
             </li>
             <li>
-              <a
-                href="#"
+              <router-link
+                to="/legal/terms"
                 class="text-sm text-gray-600 hover:text-primary-600 transition-colors duration-200"
               >
-                Privacy Focus
-              </a>
+                {{ t('legal.terms.title') }}
+              </router-link>
+            </li>
+            <li>
+              <router-link
+                to="/legal/disclaimer"
+                class="text-sm text-gray-600 hover:text-primary-600 transition-colors duration-200"
+              >
+                {{ t('legal.disclaimer.title') }}
+              </router-link>
             </li>
           </ul>
         </div>
