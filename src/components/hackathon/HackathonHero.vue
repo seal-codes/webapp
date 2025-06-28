@@ -75,65 +75,76 @@
           Explore the interactive analysis below to see how bolt.new helped found this project and
           enabled rapid development across {{ dnaData.bolt_sessions.length }} focused sessions with consistent code quality.
         </p>
+
+        <!-- Key Insights -->
+        <div class="insights-section">
+          <h3 class="insights-title">Key Insights</h3>
+          <div class="insights-grid">
+            <div class="insight-card" @mouseenter="hoveredInsight = 1" @mouseleave="hoveredInsight = null">
+              <div class="insight-front" :class="{ blurred: hoveredInsight === 1 }">
+                <div class="insight-icon">⚡</div>
+                <div class="insight-title">Rapid Concept Validation</div>
+              </div>
+              <div class="insight-back" :class="{ visible: hoveredInsight === 1 }">
+                <div class="insight-text">Enhance prompt, scaffold immediately, iterate on abstract concepts in real-time</div>
+              </div>
+            </div>
+            
+            <div class="insight-card" @mouseenter="hoveredInsight = 2" @mouseleave="hoveredInsight = null">
+              <div class="insight-front" :class="{ blurred: hoveredInsight === 2 }">
+                <div class="insight-icon">🧠</div>
+                <div class="insight-title">Concept to Implementation</div>
+              </div>
+              <div class="insight-back" :class="{ visible: hoveredInsight === 2 }">
+                <div class="insight-text">Makes technically challenging ideas feasible—bridges "I know what I want" to "I know how to build it"</div>
+              </div>
+            </div>
+            
+            <div class="insight-card" @mouseenter="hoveredInsight = 3" @mouseleave="hoveredInsight = null">
+              <div class="insight-front" :class="{ blurred: hoveredInsight === 3 }">
+                <div class="insight-icon">🔄</div>
+                <div class="insight-title">Strategic Development Pauses</div>
+              </div>
+              <div class="insight-back" :class="{ visible: hoveredInsight === 3 }">
+                <div class="insight-text">Deliberate refactoring breaks prevent technical debt and maintain architectural clarity</div>
+              </div>
+            </div>
+            
+            <div class="insight-card" @mouseenter="hoveredInsight = 4" @mouseleave="hoveredInsight = null">
+              <div class="insight-front" :class="{ blurred: hoveredInsight === 4 }">
+                <div class="insight-icon">✨</div>
+                <div class="insight-title">Visual Development Workflow</div>
+              </div>
+              <div class="insight-back" :class="{ visible: hoveredInsight === 4 }">
+                <div class="insight-text">Click any element in preview for immediate adjustments—fluid design-to-implementation process</div>
+              </div>
+            </div>
+            
+            <div class="insight-card" @mouseenter="hoveredInsight = 5" @mouseleave="hoveredInsight = null">
+              <div class="insight-front" :class="{ blurred: hoveredInsight === 5 }">
+                <div class="insight-icon">🌐</div>
+                <div class="insight-title">Full-Stack Coherence</div>
+              </div>
+              <div class="insight-back" :class="{ visible: hoveredInsight === 5 }">
+                <div class="insight-text">Seamless backend integration—understands how database, auth, and API pieces connect</div>
+              </div>
+            </div>
+            
+            <div class="insight-card" @mouseenter="hoveredInsight = 6" @mouseleave="hoveredInsight = null">
+              <div class="insight-front" :class="{ blurred: hoveredInsight === 6 }">
+                <div class="insight-icon">🌟</div>
+                <div class="insight-title">Compressed Development Cycles</div>
+              </div>
+              <div class="insight-back" :class="{ visible: hoveredInsight === 6 }">
+                <div class="insight-text">Timeline compression from months to weeks—fundamentally changes what's possible for solo developers</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div class="scroll-indicator">
           <span>Scroll to explore</span>
           <div class="scroll-arrow">↓</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Key Insights -->
-    <div class="insights-section">
-      <div class="insights-container">
-        <h3 class="insights-title">Key Insights</h3>
-        <div class="insights-grid">
-          <div class="insight-item">
-            <div class="insight-icon">⚡</div>
-            <div class="insight-content">
-              <div class="insight-label">Rapid Concept Validation</div>
-              <div class="insight-text">Enhance prompt, scaffold immediately, iterate on abstract concepts in real-time</div>
-            </div>
-          </div>
-          
-          <div class="insight-item">
-            <div class="insight-icon">🧠</div>
-            <div class="insight-content">
-              <div class="insight-label">Concept to Implementation</div>
-              <div class="insight-text">Makes technically challenging ideas feasible—bridges "I know what I want" to "I know how to build it"</div>
-            </div>
-          </div>
-          
-          <div class="insight-item">
-            <div class="insight-icon">🔄</div>
-            <div class="insight-content">
-              <div class="insight-label">Strategic Development Pauses</div>
-              <div class="insight-text">Deliberate refactoring breaks prevent technical debt and maintain architectural clarity</div>
-            </div>
-          </div>
-          
-          <div class="insight-item">
-            <div class="insight-icon">✨</div>
-            <div class="insight-content">
-              <div class="insight-label">Visual Development Workflow</div>
-              <div class="insight-text">Click any element in preview for immediate adjustments—fluid design-to-implementation process</div>
-            </div>
-          </div>
-          
-          <div class="insight-item">
-            <div class="insight-icon">🌐</div>
-            <div class="insight-content">
-              <div class="insight-label">Full-Stack Coherence</div>
-              <div class="insight-text">Seamless backend integration—understands how database, auth, and API pieces connect</div>
-            </div>
-          </div>
-          
-          <div class="insight-item">
-            <div class="insight-icon">🌟</div>
-            <div class="insight-content">
-              <div class="insight-label">Compressed Development Cycles</div>
-              <div class="insight-text">Timeline compression from months to weeks—fundamentally changes what's possible for solo developers</div>
-            </div>
-          </div>
         </div>
       </div>
     </div>
@@ -154,6 +165,7 @@ import AnimatedCounter from '../common/AnimatedCounter.vue'
 const dnaData = ref<ArchitecturalDNAData | null>(null)
 const loading = ref(true)
 const error = ref<string | null>(null)
+const hoveredInsight = ref<number | null>(null)
 
 onMounted(async () => {
   try {
@@ -462,74 +474,87 @@ onMounted(async () => {
 }
 
 .insights-section {
-  margin-top: 4rem;
-  padding: 3rem 0;
-  border-top: 1px solid rgba(48, 54, 61, 0.6);
-}
-
-.insights-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 2rem;
+  margin-top: 3rem;
 }
 
 .insights-title {
   text-align: center;
-  font-size: 2rem;
-  font-weight: 700;
+  font-size: 1.5rem;
+  font-weight: 600;
   color: #f0f6fc;
   margin-bottom: 2rem;
 }
 
 .insights-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 1.5rem;
+  max-width: 900px;
+  margin: 0 auto;
 }
 
-.insight-item {
-  display: flex;
-  gap: 1rem;
+.insight-card {
+  position: relative;
+  height: 120px;
+  cursor: pointer;
+}
+
+.insight-front,
+.insight-back {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   padding: 1.5rem;
   background: rgba(33, 38, 45, 0.6);
   border: 1px solid rgba(48, 54, 61, 0.8);
   border-radius: 8px;
   backdrop-filter: blur(10px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
   transition: all 0.3s ease;
 }
 
-.insight-item:hover {
-  border-color: rgba(0, 255, 136, 0.4);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+.insight-front {
+  z-index: 2;
+}
+
+.insight-front.blurred {
+  filter: blur(4px);
+  opacity: 0.3;
+}
+
+.insight-back {
+  z-index: 1;
+  opacity: 0;
+  border-color: rgba(0, 255, 136, 0.6);
+  background: rgba(0, 255, 136, 0.05);
+  box-shadow: 0 0 20px rgba(0, 255, 136, 0.2);
+}
+
+.insight-back.visible {
+  opacity: 1;
+  z-index: 3;
 }
 
 .insight-icon {
-  font-size: 1.5rem;
-  flex-shrink: 0;
-  width: 2.5rem;
-  height: 2.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(0, 255, 136, 0.1);
-  border-radius: 50%;
-  border: 1px solid rgba(0, 255, 136, 0.3);
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
 }
 
-.insight-content {
-  flex: 1;
-}
-
-.insight-label {
+.insight-title {
   font-weight: 600;
   color: #f0f6fc;
-  margin-bottom: 0.5rem;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
+  line-height: 1.2;
 }
 
 .insight-text {
-  color: #8b949e;
+  color: #f0f6fc;
   font-size: 0.85rem;
   line-height: 1.4;
 }
@@ -633,15 +658,34 @@ onMounted(async () => {
   }
 
   .insights-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
   }
   
-  .insight-item {
+  .insight-card {
+    height: 100px;
+  }
+  
+  .insight-front,
+  .insight-back {
     padding: 1rem;
   }
   
-  .insights-title {
+  .insight-icon {
     font-size: 1.5rem;
+    margin-bottom: 0.25rem;
+  }
+  
+  .insight-title {
+    font-size: 0.8rem;
+  }
+  
+  .insight-text {
+    font-size: 0.75rem;
+  }
+  
+  .insights-title {
+    font-size: 1.25rem;
   }
 }
 </style>
