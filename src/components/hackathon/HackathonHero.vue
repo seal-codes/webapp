@@ -150,7 +150,7 @@
               :class="{ visible: hoveredInsight === 2 }"
             >
               <div class="insight-text">
-                Makes technically challenging ideas feasible—bridges "I know what I want" to "I know how to build it"
+                Makes technically challenging ideas feasible – bridges "I know what I want" to "I know how to build it"
               </div>
             </div>
           </div>
@@ -204,7 +204,7 @@
               :class="{ visible: hoveredInsight === 4 }"
             >
               <div class="insight-text">
-                bolt.new's visual elemt selector in preview allows for immediate adjustments – fluid design-to-implementation process
+                bolt.new's visual element selector in preview allows for fluid design-to-implementation process
               </div>
             </div>
           </div>
@@ -231,7 +231,7 @@
               :class="{ visible: hoveredInsight === 5 }"
             >
               <div class="insight-text">
-                Seamless backend integration—understands how database, auth, and API pieces connect
+                Seamless backend integration – understands how database, auth, and API pieces connect
               </div>
             </div>
           </div>
@@ -258,7 +258,7 @@
               :class="{ visible: hoveredInsight === 6 }"
             >
               <div class="insight-text">
-                Timeline compression from months to weeks—fundamentally changes what's possible for solo developers
+                Timeline compression from months to weeks – fundamentally changes what's possible for solo developers
               </div>
             </div>
           </div>
@@ -652,6 +652,7 @@ onMounted(async () => {
   border-color: rgba(0, 255, 136, 0.6);
   background: rgba(0, 255, 136, 0.05);
   box-shadow: 0 0 20px rgba(0, 255, 136, 0.2);
+  overflow-y: auto
 }
 
 .insight-back.visible {
@@ -794,7 +795,7 @@ onMounted(async () => {
   
   .insight-front,
   .insight-back {
-    padding: 1.5rem;
+    padding: 0.5rem;
   }
   
   .insight-icon {
