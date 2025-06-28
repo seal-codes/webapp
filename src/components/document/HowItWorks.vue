@@ -53,11 +53,11 @@ const fileTypes = ['PNG', 'JPG/JPEG', 'WebP']
       <h3 class="text-lg font-medium mb-4">
         Supported File Types
       </h3>
-      <div class="flex gap-4">
+      <div class="grid grid-cols-2 gap-4">
         <div 
           v-for="type in fileTypes" 
           :key="type"
-          class="bg-gray-100 px-6 py-2 rounded-lg text-gray-600"
+          class="bg-gray-100 px-1 py-2 rounded-lg text-gray-600 text-center place-content-center w-full"
         >
           {{ type }}
         </div>
