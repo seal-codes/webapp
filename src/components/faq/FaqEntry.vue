@@ -1,5 +1,5 @@
 <template>
-  <div class="mb-6 bg-white border border-gray-200 rounded-lg overflow-hidden">
+  <div :id="faq.id" class="mb-6 bg-white border border-gray-200 rounded-lg overflow-hidden">
     <!-- Question Header (Always Visible) -->
     <div 
       class="flex items-center justify-between p-6 cursor-pointer hover:bg-gray-50 transition-colors"
@@ -75,17 +75,25 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { HelpCircle, Lightbulb, Cog, ChevronDown } from 'lucide-vue-next'
 import type { FaqEntry } from '@/types/faq'
 
 interface Props {
   faq: FaqEntry
+  initialExpanded?: boolean
 }
 
-defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  initialExpanded: false,
+})
 
-const isExpanded = ref(false)
+const isExpanded = ref(props.initialExpanded)
+
+// Watch for changes in initialExpanded prop
+watch(() => props.initialExpanded, (newValue) => {
+  isExpanded.value = newValue
+})
 
 const toggleExpanded = () => {
   isExpanded.value = !isExpanded.value

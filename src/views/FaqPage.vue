@@ -128,6 +128,7 @@
                   v-for="faq in getCategoryFaqs(category.id)"
                   :key="faq.id"
                   :faq="faq"
+                  :initial-expanded="expandedFaqId === faq.id"
                 />
               </div>
             </div>
@@ -139,14 +140,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, nextTick, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useRoute } from 'vue-router'
 import { HelpCircle, Shield, Cog, Lock, AlertCircle } from 'lucide-vue-next'
 import FaqEntry from '@/components/faq/FaqEntry.vue'
 import faqService from '@/services/faqService'
 import type { FaqEntry as FaqEntryType, FaqCategory } from '@/types/faq'
 
 const { t } = useI18n()
+const route = useRoute()
 
 // State
 const isLoading = ref(true)
@@ -156,6 +159,9 @@ const faqs = ref<FaqEntryType[]>([])
 
 // Filters (simplified - only category)
 const selectedCategory = ref('')
+
+// Hash navigation state
+const expandedFaqId = ref<string | null>(null)
 
 // Icon mapping
 const iconComponents = {
@@ -208,8 +214,54 @@ const loadFaqData = async () => {
   }
 }
 
+// Hash navigation and scroll functionality
+const scrollToAnchor = async (hash: string) => {
+  if (!hash) {
+    expandedFaqId.value = null
+    return
+  }
+  
+  // Remove the # from the hash
+  const elementId = hash.replace('#', '')
+  
+  // Set the FAQ to be expanded
+  expandedFaqId.value = elementId
+  
+  // Wait for the next tick to ensure DOM is updated
+  await nextTick()
+  
+  // Find the element
+  const element = document.getElementById(elementId)
+  if (element) {
+    // Scroll to the element with smooth behavior
+    element.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start',
+    })
+  }
+}
+
+// Watch for route changes to handle hash navigation
+watch(
+  () => route.hash,
+  (newHash) => {
+    if (newHash && !isLoading.value) {
+      scrollToAnchor(newHash)
+    }
+  },
+  { immediate: true }
+)
+
 // Lifecycle
-onMounted(() => {
-  loadFaqData()
+onMounted(async () => {
+  await loadFaqData()
+  
+  // Handle initial hash if present
+  if (route.hash) {
+    // Add a small delay to ensure all FAQ entries are rendered
+    setTimeout(() => {
+      scrollToAnchor(route.hash)
+    }, 100)
+  }
 })
 </script>
