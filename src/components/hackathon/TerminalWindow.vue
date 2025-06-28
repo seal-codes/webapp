@@ -13,7 +13,7 @@
     </div>
 
     <!-- Terminal Content -->
-    <div class="terminal-content" ref="terminalContent" @click="handleTerminalClick" :class="{ typing: isTyping }">
+    <div class="terminal-content shadow-white-900/50" ref="terminalContent" @click="handleTerminalClick" :class="{ typing: isTyping }">
       <div v-if="loading" class="terminal-loading">
         <div class="loading-line">
           <span class="prompt">$</span>

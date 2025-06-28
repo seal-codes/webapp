@@ -1,6 +1,6 @@
 # 🚀 seal.codes × bolt.new: Building Something Actually New
 
-**Live Demo:** [seal.codes/hackathon](https://seal.codes/hackathon)
+**Live Demo:** [seal.codes](https://seal.codes)
 
 ---
 
@@ -79,7 +79,7 @@ This project would have been impractical as a solo effort using traditional deve
 ## 🏗️ **Technical Architecture**
 
 ### **Document Processing Innovation**
-- **PDF Layer Management**: QR codes embedded as separate layers for verification without content modification
+- **Document SealingManagement**: QR codes embedded into the document, making it effectively permanent
 - **Image Metadata Integration**: Attestation data stored in image metadata with visual QR placement
 - **Hash-Based Verification**: Multiple hash methods (cryptographic + perceptual) for robust validation
 - **Format-Agnostic Framework**: Extensible architecture supporting various document types
@@ -100,14 +100,12 @@ This project would have been impractical as a solo effort using traditional deve
 
 ## 🎨 **The Meta-Demonstration**
 
-The `/hackathon` route itself demonstrates the development process:
+The [`/hackathon`](https://seal.codes/hackathon) route itself demonstrates the development process:
 
 - **Interactive Metrics**: Real-time display of the 88% AI contribution
 - **Development DNA**: Terminal-style breakdown of session contributions
 - **Timeline Visualization**: Bar chart showing development velocity across sessions
 - **Consistent Design System**: Shared color constants ensuring visual coherence
-
-This meta-layer showcases not just the final product, but the development methodology that created it.
 
 ---
 

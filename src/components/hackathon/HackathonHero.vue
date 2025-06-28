@@ -82,6 +82,62 @@
       </div>
     </div>
 
+    <!-- Key Insights -->
+    <div class="insights-section">
+      <div class="insights-container">
+        <h3 class="insights-title">Key Insights</h3>
+        <div class="insights-grid">
+          <div class="insight-item">
+            <div class="insight-icon">⚡</div>
+            <div class="insight-content">
+              <div class="insight-label">Rapid Concept Validation</div>
+              <div class="insight-text">Enhance prompt, scaffold immediately, iterate on abstract concepts in real-time</div>
+            </div>
+          </div>
+          
+          <div class="insight-item">
+            <div class="insight-icon">🧠</div>
+            <div class="insight-content">
+              <div class="insight-label">Concept to Implementation</div>
+              <div class="insight-text">Makes technically challenging ideas feasible—bridges "I know what I want" to "I know how to build it"</div>
+            </div>
+          </div>
+          
+          <div class="insight-item">
+            <div class="insight-icon">🔄</div>
+            <div class="insight-content">
+              <div class="insight-label">Strategic Development Pauses</div>
+              <div class="insight-text">Deliberate refactoring breaks prevent technical debt and maintain architectural clarity</div>
+            </div>
+          </div>
+          
+          <div class="insight-item">
+            <div class="insight-icon">✨</div>
+            <div class="insight-content">
+              <div class="insight-label">Visual Development Workflow</div>
+              <div class="insight-text">Click any element in preview for immediate adjustments—fluid design-to-implementation process</div>
+            </div>
+          </div>
+          
+          <div class="insight-item">
+            <div class="insight-icon">🌐</div>
+            <div class="insight-content">
+              <div class="insight-label">Full-Stack Coherence</div>
+              <div class="insight-text">Seamless backend integration—understands how database, auth, and API pieces connect</div>
+            </div>
+          </div>
+          
+          <div class="insight-item">
+            <div class="insight-icon">🌟</div>
+            <div class="insight-content">
+              <div class="insight-label">Compressed Development Cycles</div>
+              <div class="insight-text">Timeline compression from months to weeks—fundamentally changes what's possible for solo developers</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Background Effects -->
     <div class="hero-background">
       <div class="grid-pattern"></div>
@@ -402,6 +458,80 @@ onMounted(async () => {
 .scroll-arrow {
   font-size: 1.5rem;
   animation: bounce 2s infinite;
+  color: #8b949e;
+}
+
+.insights-section {
+  margin-top: 4rem;
+  padding: 3rem 0;
+  border-top: 1px solid rgba(48, 54, 61, 0.6);
+}
+
+.insights-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.insights-title {
+  text-align: center;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #f0f6fc;
+  margin-bottom: 2rem;
+}
+
+.insights-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 1.5rem;
+}
+
+.insight-item {
+  display: flex;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: rgba(33, 38, 45, 0.6);
+  border: 1px solid rgba(48, 54, 61, 0.8);
+  border-radius: 8px;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+
+.insight-item:hover {
+  border-color: rgba(0, 255, 136, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+.insight-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+  width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 255, 136, 0.1);
+  border-radius: 50%;
+  border: 1px solid rgba(0, 255, 136, 0.3);
+}
+
+.insight-content {
+  flex: 1;
+}
+
+.insight-label {
+  font-weight: 600;
+  color: #f0f6fc;
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+}
+
+.insight-text {
+  color: #8b949e;
+  font-size: 0.85rem;
+  line-height: 1.4;
 }
 
 @keyframes bounce {
@@ -500,6 +630,18 @@ onMounted(async () => {
   
   .metric-card.large .metric-value {
     font-size: 3.5rem;
+  }
+
+  .insights-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .insight-item {
+    padding: 1rem;
+  }
+  
+  .insights-title {
+    font-size: 1.5rem;
   }
 }
 </style>
