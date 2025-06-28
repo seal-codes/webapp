@@ -1,6 +1,6 @@
 /**
- * GitHub to Supabase authentication setup for Playwright tests
- * Uses GitHub PAT to authenticate, then gets real Supabase JWT through OAuth flow
+ * Interactive GitHub to Supabase authentication setup
+ * Allows manual login if needed, then captures the real JWT
  */
 
 import { test as setup, expect } from '@playwright/test';
@@ -17,28 +17,9 @@ if (!fs.existsSync(authDir)) {
   fs.mkdirSync(authDir, { recursive: true });
 }
 
-// Check if we have the required test credentials
-const requiredEnvVars = [
-  'GITHUB_TEST_PAT',
-  'VITE_SUPABASE_URL',
-  'VITE_SUPABASE_ANON_KEY'
-];
-
-const missingVars = requiredEnvVars.filter(varName => !process.env[varName]);
-if (missingVars.length > 0) {
-  console.warn(`⚠️  Missing test environment variables: ${missingVars.join(', ')}`);
-  console.warn('GitHub to Supabase authentication tests will be skipped.');
-}
-
-setup('authenticate GitHub and get Supabase JWT', async ({ page, context }) => {
-  // Skip if we don't have required credentials
-  if (missingVars.length > 0) {
-    console.log('Skipping GitHub to Supabase auth setup - missing credentials');
-    return;
-  }
-
-  console.log('🔐 Starting GitHub to Supabase authentication flow...');
-  console.log(`🌐 Supabase URL: ${process.env.VITE_SUPABASE_URL}`);
+setup('interactive GitHub OAuth to Supabase JWT', async ({ page, context }) => {
+  console.log('🔐 Starting INTERACTIVE GitHub to Supabase authentication...');
+  console.log('🌐 Supabase URL:', process.env.VITE_SUPABASE_URL);
 
   try {
     // Step 1: Verify GitHub PAT works
@@ -49,7 +30,7 @@ setup('authenticate GitHub and get Supabase JWT', async ({ page, context }) => {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Accept': 'application/vnd.github.v3+json',
-          'User-Agent': 'seal-codes-supabase-auth'
+          'User-Agent': 'seal-codes-interactive-auth'
         }
       });
       
@@ -64,9 +45,8 @@ setup('authenticate GitHub and get Supabase JWT', async ({ page, context }) => {
     expect(githubAuth.success).toBe(true);
     console.log(`✅ GitHub PAT verified for user: ${githubAuth.user.login}`);
 
-    // Step 2: Navigate to your app and start OAuth flow
-    console.log('🚀 Starting OAuth flow in your application...');
-    
+    // Step 2: Navigate to your app
+    console.log('🚀 Navigating to your application...');
     await page.goto('http://localhost:5173/document');
     await page.waitForLoadState('networkidle');
     
@@ -81,53 +61,49 @@ setup('authenticate GitHub and get Supabase JWT', async ({ page, context }) => {
     
     console.log('🔗 Clicking GitHub OAuth button...');
     await githubButton.click();
-    
-    // Step 3: Handle GitHub OAuth flow with login
-    console.log('⏳ Waiting for GitHub OAuth redirect...');
-    
-    // Wait for GitHub OAuth page
-    try {
-      await page.waitForURL('**/github.com/**', { timeout: 15000 });
-      console.log('🌐 On GitHub OAuth page');
-    } catch {
-      console.log('🌐 Already on GitHub page');
-    }
+
+    // Step 3: Handle GitHub OAuth - with interactive support
+    console.log('⏳ Waiting for GitHub OAuth page...');
+    await page.waitForURL('**/github.com/**', { timeout: 30000 });
     
     const currentUrl = page.url();
     console.log('📍 Current URL:', currentUrl);
     
-    // Check if we need to log in to GitHub
     if (currentUrl.includes('github.com/login')) {
-      console.log('🔑 GitHub login required - attempting to log in...');
+      console.log('');
+      console.log('🔐 MANUAL LOGIN REQUIRED');
+      console.log('='.repeat(50));
+      console.log('Please log in to GitHub manually in the browser window.');
+      console.log('The test will continue automatically after login.');
+      console.log('='.repeat(50));
+      console.log('');
       
-      // Check if we have GitHub credentials
-      const githubUsername = process.env.TEST_GITHUB_USERNAME;
-      const githubPassword = process.env.TEST_GITHUB_PASSWORD;
+      // Wait for user to complete login (wait for URL to change away from login page)
+      let loginCompleted = false;
+      let attempts = 0;
+      const maxAttempts = 60; // 60 seconds
       
-      if (githubUsername && githubPassword) {
-        console.log(`🔐 Logging in as: ${githubUsername}`);
+      while (!loginCompleted && attempts < maxAttempts) {
+        await page.waitForTimeout(1000);
+        const url = page.url();
         
-        // Fill in login form
-        const usernameField = page.locator('#login_field');
-        const passwordField = page.locator('#password');
-        const signInButton = page.locator('input[type="submit"][value="Sign in"]');
+        if (!url.includes('github.com/login')) {
+          loginCompleted = true;
+          console.log('✅ Login completed, continuing...');
+        }
         
-        await usernameField.fill(githubUsername);
-        await passwordField.fill(githubPassword);
-        await signInButton.click();
-        
-        // Wait for login to complete
-        await page.waitForTimeout(3000);
-        
-        console.log('✅ GitHub login completed');
-      } else {
-        console.log('⚠️  No GitHub credentials found in TEST_GITHUB_USERNAME/TEST_GITHUB_PASSWORD');
-        console.log('   Please add these to your .env.test.local file');
-        throw new Error('GitHub login required but no credentials provided');
+        attempts++;
+        if (attempts % 10 === 0) {
+          console.log(`⏳ Waiting for login... (${attempts}s)`);
+        }
+      }
+      
+      if (!loginCompleted) {
+        throw new Error('Login timeout - please complete GitHub login within 60 seconds');
       }
     }
-    
-    // Now handle authorization
+
+    // Step 4: Handle authorization
     console.log('🔍 Looking for authorization elements...');
     await page.waitForTimeout(2000);
     
@@ -135,8 +111,7 @@ setup('authenticate GitHub and get Supabase JWT', async ({ page, context }) => {
       page.getByRole('button', { name: /authorize/i }),
       page.locator('input[type="submit"][value*="Authorize"]'),
       page.locator('button:has-text("Authorize")'),
-      page.locator('.btn-primary:has-text("Authorize")'),
-      page.locator('[data-testid*="authorize"]')
+      page.locator('.btn-primary:has-text("Authorize")')
     ];
     
     let authorized = false;
@@ -152,41 +127,28 @@ setup('authenticate GitHub and get Supabase JWT', async ({ page, context }) => {
     if (!authorized) {
       console.log('ℹ️  No authorization needed - app may already be authorized');
     }
-    
-    // Step 4: Wait for redirect back to your app
+
+    // Step 5: Wait for redirect back to your app
     console.log('⏳ Waiting for OAuth callback redirect...');
     
     try {
-      // Wait for redirect to Supabase callback first, then to your app
-      await Promise.race([
-        page.waitForURL('**/supabase.co/auth/v1/callback**', { timeout: 15000 }),
-        page.waitForURL('**/localhost:5173/**', { timeout: 15000 })
-      ]);
-      
-      // If we're at Supabase callback, wait for final redirect to app
-      if (page.url().includes('supabase.co')) {
-        console.log('🔄 At Supabase callback, waiting for final redirect...');
-        await page.waitForURL('**/localhost:5173/**', { timeout: 15000 });
-      }
-      
+      await page.waitForURL('**/localhost:5173/**', { timeout: 30000 });
       console.log('✅ Successfully redirected back to app');
-    } catch (error) {
-      console.log('⚠️  Redirect timeout - checking current URL...');
-      const currentUrl = page.url();
-      console.log('📍 Current URL:', currentUrl);
-      
-      if (currentUrl.includes('localhost:5173')) {
+    } catch {
+      // Check if we're already on localhost
+      const url = page.url();
+      if (url.includes('localhost:5173')) {
         console.log('✅ Already on localhost - proceeding');
       } else {
-        throw new Error(`OAuth redirect failed. Current URL: ${currentUrl}`);
+        throw new Error(`OAuth redirect failed. Current URL: ${url}`);
       }
     }
-    
-    // Step 5: Wait for Supabase to process the authentication
+
+    // Step 6: Wait for Supabase to process the authentication
     console.log('🔄 Processing Supabase authentication...');
     await page.waitForTimeout(5000);
     
-    // Step 6: Extract the real Supabase JWT
+    // Step 7: Extract the real Supabase JWT
     const supabaseAuth = await page.evaluate(() => {
       const supabaseKey = 'sb-ciabpodgryewgkhxepwb-auth-token';
       const authDataStr = localStorage.getItem(supabaseKey);
@@ -200,8 +162,8 @@ setup('authenticate GitHub and get Supabase JWT', async ({ page, context }) => {
             userEmail: authData.user?.email || 'unknown',
             userId: authData.user?.id || 'unknown',
             tokenStart: authData.access_token?.substring(0, 30) + '...',
-            isJWT: authData.access_token?.includes('.'), // JWTs contain dots
-            fullAuthData: authData // Store complete auth data
+            isJWT: authData.access_token?.includes('.'),
+            fullAuthData: authData
           };
         } catch (e) {
           return { error: 'Failed to parse auth data', details: e.message };
@@ -219,23 +181,10 @@ setup('authenticate GitHub and get Supabase JWT', async ({ page, context }) => {
     
     if (!supabaseAuth.hasToken) {
       const currentUrl = page.url();
-      const pageContent = await page.textContent('body');
-      
       console.log('❌ No Supabase session found. Current URL:', currentUrl);
-      console.log('📄 Page content preview:', pageContent?.substring(0, 200) + '...');
-      
       throw new Error('No valid Supabase JWT token found after OAuth flow');
     }
-    
-    // Step 7: Verify the UI shows authenticated state
-    try {
-      const authIndicator = page.getByText(/authenticated as/i);
-      await authIndicator.waitFor({ state: 'visible', timeout: 10000 });
-      console.log('✅ UI shows authenticated state');
-    } catch (e) {
-      console.log('⚠️  UI authentication indicator not found, but JWT exists');
-    }
-    
+
     // Step 8: Create comprehensive auth state
     const authState = {
       github: {
@@ -267,12 +216,12 @@ setup('authenticate GitHub and get Supabase JWT', async ({ page, context }) => {
     console.log(`💾 Auth state saved to: ${authStatePath}`);
     
     // Step 10: Verify the JWT works with Supabase
-    const jwtVerification = await page.evaluate(async ({ supabaseUrl, jwt }) => {
+    const jwtVerification = await page.evaluate(async ({ supabaseUrl, jwt, anonKey }) => {
       try {
         const response = await fetch(`${supabaseUrl}/auth/v1/user`, {
           headers: {
             'Authorization': `Bearer ${jwt}`,
-            'apikey': process.env.VITE_SUPABASE_ANON_KEY
+            'apikey': anonKey
           }
         });
         
@@ -290,7 +239,8 @@ setup('authenticate GitHub and get Supabase JWT', async ({ page, context }) => {
       }
     }, { 
       supabaseUrl: process.env.VITE_SUPABASE_URL, 
-      jwt: supabaseAuth.fullAuthData.access_token 
+      jwt: supabaseAuth.fullAuthData.access_token,
+      anonKey: process.env.VITE_SUPABASE_ANON_KEY
     });
     
     if (jwtVerification.success) {
@@ -302,14 +252,6 @@ setup('authenticate GitHub and get Supabase JWT', async ({ page, context }) => {
     
   } catch (error) {
     console.error('❌ GitHub to Supabase authentication failed:', error);
-    
-    // Capture debug information
-    const currentUrl = page.url();
-    const title = await page.title();
-    console.log('🔍 Debug info:');
-    console.log('   Current URL:', currentUrl);
-    console.log('   Page title:', title);
-    
     throw error;
   }
 });

@@ -32,10 +32,10 @@ export default defineConfig({
 
   /* Configure projects for major browsers */
   projects: [
-    // Setup project for real authentication
+    // Setup project for GitHub PAT to Supabase authentication (NO MANUAL LOGIN)
     { 
-      name: 'auth-setup', 
-      testMatch: /.*real-auth\.setup\.ts/,
+      name: 'github-supabase-setup', 
+      testMatch: /.*github-pat-to-supabase\.setup\.ts/,
     },
     
     // Main test project using Chromium in Full HD resolution
@@ -44,8 +44,10 @@ export default defineConfig({
       use: { 
         ...devices['Desktop Chrome'],
         viewport: { width: 1920, height: 1400 },
+        // Use the GitHub PAT to Supabase storage state
+        storageState: './playwright/.auth/github-supabase-storage.json',
       },
-      dependencies: ['auth-setup'],
+      dependencies: ['github-supabase-setup'],
     },
   ],
 })
