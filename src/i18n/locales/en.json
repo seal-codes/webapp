@@ -56,7 +56,7 @@
       "title": "Drop your document here",
       "subtitle": "or click to browse",
       "supportedFormats": "Supported formats: <faq-link faq-ids='supported-formats,compression-resilience'>PNG, JPG, JPEG, WebP</faq-link>",
-      "maxSize": "Maximum file size: <faq-link faq-ids='file-size-limits'>10MB</faq-link>",
+      "maxSize": "Maximum file size: <faq-link faq-ids='file-size-limits'>50MB</faq-link>",
       "dragActive": "Drop the file here...",
       "processing": "Processing document...",
       "error": "Error processing document. Please try again.",

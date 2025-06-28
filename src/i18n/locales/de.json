@@ -56,7 +56,7 @@
       "title": "Dokument hier ablegen",
       "subtitle": "oder klicken zum Durchsuchen",
       "supportedFormats": "Unterstützte Formate: <faq-link faq-ids='supported-formats,compression-resilience'>PNG, JPG, JPEG, WebP</faq-link>",
-      "maxSize": "Maximale Dateigröße: <faq-link faq-ids='file-size-limits'>10MB</faq-link>",
+      "maxSize": "Maximale Dateigröße: <faq-link faq-ids='file-size-limits'>50MB</faq-link>",
       "dragActive": "Datei hier ablegen...",
       "processing": "Dokument wird verarbeitet...",
       "error": "Fehler beim Verarbeiten des Dokuments. Bitte versuche es erneut.",
@@ -316,7 +316,7 @@
     }
   },
   "errors": {
-    "fileTooBig": "Datei ist zu groß. Maximale Größe ist 10MB.",
+    "fileTooBig": "Datei ist zu groß. Maximale Größe ist 50MB.",
     "unsupportedFormat": "Nicht unterstütztes Dateiformat. Bitte verwende PDF, PNG, JPG oder JPEG.",
     "uploadFailed": "Upload fehlgeschlagen. Bitte versuche es erneut.",
     "processingFailed": "Dokumentverarbeitung fehlgeschlagen. Bitte versuche es erneut.",

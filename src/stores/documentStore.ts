@@ -438,8 +438,8 @@ export const useDocumentStore = defineStore('document', () => {
         throw new CodedError('unsupported_format', 'Unsupported file format')
       }
       
-      // Check file size (10MB limit)
-      const maxSize = 10 * 1024 * 1024
+      // Check file size (MB)
+      const maxSize = 50 * 1024 * 1024
       if (file.size > maxSize) {
         throw new CodedError('file_too_large', 'File is too large')
       }
