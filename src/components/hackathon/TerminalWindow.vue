@@ -259,6 +259,7 @@ onMounted(async () => {
   border: 1px solid rgba(48, 54, 61, 0.8);
   border-radius: 12px;
   padding: 2rem;
+  -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
 }
 
