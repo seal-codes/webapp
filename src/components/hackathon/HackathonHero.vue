@@ -7,7 +7,7 @@
           <span class="gradient-text">Hackathon Showcase</span>
         </h1>
         <p class="subtitle">
-          How <strong>bolt.new</strong> took seal.codes from zero to production-ready
+          Where ideas begin – How <strong>bolt.new</strong> took seal.codes from zero to production-ready
         </p>
       </div>
 
@@ -82,7 +82,7 @@
           <div class="insights-grid">
             <div class="insight-card" @mouseenter="hoveredInsight = 1" @mouseleave="hoveredInsight = null">
               <div class="insight-front" :class="{ blurred: hoveredInsight === 1 }">
-                <div class="insight-icon">⚡</div>
+                <Zap class="insight-icon" :class="{ faded: hoveredInsight === 1 }" />
                 <div class="insight-title">Rapid Concept Validation</div>
               </div>
               <div class="insight-back" :class="{ visible: hoveredInsight === 1 }">
@@ -92,7 +92,7 @@
             
             <div class="insight-card" @mouseenter="hoveredInsight = 2" @mouseleave="hoveredInsight = null">
               <div class="insight-front" :class="{ blurred: hoveredInsight === 2 }">
-                <div class="insight-icon">🧠</div>
+                <Brain class="insight-icon" :class="{ faded: hoveredInsight === 2 }" />
                 <div class="insight-title">Concept to Implementation</div>
               </div>
               <div class="insight-back" :class="{ visible: hoveredInsight === 2 }">
@@ -102,7 +102,7 @@
             
             <div class="insight-card" @mouseenter="hoveredInsight = 3" @mouseleave="hoveredInsight = null">
               <div class="insight-front" :class="{ blurred: hoveredInsight === 3 }">
-                <div class="insight-icon">🔄</div>
+                <RotateCcw class="insight-icon" :class="{ faded: hoveredInsight === 3 }" />
                 <div class="insight-title">Strategic Development Pauses</div>
               </div>
               <div class="insight-back" :class="{ visible: hoveredInsight === 3 }">
@@ -112,7 +112,7 @@
             
             <div class="insight-card" @mouseenter="hoveredInsight = 4" @mouseleave="hoveredInsight = null">
               <div class="insight-front" :class="{ blurred: hoveredInsight === 4 }">
-                <div class="insight-icon">✨</div>
+                <Sparkles class="insight-icon" :class="{ faded: hoveredInsight === 4 }" />
                 <div class="insight-title">Visual Development Workflow</div>
               </div>
               <div class="insight-back" :class="{ visible: hoveredInsight === 4 }">
@@ -122,7 +122,7 @@
             
             <div class="insight-card" @mouseenter="hoveredInsight = 5" @mouseleave="hoveredInsight = null">
               <div class="insight-front" :class="{ blurred: hoveredInsight === 5 }">
-                <div class="insight-icon">🌐</div>
+                <Globe class="insight-icon" :class="{ faded: hoveredInsight === 5 }" />
                 <div class="insight-title">Full-Stack Coherence</div>
               </div>
               <div class="insight-back" :class="{ visible: hoveredInsight === 5 }">
@@ -132,7 +132,7 @@
             
             <div class="insight-card" @mouseenter="hoveredInsight = 6" @mouseleave="hoveredInsight = null">
               <div class="insight-front" :class="{ blurred: hoveredInsight === 6 }">
-                <div class="insight-icon">🌟</div>
+                <TrendingUp class="insight-icon" :class="{ faded: hoveredInsight === 6 }" />
                 <div class="insight-title">Compressed Development Cycles</div>
               </div>
               <div class="insight-back" :class="{ visible: hoveredInsight === 6 }">
@@ -161,6 +161,7 @@
 import { ref, onMounted } from 'vue'
 import { hackathonAnalysisService, type ArchitecturalDNAData } from '../../services/hackathon-analysis-service'
 import AnimatedCounter from '../common/AnimatedCounter.vue'
+import { Zap, Brain, RotateCcw, Sparkles, Globe, TrendingUp } from 'lucide-vue-next'
 
 const dnaData = ref<ArchitecturalDNAData | null>(null)
 const loading = ref(true)
@@ -465,6 +466,7 @@ onMounted(async () => {
   gap: 0.5rem;
   color: #8b949e;
   font-size: 0.9rem;
+  margin-top: 5rem;
 }
 
 .scroll-arrow {
@@ -474,28 +476,28 @@ onMounted(async () => {
 }
 
 .insights-section {
-  margin-top: 3rem;
+  margin-top: 4rem;
 }
 
 .insights-title {
   text-align: center;
-  font-size: 1.5rem;
+  font-size: 1.75rem;
   font-weight: 600;
   color: #f0f6fc;
-  margin-bottom: 2rem;
+  margin-bottom: 2.5rem;
 }
 
 .insights-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 1.5rem;
-  max-width: 900px;
+  gap: 2rem;
+  max-width: 1000px;
   margin: 0 auto;
 }
 
 .insight-card {
   position: relative;
-  height: 120px;
+  height: 180px;
   cursor: pointer;
 }
 
@@ -506,7 +508,7 @@ onMounted(async () => {
   left: 0;
   right: 0;
   bottom: 0;
-  padding: 1.5rem;
+  padding: 2rem;
   background: rgba(33, 38, 45, 0.6);
   border: 1px solid rgba(48, 54, 61, 0.8);
   border-radius: 8px;
@@ -542,21 +544,29 @@ onMounted(async () => {
 }
 
 .insight-icon {
-  font-size: 2rem;
-  margin-bottom: 0.5rem;
+  width: 3rem;
+  height: 3rem;
+  margin-bottom: 1rem;
+  color: #00ff88;
+  transition: opacity 0.3s ease;
+}
+
+.insight-icon.faded {
+  opacity: 0;
 }
 
 .insight-title {
   font-weight: 600;
   color: #f0f6fc;
-  font-size: 0.9rem;
-  line-height: 1.2;
+  font-size: 1.1rem;
+  line-height: 1.3;
 }
 
 .insight-text {
   color: #f0f6fc;
-  font-size: 0.85rem;
-  line-height: 1.4;
+  font-size: 1rem;
+  line-height: 1.5;
+  padding: 0 0.5rem;
 }
 
 @keyframes bounce {
@@ -659,33 +669,35 @@ onMounted(async () => {
 
   .insights-grid {
     grid-template-columns: repeat(2, 1fr);
-    gap: 1rem;
+    gap: 1.5rem;
   }
   
   .insight-card {
-    height: 100px;
+    height: 150px;
   }
   
   .insight-front,
   .insight-back {
-    padding: 1rem;
+    padding: 1.5rem;
   }
   
   .insight-icon {
-    font-size: 1.5rem;
-    margin-bottom: 0.25rem;
+    width: 2.5rem;
+    height: 2.5rem;
+    margin-bottom: 0.75rem;
   }
   
   .insight-title {
-    font-size: 0.8rem;
+    font-size: 1rem;
   }
   
   .insight-text {
-    font-size: 0.75rem;
+    font-size: 0.9rem;
+    padding: 0 0.25rem;
   }
   
   .insights-title {
-    font-size: 1.25rem;
+    font-size: 1.5rem;
   }
 }
 </style>
