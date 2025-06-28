@@ -1,16 +1,17 @@
 <template>
-  <div class="terminal-window">
-    <!-- Terminal Header -->
-    <div class="terminal-header">
-      <div class="terminal-controls">
-        <span class="control close"></span>
-        <span class="control minimize"></span>
-        <span class="control maximize"></span>
+  <div class="terminal-container">
+    <div class="terminal-window">
+      <!-- Terminal Header -->
+      <div class="terminal-header">
+        <div class="terminal-controls">
+          <span class="control close"></span>
+          <span class="control minimize"></span>
+          <span class="control maximize"></span>
+        </div>
+        <div class="terminal-title">
+          seal.codes — Architectural DNA Analysis
+        </div>
       </div>
-      <div class="terminal-title">
-        seal.codes — Architectural DNA Analysis
-      </div>
-    </div>
 
     <!-- Terminal Content -->
     <div class="terminal-content shadow-white-900/50" ref="terminalContent" @click="handleTerminalClick" :class="{ typing: isTyping }">
@@ -251,6 +252,16 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+.terminal-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  background: rgba(33, 38, 45, 0.6);
+  border: 1px solid rgba(48, 54, 61, 0.8);
+  border-radius: 12px;
+  padding: 2rem;
+  backdrop-filter: blur(10px);
+}
+
 .terminal-window {
   background: #0d1117;
   border-radius: 8px;
@@ -259,8 +270,6 @@ onMounted(async () => {
   font-family: 'Fira Code', 'Monaco', 'Consolas', monospace;
   font-size: 14px;
   line-height: 1.4;
-  max-width: 1000px;
-  margin: 0 auto;
 }
 
 .terminal-header {

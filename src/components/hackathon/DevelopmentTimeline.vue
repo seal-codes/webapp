@@ -1,7 +1,7 @@
 <template>
   <div class="development-timeline">
     <div class="section-header">
-      <h2>⏱️ Development Timeline</h2>
+      <h2><Clock class="section-icon" />Development Timeline</h2>
       <p class="section-subtitle">
         Session-by-session progression from zero to production-ready
       </p>
@@ -164,6 +164,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { hackathonAnalysisService, type TimelineData } from '../../services/hackathon-analysis-service'
 import { getSessionColor, getSessionTitle, NOISE_COLOR } from '../../constants/session-colors'
+import { Clock } from 'lucide-vue-next'
 
 const timelineData = ref<TimelineData | null>(null)
 const loading = ref(true)
@@ -616,6 +617,16 @@ onMounted(async () => {
   font-weight: 700;
   color: #f0f6fc;
   margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.section-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  color: #00ff88;
 }
 
 .section-subtitle {
@@ -824,6 +835,12 @@ onMounted(async () => {
 @media (max-width: 768px) {
   .section-header h2 {
     font-size: 2rem;
+    gap: 0.75rem;
+  }
+  
+  .section-icon {
+    width: 2rem;
+    height: 2rem;
   }
   
   .chart-container {

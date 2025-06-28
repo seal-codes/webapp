@@ -1,7 +1,7 @@
 <template>
   <div class="architectural-dna">
     <div class="section-header">
-      <h2>🧬 Architectural DNA</h2>
+      <h2><Dna class="section-icon" />Architectural DNA</h2>
       <p class="section-subtitle">
         Software Bill of Materials showing bolt.new's foundational contributions
       </p>
@@ -21,6 +21,7 @@
 import { ref, onMounted } from 'vue'
 import { hackathonAnalysisService, type ArchitecturalDNAData } from '../../services/hackathon-analysis-service'
 import TerminalWindow from './TerminalWindow.vue'
+import { Dna } from 'lucide-vue-next'
 
 const dnaData = ref<ArchitecturalDNAData | null>(null)
 const loading = ref(true)
@@ -52,6 +53,16 @@ onMounted(async () => {
   font-weight: 700;
   color: #f0f6fc;
   margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.section-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  color: #00ff88;
 }
 
 .section-subtitle {
@@ -68,6 +79,12 @@ onMounted(async () => {
 @media (max-width: 768px) {
   .section-header h2 {
     font-size: 2rem;
+    gap: 0.75rem;
+  }
+  
+  .section-icon {
+    width: 2rem;
+    height: 2rem;
   }
 }
 </style>

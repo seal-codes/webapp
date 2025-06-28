@@ -4,7 +4,8 @@
       <!-- Title -->
       <div class="hero-title">
         <h1>
-          <span class="gradient-text">Hackathon Showcase</span>
+          <gradient-text>seal.codes</gradient-text> 
+          <gradient-text>@ World's Largest Hackathon</gradient-text> 
         </h1>
         <p class="subtitle">
           Where ideas begin – How <strong>bolt.new</strong> took seal.codes from zero to production-ready
@@ -69,14 +70,7 @@
         <div class="error-message">{{ error }}</div>
       </div>
 
-      <!-- Call to Action -->
-      <div class="hero-cta" v-if="dnaData">
-        <p class="cta-text">
-          Explore the interactive analysis below to see how bolt.new helped found this project and
-          enabled rapid development across {{ dnaData.bolt_sessions.length }} focused sessions with consistent code quality.
-        </p>
-
-        <!-- Key Insights -->
+<!-- Key Insights -->
         <div class="insights-section">
           <h3 class="insights-title">Key Insights</h3>
           <div class="insights-grid">
@@ -146,7 +140,9 @@
           <span>Scroll to explore</span>
           <div class="scroll-arrow">↓</div>
         </div>
-      </div>
+
+      <!-- Call to Action -->
+      <div class="hero-cta" v-if="dnaData" />
     </div>
 
     <!-- Background Effects -->
@@ -162,6 +158,7 @@ import { ref, onMounted } from 'vue'
 import { hackathonAnalysisService, type ArchitecturalDNAData } from '../../services/hackathon-analysis-service'
 import AnimatedCounter from '../common/AnimatedCounter.vue'
 import { Zap, Brain, RotateCcw, Sparkles, Globe, TrendingUp } from 'lucide-vue-next'
+import GradientText from '../common/GradientText.vue'
 
 const dnaData = ref<ArchitecturalDNAData | null>(null)
 const loading = ref(true)
@@ -204,14 +201,6 @@ onMounted(async () => {
   font-weight: 700;
   margin-bottom: 1rem;
   line-height: 1.1;
-}
-
-.gradient-text {
-  background: linear-gradient(135deg, #00ff88 0%, #00d4ff 50%, #ff0080 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  animation: gradient-shift 3s ease-in-out infinite alternate;
 }
 
 @keyframes gradient-shift {
@@ -450,13 +439,6 @@ onMounted(async () => {
 .hero-cta {
   max-width: 600px;
   margin: 0 auto;
-}
-
-.cta-text {
-  font-size: 1.1rem;
-  color: #c9d1d9;
-  line-height: 1.6;
-  margin-bottom: 2rem;
 }
 
 .scroll-indicator {
