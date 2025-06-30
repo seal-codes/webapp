@@ -30,8 +30,8 @@
     "js-yaml": "4.1.0",
     "jsqr": "1.4.0",
     "lucide-vue-next": "^0.513.0",
-
     "pinia": "^2.1.7",
+    "posthog-js": "^1.255.1",
     "qrcode": "^1.5.3",
     "rxing-wasm": "0.3.6",
     "vue": "^3.5.17",
