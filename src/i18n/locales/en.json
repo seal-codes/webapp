@@ -293,7 +293,7 @@
         "title": "Result",
         "description": "Get confirmation whether the document <faq-link faq-ids='verification-failed,document-integrity'>matches the original</faq-link> sealed version."
       },
-      "privacy": "Privacy: <faq-link faq-ids='data-privacy,offline-verification'>Document verification happens entirely in your browser</faq-link>. Your files are never uploaded to our servers."
+      "privacy": "<faq-link faq-ids='data-privacy,offline-verification'>Document verification happens entirely in your browser</faq-link>. Your files are never uploaded to our servers."
     },
     "details": {
       "authentic": "This document is authentic",

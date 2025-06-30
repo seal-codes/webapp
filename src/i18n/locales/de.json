@@ -276,7 +276,7 @@
         "title": "Ergebnis",
         "description": "Erhalte eine Bestätigung, ob das Dokument mit der <faq-link faq-ids='verification-failed,document-integrity'>ursprünglich versiegelten Version übereinstimmt</faq-link>."
       },
-      "privacy": "Datenschutz: <faq-link faq-ids='data-privacy,offline-verification'>Die Dokumentverifizierung erfolgt vollständig in deinem Browser</faq-link>. Deine Dateien werden niemals auf unsere Server hochgeladen."
+      "privacy": "<faq-link faq-ids='data-privacy,offline-verification'>Die Dokumentverifizierung erfolgt vollständig in deinem Browser</faq-link>. Deine Dateien werden niemals auf unsere Server hochgeladen."
     },
     "details": {
       "authentic": "Dieses Dokument ist authentisch",
