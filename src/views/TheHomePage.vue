@@ -35,7 +35,10 @@ const startProcess = () => {
       />
       
       <!-- Process Steps -->
-      <div class="grid md:grid-cols-3 gap-8 mt-24">
+      <div
+        class="grid md:grid-cols-3 gap-8 mt-24"
+        @click="startProcess"
+      >
         <IconifiedStepDescription
           :icon="ImageUp"
           :title="t('home.steps.loadDocument.title')"
