@@ -927,45 +927,73 @@ export const useDocumentStore = defineStore('document', () => {
   const resetAfterSealing = () => {
     reset(true) // Reset but preserve sealed document data
   }
-  
+
   // Initialize store
   const initialize = async () => {
     console.log('🚀 Initializing document store...')
-    
+
     // Load initial values from localStorage
     loadFromLocalStorage()
-    
+
     // Debug: Check what's currently in localStorage
     console.log('🔍 Current localStorage state:')
-    console.log('  - seal-codes-document:', !!localStorage.getItem('seal-codes-document'))
-    console.log('  - seal-codes-qr-position:', localStorage.getItem('seal-codes-qr-position'))
-    console.log('  - seal-codes-qr-size:', localStorage.getItem('seal-codes-qr-size'))
-    console.log('  - seal-codes-oauth-state:', !!localStorage.getItem('seal-codes-oauth-state'))
-    console.log('  - seal-codes-step:', localStorage.getItem('seal-codes-step'))
+    console.log(
+      '  - seal-codes-document:',
+      !!localStorage.getItem('seal-codes-document'),
+    )
+    console.log(
+      '  - seal-codes-qr-position:',
+      localStorage.getItem('seal-codes-qr-position'),
+    )
+    console.log(
+      '  - seal-codes-qr-size:',
+      localStorage.getItem('seal-codes-qr-size'),
+    )
+    console.log(
+      '  - seal-codes-oauth-state:',
+      !!localStorage.getItem('seal-codes-oauth-state'),
+    )
+    console.log(
+      '  - seal-codes-step:',
+      localStorage.getItem('seal-codes-step'),
+    )
     console.log('🔍 Current step after loading:', currentStep.value)
     console.log('🔍 Has OAuth state:', !!persistedOAuthState.value)
     console.log('🔍 Auth store authenticated:', authStore.isAuthenticated)
-    
+
     try {
       // Try to restore document from localStorage on startup
       await restoreDocumentFromStorage()
-      
+
       // If we have a document and it was restored, update step accordingly
       if (hasDocument.value && currentStep.value === 'idle') {
         currentStep.value = 'document-loaded'
         console.log('📄 Document restored, step updated to document-loaded')
       }
-      
+
       // Check if we're in authenticating state and user is now authenticated
       // This handles the case where user returns from OAuth redirect
       if (currentStep.value === 'authenticating' && authStore.isAuthenticated) {
-        console.log('🎉 User is authenticated and we were in authenticating state - triggering post-auth flow')
+        console.log(
+          '🎉 User is authenticated and we were in authenticating state - triggering post-auth flow',
+        )
         await handlePostAuthFlow()
       }
-      
+
+      // Check if the user cancelled the auth flow, and came back
+      // to the application with the document still loaded.
+      // This makes sure that the buttons for the auth providers
+      // are enabled again.
+      if (
+        hasDocument.value &&
+        currentStep.value === 'authenticating' &&
+        !authStore.isAuthenticated
+      ) {
+        currentStep.value = 'document-loaded'
+      }
     } catch (error) {
       console.error('❌ Error during document store initialization:', error)
-      
+
       // Clear all persisted data if there's an initialization error
       console.log('🧹 Clearing all persisted data due to initialization error')
       persistedDocumentData.value = null
